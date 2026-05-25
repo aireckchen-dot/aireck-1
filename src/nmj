@@ -1,0 +1,329 @@
+html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPC状态栏</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- 原始数据区，$1注入 -->
+<script type="text/template" id="raw-data">$1</script>
+
+<style>
+:root {
+  --pk-d:#c4868e;--pk-m:#d4a0a7;--pk-l:#e8c4c8;--pk-p:#f2dce0;--pk-bg:#faf0f2;
+  --crm:#f7ece4;--tx-d:#5a4550;--tx-m:#7d6b73;--tx-l:#a8949c;
+  --gl-bg:rgba(244,220,224,0.35);--gl-bd:rgba(196,134,142,0.25);--gl-sh:rgba(196,134,142,0.15);
+  --glow:rgba(212,160,167,0.6);--cr:16px;--ts:0.4s cubic-bezier(.25,.46,.45,.94);
+}
+.sp-root{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;position:relative;max-width:820px;margin:15px auto;overflow:hidden}
+.sp-root *{box-sizing:border-box}
+
+/* 最外层折叠 */
+.sp-det{width:100%}
+.sp-sum{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 20px;background:linear-gradient(135deg,var(--pk-m),var(--pk-d));color:#fff;border-radius:14px;cursor:pointer;list-style:none;font-size:1.1em;font-weight:600;letter-spacing:1px;box-shadow:0 4px 20px var(--gl-sh);user-select:none;transition:var(--ts)}
+.sp-sum::-webkit-details-marker{display:none}
+.sp-sum:hover{box-shadow:0 6px 28px rgba(196,134,142,.35);transform:translateY(-1px)}
+.sp-sum .tg{transition:transform .3s ease;font-size:.8em}
+.sp-det[open] .sp-sum .tg{transform:rotate(180deg)}
+
+/* 粒子 */
+.sp-cv{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+
+/* 内容区 */
+.sp-wrap{position:relative;background:linear-gradient(170deg,var(--pk-bg),var(--crm),var(--pk-p));border-radius:0 0 20px 20px;padding:20px 15px;border:1px solid var(--gl-bd);border-top:none}
+
+/* 世界条 */
+.wb{position:relative;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;padding:12px 18px;background:var(--gl-bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:var(--cr);border:1px solid var(--gl-bd);margin-bottom:18px;z-index:2;overflow:hidden}
+.wb::before{content:'';position:absolute;top:-2px;left:-2px;right:-2px;bottom:-2px;background:linear-gradient(90deg,transparent,var(--glow),transparent,var(--glow),transparent);background-size:300% 100%;border-radius:calc(var(--cr)+2px);z-index:-1;animation:shm 4s linear infinite}
+@keyframes shm{0%{background-position:-300% 0}100%{background-position:300% 0}}
+.wt{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:rgba(255,255,255,.55);border-radius:20px;font-size:13px;color:var(--tx-d);white-space:nowrap;transition:var(--ts)}
+.wt:hover{background:rgba(255,255,255,.8);transform:scale(1.05)}
+.wt i{color:var(--pk-d);font-size:12px}
+
+/* 区域标题 */
+.st{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:700;color:var(--tx-d);margin:18px 0 12px;padding-left:4px}
+.st::before{content:'';width:4px;height:20px;background:linear-gradient(to bottom,var(--pk-d),var(--pk-l));border-radius:2px}
+.st .si{font-size:18px;color:var(--pk-d)}
+
+/* 属性行 */
+.ar{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(196,134,142,.1);font-size:13px;gap:10px}
+.ar:last-child{border-bottom:none}
+.al{color:var(--tx-l);flex-shrink:0;min-width:80px;font-weight:500}
+.av{color:var(--tx-d);text-align:right;word-break:break-word;line-height:1.5;white-space:pre-wrap}
+
+/* 折叠子面板 */
+.sd{margin-bottom:8px}
+.ss{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(255,255,255,.4);border-radius:12px;cursor:pointer;list-style:none;font-size:14px;font-weight:600;color:var(--tx-d);transition:var(--ts);user-select:none}
+.ss::-webkit-details-marker{display:none}
+.ss:hover{background:rgba(255,255,255,.65)}
+.ss .sa{margin-left:auto;transition:transform .3s ease;font-size:10px;color:var(--pk-d)}
+.sd[open] .ss .sa{transform:rotate(180deg)}
+.sd[open] .ss{background:rgba(255,255,255,.6);border-radius:12px 12px 0 0}
+.sc{background:rgba(255,255,255,.3);border-radius:0 0 12px 12px;padding:12px 14px;border:1px solid rgba(196,134,142,.08);border-top:none}
+
+/* 二级 */
+.ss2{font-size:13px!important;padding:8px 12px!important}
+.ss2 .s2i{color:var(--pk-m);font-size:12px}
+
+/* 角色面板 */
+.cd{margin-bottom:14px}
+.cs{display:flex;align-items:center;gap:14px;padding:10px 14px;background:var(--gl-bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--gl-bd);border-radius:var(--cr);cursor:pointer;list-style:none;transition:var(--ts);user-select:none;position:relative;overflow:hidden}
+.cs::-webkit-details-marker{display:none}
+.cs:hover{background:rgba(244,220,224,.5);box-shadow:0 4px 20px var(--gl-sh);transform:translateY(-1px)}
+.rp{position:absolute;border-radius:50%;background:rgba(212,160,167,.4);transform:scale(0);animation:rpa .6s ease-out;pointer-events:none}
+@keyframes rpa{to{transform:scale(4);opacity:0}}
+.cd[open] .cs{border-radius:var(--cr) var(--cr) 0 0;background:rgba(244,220,224,.55)}
+
+/* 圆头像 */
+.ca{width:60px;height:60px;border-radius:50%;border:2.5px solid var(--pk-l);flex-shrink:0;box-shadow:0 3px 12px var(--gl-sh);transition:transform .3s ease;background-size:cover;background-position:top center;background-repeat:no-repeat;background-color:var(--pk-p)}
+.cs:hover .ca{transform:scale(1.08)}
+
+/* 简要 */
+.cb{flex-grow:1;min-width:0}
+.cn{font-size:16px;font-weight:700;color:var(--tx-d)}
+.ct{display:inline-block;padding:2px 10px;background:linear-gradient(135deg,var(--pk-l),var(--pk-p));border-radius:10px;font-size:11px;color:var(--tx-m);margin-left:8px;vertical-align:middle}
+.cm{font-size:12px;color:var(--tx-l);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cw{flex-shrink:0;color:var(--pk-d);font-size:12px;transition:transform .3s ease}
+.cd[open] .cw{transform:rotate(180deg)}
+
+/* 详情区 */
+.cpb{background:rgba(255,255,255,.25);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--gl-bd);border-top:none;border-radius:0 0 var(--cr) var(--cr);padding:14px}
+
+/* 横幅 */
+.cbn{display:flex;gap:16px;margin-bottom:14px;align-items:stretch}
+.cpt{width:130px;min-height:190px;border-radius:12px;flex-shrink:0;box-shadow:0 4px 16px var(--gl-sh);border:1px solid var(--gl-bd);position:relative;overflow:hidden;background-size:cover;background-position:top center;background-repeat:no-repeat;background-color:var(--pk-p)}
+.cpt::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(transparent 60%,rgba(90,69,80,.25));pointer-events:none}
+.cov{flex-grow:1;display:flex;flex-direction:column;gap:6px}
+.con{font-size:18px;font-weight:700;color:var(--tx-d);padding-bottom:6px;border-bottom:1px dashed var(--pk-l)}
+.cot{font-size:12px;color:var(--tx-l);font-weight:400}
+.cop{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 12px}
+.copp{font-size:12px;color:var(--tx-m);display:flex;gap:4px}
+.copp .ol{color:var(--tx-l);flex-shrink:0}
+.copp .ov{color:var(--tx-d)}
+
+/* 底部 */
+.fd{text-align:center;margin-top:16px;font-size:12px;color:var(--tx-l);letter-spacing:3px}
+.fd .dl{display:inline-block;width:40px;height:1px;background:var(--pk-l);vertical-align:middle;margin:0 10px}
+
+@media(max-width:480px){
+  .sp-wrap{padding:14px 8px}
+  .wb{flex-direction:column;gap:6px;padding:10px 12px}
+  .cbn{flex-direction:column;align-items:center}
+  .cpt{width:100%;min-height:220px}
+  .cop{grid-template-columns:1fr}
+  .cs{padding:8px 10px;gap:10px}
+  .ca{width:50px;height:50px}
+}
+</style>
+
+<div class="sp-root" id="sp-root">
+  <canvas class="sp-cv" id="sp-cv"></canvas>
+  <details class="sp-det" open>
+    <summary class="sp-sum"><i class="fas fa-heart"></i><span>角色状态面板</span><span class="tg">▼</span></summary>
+    <div class="sp-wrap">
+      <div class="wb" id="wb"></div>
+      <div class="st"><i class="si fas fa-heart"></i>角色</div>
+      <div id="cl"></div>
+      <div class="fd"><span class="dl"></span>✿<span class="dl"></span></div>
+    </div>
+  </details>
+</div>
+
+<script>
+(function(){
+  /* ===== 角色头像映射（已替换为新角色） ===== */
+  var AVA={
+    '库库拉':'https://tupian.li/images/2026/05/25/6a144495ea09b.png',
+    '提耶拉':'https://tupian.li/images/2026/05/25/6a1444789d42b.png',
+    '糯米姬':'https://tupian.li/images/2026/05/25/6a144429988e2.png',
+    '艾拉诺尔':'https://tupian.li/images/2026/05/25/6a1443f155020.png',
+    '阿赖耶':'https://tupian.li/images/2026/05/25/6a1443f0ad7ca.png',
+    '初华':'https://tupian.li/images/2026/05/25/6a14449591cd2.png',
+    '艾拉·绒毛蹄':'https://tupian.li/images/2026/05/25/6a1443f0cefde.png',
+    '玛丽亚·阿斯特拉':'https://tupian.li/images/2026/05/25/6a14442dbc4da.png'
+  };
+
+  /* ===== 角色标签映射（已替换为新角色） ===== */
+  var TAG={
+    '库库拉':'魔族-魅魔',
+    '提耶拉':'龙族-黑龙',
+    '糯米姬':'天族-炽天使',
+    '艾拉诺尔':'精灵',
+    '阿赖耶':'血族',
+    '初华':'亚人-蛇人',
+    '艾拉·绒毛蹄':'亚人-绵羊人',
+    '玛丽亚·阿斯特拉':'人类-异能觉醒者'
+  };
+
+  var raw=(document.getElementById('raw-data')||{}).textContent||'';
+
+  /* 解析 [Tag|f1|f2|...] 行 */
+  function parseLine(text,tag){
+    var re=new RegExp('\\['+tag+'\\|([^\\]]*?)\\]');
+    var m=text.match(re);
+    if(!m) return [];
+    return m[1].split('|').map(function(s){return s.trim();});
+  }
+
+  /* 解析多个StatusBlock */
+  function parseBlocks(text){
+    var re=/<StatusBlock>([\s\S]*?)<\/StatusBlock>/g;
+    var res=[],m;
+    while((m=re.exec(text))!==null) res.push(m[1]);
+    return res;
+  }
+
+  function imgS(u){return u?"background-image:url('"+u+"');background-size:cover;background-position:top center;":'';}
+  function R(l,v){return '<div class="ar"><span class="al">'+l+'</span><span class="av">'+(v||'--')+'</span></div>';}
+
+  /* 世界信息 */
+  var wf=parseLine(raw,'World');
+  var wb=document.getElementById('wb');
+  if(wf.length>=5){
+    var wi=[
+      {i:'fa-calendar-alt',v:wf[0]},{i:'fa-star',v:wf[1]},{i:'fa-clock',v:wf[2]},
+      {i:'fa-map-marker-alt',v:wf[3]},{i:'fa-cloud-sun',v:wf[4]}
+    ];
+    wi.forEach(function(x){
+      var s=document.createElement('span');s.className='wt';
+      s.innerHTML='<i class="fas '+x.i+'"></i><span>'+x.v+'</span>';
+      wb.appendChild(s);
+    });
+  }else{wb.innerHTML='<span class="wt" style="font-style:italic;">暂无世界数据</span>';}
+
+  /* 构建角色面板 */
+  function buildPanel(block){
+    var bi=parseLine(block,'BasicInfo');    // 0姓名 1性别 2职业 3年龄 4身高 5体重 6任务
+    var ss=parseLine(block,'SocialStatus'); // 0技能 1身份 2特殊状态 3财务 4明面 5暗地
+    var it=parseLine(block,'InnerThoughts');// 0内心
+    var iv=parseLine(block,'Inventory');    // 0随身 1留存
+    var ap=parseLine(block,'Appearance');   // 0整体 1外衫 2内衬 3下身 4袜子 5鞋子 6配饰 7内裤
+    var bd=parseLine(block,'BodyDetails');  // 0发型 1面部 2唇口 3颈锁 4胸部 5腰腹 6臀部 7腿足 8手部 9阴部 10肛门 11契约
+    var ia=parseLine(block,'Interaction');  // 0动作 1气息 2环境
+
+    var name=bi[0]||'未知';
+    var url=AVA[name]||'';
+    var tag=TAG[name]||(bi[2]||'');
+    var mood=it[0]||'未知';
+    var pS=url?imgS(url):'background-color:var(--pk-p);';
+    var cS=url?imgS(url):'';
+
+    /* summary */
+    var sum='<summary class="cs">';
+    sum+='<div class="ca" style="'+cS+'"></div>';
+    sum+='<div class="cb">';
+    sum+='<span class="cn">'+name+'</span>';
+    if(tag) sum+='<span class="ct">'+tag+'</span>';
+    sum+='<div class="cm"><i class="fas fa-comment-dots" style="margin-right:4px;font-size:11px;color:var(--pk-m);"></i>'+mood+'</div>';
+    sum+='</div><span class="cw">▼</span></summary>';
+
+    /* body */
+    var h='<div class="cpb">';
+
+    /* 横幅 */
+    h+='<div class="cbn">';
+    h+='<div class="cpt" style="'+pS+'"></div>';
+    h+='<div class="cov">';
+    h+='<div class="con">'+name;
+    if(tag) h+=' <span class="cot">'+tag+'</span>';
+    h+='</div>';
+    h+='<div class="cop">';
+    var qf=[['性别',bi[1]],['年龄',bi[3]],['职业',bi[2]],['身高',bi[4]],['体重',bi[5]],['任务',bi[6]]];
+    qf.forEach(function(f){h+='<div class="copp"><span class="ol">'+f[0]+'</span><span class="ov">'+(f[1]||'--')+'</span></div>';});
+    h+='</div></div></div>';
+
+    /* 社会属性 */
+    h+='<details class="sd"><summary class="ss"><i class="fas fa-users" style="color:var(--pk-d)"></i>社会属性<span class="sa">▼</span></summary><div class="sc">';
+    h+=R('技能',ss[0])+R('身份',ss[1])+R('特殊状态',ss[2])+R('财务状态',ss[3])+R('明面声望',ss[4])+R('暗地声望',ss[5]);
+    h+='</div></details>';
+
+    /* 内心与物品 */
+    h+='<details class="sd"><summary class="ss"><i class="fas fa-box-open" style="color:var(--pk-d)"></i>内心与物品<span class="sa">▼</span></summary><div class="sc">';
+    h+=R('当前内心',it[0])+R('随身物品',iv[0])+R('全部拥有物品',iv[1]);
+    h+='</div></details>';
+
+    /* 外貌状态 */
+    h+='<details class="sd"><summary class="ss"><i class="fas fa-tshirt" style="color:var(--pk-d)"></i>外貌状态<span class="sa">▼</span></summary><div class="sc">';
+    h+=R('整体印象与姿态',ap[0]);
+    h+='<details class="sd" style="margin-top:8px;"><summary class="ss ss2"><i class="s2i fas fa-vest-patches"></i>衣着状态<span class="sa">▼</span></summary><div class="sc">';
+    h+=R('外衫',ap[1])+R('内衬',ap[2])+R('下身',ap[3])+R('袜子',ap[4])+R('鞋子',ap[5])+R('配饰',ap[6])+R('内裤',ap[7]);
+    h+='</div></details>';
+    h+='<details class="sd"><summary class="ss ss2"><i class="s2i fas fa-fingerprint"></i>身体细节<span class="sa">▼</span></summary><div class="sc">';
+    h+=R('发型与妆容',bd[0])+R('面部表情与眼神',bd[1])+R('唇与口部',bd[2])+R('颈项与锁骨',bd[3]);
+    h+=R('胸部状态',bd[4])+R('腰腹背部',bd[5])+R('臀部形态',bd[6])+R('腿部与足踝',bd[7]);
+    h+=R('手部',bd[8])+R('阴部状态',bd[9])+R('肛门状态',bd[10]);
+    h+='</div></details>';
+    h+=R('已签订契约',bd[11]);
+    h+='</div></details>';
+
+    /* 即时互动 */
+    h+='<details class="sd"><summary class="ss"><i class="fas fa-hand-sparkles" style="color:var(--pk-d)"></i>即时互动<span class="sa">▼</span></summary><div class="sc">';
+    h+=R('当前动作细节',ia[0])+R('气息体香',ia[1])+R('与环境互动',ia[2]);
+    h+='</div></details>';
+
+    h+='</div>';
+    return sum+h;
+  }
+
+  /* 渲染 */
+  var blocks=parseBlocks(raw);
+  var cl=document.getElementById('cl');
+  if(blocks.length>0){
+    blocks.forEach(function(b){
+      var bi=parseLine(b,'BasicInfo');
+      if(!bi[0]) return;
+      var d=document.createElement('details');
+      d.className='cd';
+      d.innerHTML=buildPanel(b);
+      var s=d.querySelector('.cs');
+      if(s) s.addEventListener('click',function(e){
+        var r=s.getBoundingClientRect();
+        var rp=document.createElement('span');rp.className='rp';
+        rp.style.left=(e.clientX-r.left)+'px';rp.style.top=(e.clientY-r.top)+'px';
+        rp.style.width=rp.style.height='40px';s.appendChild(rp);
+        setTimeout(function(){rp.remove();},600);
+      });
+      cl.appendChild(d);
+    });
+  }else{
+    /* 无数据时显示预注册角色 */
+    var names=Object.keys(AVA);
+    if(names.length>0){
+      names.forEach(function(n){
+        var u=AVA[n];var t=TAG[n]||'';
+        var d=document.createElement('details');d.className='cd';
+        var sm='<summary class="cs"><div class="ca" style="'+imgS(u)+'"></div><div class="cb"><span class="cn">'+n+'</span>';
+        if(t) sm+='<span class="ct">'+t+'</span>';
+        sm+='<div class="cm" style="font-style:italic;"><i class="fas fa-hourglass-half" style="margin-right:4px;font-size:11px;color:var(--pk-m);"></i>等待出场中…</div></div><span class="cw">▼</span></summary>';
+        var bd='<div class="cpb"><div class="cbn"><div class="cpt" style="'+imgS(u)+'"></div><div class="cov"><div class="con">'+n;
+        if(t) bd+=' <span class="cot">'+t+'</span>';
+        bd+='</div><p style="font-size:13px;color:var(--tx-l);margin-top:10px;">角色尚未在剧情中出场，出场后此处将自动填充完整信息。</p></div></div></div>';
+        d.innerHTML=sm+bd;
+        var s2=d.querySelector('.cs');
+        if(s2) s2.addEventListener('click',function(e){
+          var r=s2.getBoundingClientRect();var rp=document.createElement('span');rp.className='rp';
+          rp.style.left=(e.clientX-r.left)+'px';rp.style.top=(e.clientY-r.top)+'px';
+          rp.style.width=rp.style.height='40px';s2.appendChild(rp);
+          setTimeout(function(){rp.remove();},600);
+        });
+        cl.appendChild(d);
+      });
+    }else{cl.innerHTML='<p style="text-align:center;color:var(--tx-l);font-size:13px;padding:20px 0;">暂无角色数据</p>';}
+  }
+
+  /* 樱花粒子 */
+  var cv=document.getElementById('sp-cv');var ctx=cv.getContext('2d');var pts=[];var PC=25;
+  function rsz(){var rt=document.getElementById('sp-root');if(rt){cv.width=rt.offsetWidth;cv.height=rt.offsetHeight;}}rsz();
+  function Pt(){this.x=Math.random()*cv.width;this.y=Math.random()*cv.height-cv.height;this.sz=4+Math.random()*6;this.sy=.3+Math.random()*.6;this.sx=-.2+Math.random()*.4;this.rot=Math.random()*360;this.rs=(Math.random()-.5)*2;this.op=.3+Math.random()*.4;this.cl=['#c4868e','#d4a0a7','#e8c4c8','#f2dce0'][Math.floor(Math.random()*4)];}
+  for(var i=0;i<PC;i++){var p=new Pt();p.y=Math.random()*cv.height;pts.push(p);}
+  function dP(p){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.globalAlpha=p.op;ctx.fillStyle=p.cl;ctx.beginPath();ctx.ellipse(0,0,p.sz,p.sz*.6,0,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(p.sz*.15,0,p.sz*.7,p.sz*.35,.2,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.25)';ctx.fill();ctx.restore();}
+  function aP(){ctx.clearRect(0,0,cv.width,cv.height);pts.forEach(function(p){p.y+=p.sy;p.x+=p.sx+Math.sin(p.y*.01)*.3;p.rot+=p.rs;if(p.y>cv.height+20){p.y=-20;p.x=Math.random()*cv.width;}dP(p);});requestAnimationFrame(aP);}aP();
+  new ResizeObserver(rsz).observe(document.getElementById('sp-root'));
+})();
+</script>
+</body>
+</html>
