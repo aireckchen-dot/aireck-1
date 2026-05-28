@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>灵触周期表</title>
+</head>
+<body>
+<style>
+/* ================================================================
+   ROOT SCOPE
+   ================================================================ */
+.spec-root {
+  --deep: #06060f;
+  --mid: #0e0d22;
+  --surface: rgba(14, 13, 34, 0.7);
+  --gold: #c9a84c;
+  --gold-dim: rgba(201, 168, 76, 0.35);
+  --gold-glow: rgba(201, 168, 76, 0.6);
+  --cyan: #52cfe6;
+  --cyan-dim: rgba(82, 207, 230, 0.25);
+  --violet: #9b6dff;
+  --violet-dim: rgba(155, 109, 255, 0.2);
+  --rose: #d9658a;
+  --c-matter: #3ec9bb;
+  --c-emotion: #d76b94;
+  --c-dominion: #a478f5;
+  --c-survival: #e09a4a;
+  --c-unknown: #7a819c;
+  --glass: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.08);
+  --text: #e2dff0;
+  --text-dim: rgba(226,223,240,0.45);
+  --radius: 16px;
+  --radius-sm: 8px;
+  --radius-xs: 4px;
+  --font-cn: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+  --font-en: "Cinzel", "Cormorant Garamond", "Times New Roman", serif;
+
+  font-family: var(--font-cn);
+  color: var(--text);
+  width: 100%;
+  max-width: 960px;
+  margin: 20px auto;
+  background: var(--deep);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(201,168,76,0.15);
+  box-shadow:
+    0 0 80px rgba(155,109,255,0.08),
+    0 0 160px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  animation: specRootIn 1s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ============ KEYFRAMES ============ */
+@keyframes specRootIn {
+  from { opacity:0; transform: translateY(50px) scale(0.97); filter: blur(12px); }
+  to { opacity:1; transform: none; filter: none; }
+}
+@keyframes specPulse {
+  0%,100% { opacity:0.3; }
+  50% { opacity:1; }
+}
+@keyframes specOrbit {
+  to { transform: rotate(360deg); }
+}
+@keyframes specShimmer {
+  to { background-position: 200% center; }
+}
+@keyframes specGlow {
+  0%,100% { text-shadow: 0 0 6px currentColor; }
+  50% { text-shadow: 0 0 14px currentColor, 0 0 28px currentColor; }
+}
+@keyframes specSlideDown {
+  from { opacity:0; max-height:0; transform: translateY(-8px); }
+  to { opacity:1; max-height: 2000px; transform: none; }
+}
+@keyframes specCardIn {
+  from { opacity:0; transform: perspective(800px) rotateX(-12deg) translateY(20px); }
+  to { opacity:1; transform: none; }
+}
+@keyframes specBarGrow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@keyframes specFloat {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes specParticleBurst {
+  0% { transform: translate(0,0) scale(1); opacity:1; }
+  100% { transform: translate(var(--dx),var(--dy)) scale(0); opacity:0; }
+}
+@keyframes specScanline {
+  from { top: -2px; }
+  to { top: 100%; }
+}
+@keyframes specRingPulse {
+  0% { transform: scale(0.95); opacity:0.15; }
+  50% { transform: scale(1.05); opacity:0.25; }
+  100% { transform: scale(0.95); opacity:0.15; }
+}
+
+/* ============ BACKGROUND LAYER ============ */
+.spec-root .bg-layer {
+  position: absolute; inset:0; pointer-events:none; z-index:0; overflow:hidden;
+}
+.spec-root .bg-gradient {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 10%, rgba(155,109,255,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 90%, rgba(82,207,230,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(201,168,76,0.03) 0%, transparent 70%);
+}
+.spec-root .bg-star {
+  position:absolute; width:1.5px; height:1.5px; background:#fff; border-radius:50%;
+  animation: specPulse 3s ease-in-out infinite;
+  box-shadow: 0 0 4px rgba(255,255,255,0.8);
+}
+.spec-root .bg-orbit-ring {
+  position:absolute; top:50%; left:50%; border-radius:50%;
+  border: 1px solid rgba(201,168,76,0.07);
+  animation: specOrbit 100s linear infinite;
+  pointer-events:none;
+}
+.spec-root .bg-orbit-ring.r1 { width:500px; height:500px; margin:-250px 0 0 -250px; }
+.spec-root .bg-orbit-ring.r2 { width:700px; height:700px; margin:-350px 0 0 -350px; animation-direction:reverse; animation-duration:140s; border-color: rgba(155,109,255,0.05); }
+.spec-root .bg-orbit-ring.r3 { width:900px; height:900px; margin:-450px 0 0 -450px; animation-duration:180s; border-color: rgba(82,207,230,0.04); }
+.spec-root .bg-orbit-dot {
+  position:absolute; top:-3px; left:50%; width:6px; height:6px; border-radius:50%;
+  background: var(--gold); box-shadow: 0 0 10px var(--gold-glow);
+}
+.spec-root .bg-orbit-ring.r2 .bg-orbit-dot { background: var(--violet); box-shadow: 0 0 10px var(--violet); }
+.spec-root .bg-scanline {
+  position:absolute; left:0; right:0; height:1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.06), transparent);
+  animation: specScanline 12s linear infinite;
+}
+
+/* ============ HEADER ============ */
+.spec-root .hdr {
+  position:relative; z-index:2;
+  padding: 36px 40px 24px;
+  text-align:center;
+}
+.spec-root .hdr-ornament-top {
+  display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:18px;
+}
+.spec-root .hdr-ornament-top .line {
+  height:1px; width:60px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+}
+.spec-root .hdr-ornament-top .diamond {
+  width:5px; height:5px; background: var(--gold); transform:rotate(45deg);
+  box-shadow: 0 0 8px var(--gold-glow);
+}
+.spec-root .hdr-ornament-top .dot {
+  width:3px; height:3px; background: var(--gold-dim); border-radius:50%;
+}
+.spec-root .hdr-eng {
+  font-family: var(--font-en); font-size:0.7em; letter-spacing:0.6em;
+  color: var(--text-dim); margin-bottom:6px; font-weight:400;
+}
+.spec-root .hdr-title {
+  font-size: 2.4em; font-weight:300; letter-spacing:0.5em; margin:0;
+  background: linear-gradient(90deg, transparent 5%, var(--gold) 30%, #fff 50%, var(--gold) 70%, transparent 95%);
+  background-size: 200% 100%;
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  animation: specShimmer 5s linear infinite;
+  line-height:1.3;
+}
+.spec-root .hdr-sub {
+  font-size:0.78em; color: var(--text-dim); letter-spacing:0.3em; margin-top:10px;
+}
+.spec-root .hdr-sub span { color: var(--gold); font-weight:500; }
+.spec-root .hdr-divider {
+  margin-top:20px; height:1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), rgba(155,109,255,0.15), var(--gold-dim), transparent);
+}
+
+/* ============ TOOLBAR ============ */
+.spec-root .toolbar {
+  position:relative; z-index:2;
+  display:flex; flex-wrap:wrap; gap:8px;
+  padding: 16px 40px;
+  align-items:center;
+  background: var(--glass);
+  border-bottom: 1px solid var(--glass-border);
+}
+.spec-root .tbtn {
+  padding: 5px 14px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  color: rgba(255,255,255,0.5);
+  cursor:pointer;
+  font-size:0.8em; letter-spacing:0.15em;
+  font-family: var(--font-cn);
+  transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+  position:relative; overflow:hidden;
+}
+.spec-root .tbtn::before {
+  content:""; position:absolute; inset:0; border-radius:20px;
+  background: linear-gradient(135deg, var(--gold-dim), var(--violet-dim));
+  opacity:0; transition: opacity 0.35s;
+}
+.spec-root .tbtn:hover { border-color: var(--gold); color:#fff; transform: translateY(-1px); }
+.spec-root .tbtn:hover::before { opacity:1; }
+.spec-root .tbtn.on {
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 12px var(--gold-dim), inset 0 0 12px rgba(201,168,76,0.08);
+}
+.spec-root .tbtn.on::before { opacity:1; }
+.spec-root .tbtn span { position:relative; z-index:1; }
+.spec-root .t-search {
+  flex:1; min-width:120px;
+  padding: 6px 16px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  color: #fff;
+  font-size:0.8em; font-family: var(--font-cn);
+  transition: all 0.3s;
+}
+.spec-root .t-search:focus {
+  outline:none; border-color: var(--cyan);
+  box-shadow: 0 0 12px var(--cyan-dim);
+}
+.spec-root .t-search::placeholder { color: rgba(255,255,255,0.25); }
+.spec-root .t-add {
+  padding: 6px 18px;
+  background: linear-gradient(135deg, var(--violet), var(--cyan));
+  border:none; border-radius:20px;
+  color:#fff; cursor:pointer;
+  font-size:0.8em; letter-spacing:0.15em;
+  font-family: var(--font-cn);
+  transition: all 0.25s;
+  box-shadow: 0 2px 12px rgba(155,109,255,0.3);
+  position:relative; overflow:hidden;
+}
+.spec-root .t-add:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(155,109,255,0.45); }
+.spec-root .t-add::after {
+  content:""; position:absolute; top:0; left:-100%; width:100%; height:100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: left 0.5s;
+}
+.spec-root .t-add:hover::after { left:100%; }
+
+/* ============ CHART SECTION ============ */
+.spec-root .chart-wrap {
+  position:relative; z-index:2;
+  margin: 0 40px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  overflow:hidden;
+}
+.spec-root .chart-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 12px 20px;
+  cursor:pointer;
+  transition: background 0.3s;
+  list-style:none;
+}
+.spec-root .chart-header::-webkit-details-marker { display:none; }
+.spec-root .chart-header:hover { background: rgba(255,255,255,0.02); }
+.spec-root .chart-label {
+  font-size:0.85em; letter-spacing:0.2em; color: var(--gold);
+}
+.spec-root .chart-arrow {
+  font-size:0.7em; color: var(--text-dim);
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.spec-root details[open] > .chart-header .chart-arrow { transform: rotate(180deg); }
+.spec-root .chart-body {
+  display:flex; justify-content:space-around; align-items:flex-end;
+  height:120px; padding: 8px 20px 16px; gap:12px;
+}
+.spec-root .chart-col {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; gap:4px; height:100%; justify-content:flex-end;
+}
+.spec-root .chart-bar-wrap {
+  width:100%; max-width:44px; position:relative; height: var(--bh);
+  transform-origin: bottom; animation: specBarGrow 1.2s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+.spec-root .chart-bar {
+  width:100%; height:100%;
+  background: linear-gradient(180deg, var(--bc), rgba(0,0,0,0));
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 0 14px var(--bc);
+  position:relative;
+  transition: filter 0.3s;
+}
+.spec-root .chart-bar-wrap:hover .chart-bar { filter: brightness(1.4); }
+.spec-root .chart-bar::after {
+  content: attr(data-n); position:absolute; top:-18px; left:50%; transform:translateX(-50%);
+  font-size:0.75em; color: var(--bc); font-weight:600;
+  text-shadow: 0 0 6px var(--bc);
+}
+.spec-root .chart-bar-label {
+  font-size:0.7em; color: var(--text-dim); letter-spacing:0.1em;
+}
+
+/* ============ TIER SECTIONS (COLLAPSIBLE) ============ */
+.spec-root .tier-section {
+  position:relative; z-index:2;
+  margin: 14px 40px 0;
+}
+.spec-root .tier-toggle {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 14px 20px;
+  cursor:pointer;
+  list-style:none;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  transition: all 0.35s;
+  position:relative; overflow:hidden;
+}
+.spec-root .tier-toggle::-webkit-details-marker { display:none; }
+.spec-root .tier-toggle::before {
+  content:""; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background: var(--tier-accent, var(--gold));
+  box-shadow: 0 0 8px var(--tier-accent, var(--gold-glow));
+  transition: width 0.3s;
+}
+.spec-root .tier-toggle:hover { background: rgba(255,255,255,0.04); }
+.spec-root .tier-toggle:hover::before { width:4px; }
+.spec-root details.tier-section[open] > .tier-toggle {
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-bottom-color: transparent;
+}
+.spec-root .tier-info { display:flex; align-items:center; gap:14px; }
+.spec-root .tier-num {
+  font-family: var(--font-en); font-size:0.65em; letter-spacing:0.3em;
+  color: var(--tier-accent, var(--gold)); opacity:0.7;
+  min-width: 70px;
+}
+.spec-root .tier-name {
+  font-size:0.95em; letter-spacing:0.15em; color: var(--text);
+}
+.spec-root .tier-right { display:flex; align-items:center; gap:12px; }
+.spec-root .tier-count {
+  font-size:0.7em; color: var(--text-dim);
+  padding: 2px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  background: rgba(0,0,0,0.2);
+}
+.spec-root .tier-arrow {
+  font-size:0.65em; color: var(--text-dim);
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.spec-root details.tier-section[open] > .tier-toggle .tier-arrow { transform: rotate(180deg); }
+
+.spec-root .tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+  padding: 18px 20px 20px;
+  background: rgba(0,0,0,0.15);
+  border: 1px solid var(--glass-border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  animation: specSlideDown 0.5s ease forwards;
+}
+
+/* ============ CARDS ============ */
+.spec-root .card {
+  perspective: 900px;
+  height: 220px;
+  cursor:pointer;
+  animation: specCardIn 0.5s ease backwards;
+}
+.spec-root .card-inner {
+  position:relative; width:100%; height:100%;
+  transition: transform 0.65s cubic-bezier(0.4,0.2,0.2,1);
+  transform-style: preserve-3d;
+}
+.spec-root .card.flip .card-inner { transform: rotateY(180deg); }
+
+.spec-root .card-face {
+  position:absolute; inset:0;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+  border-radius: var(--radius-sm);
+  display:flex; flex-direction:column;
+  border: 1px solid var(--cc);
+  background: linear-gradient(160deg, rgba(14,13,34,0.92), rgba(6,6,15,0.96));
+  overflow:hidden;
+  transition: box-shadow 0.35s, border-color 0.35s;
+}
+/* 顶部流光线条 */
+.spec-root .card-face .card-shine {
+  position:absolute; top:0; left:0; right:0; height:2px;
+  background: linear-gradient(90deg, transparent, var(--cc), transparent);
+  background-size: 200% 100%;
+  animation: specShimmer 4s linear infinite;
+}
+/* 底角装饰圆弧 */
+.spec-root .card-face .card-arc {
+  position:absolute; bottom:-30px; right:-30px;
+  width:80px; height:80px; border-radius:50%;
+  border: 1px solid var(--cc); opacity:0.08;
+  animation: specRingPulse 6s ease-in-out infinite;
+}
+/* 编号角标横线 */
+.spec-root .card-face .card-corner-line {
+  position:absolute; top:16px; left:16px; right:60%; height:1px;
+  background: linear-gradient(90deg, var(--cc), transparent);
+  opacity:0.3;
+}
+
+.spec-root .card-content {
+  padding: 18px 20px;
+  display:flex; flex-direction:column;
+  height:100%; position:relative; z-index:1;
+}
+.spec-root .card-tag {
+  position:absolute; top:14px; right:16px;
+  font-family: var(--font-en); font-size:0.55em; letter-spacing:0.25em;
+  color: var(--cc); opacity:0.5;
+}
+.spec-root .card-seq {
+  font-family: var(--font-en); font-size:0.6em; letter-spacing:0.35em;
+  color: rgba(255,255,255,0.3); margin-bottom:2px;
+}
+.spec-root .card-num {
+  font-family: var(--font-en); font-size:2.6em; font-weight:700;
+  color: var(--cc); line-height:1;
+  text-shadow: 0 0 10px var(--cc);
+  animation: specGlow 5s ease-in-out infinite;
+}
+.spec-root .card-name {
+  font-size:1.3em; color:#fff; letter-spacing:0.2em;
+  margin-top:auto; font-weight:400;
+}
+.spec-root .card-domain-tag {
+  font-size:0.7em; color: var(--cc); letter-spacing:0.15em;
+  margin-top:8px; padding: 3px 10px;
+  align-self:flex-start;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  background: rgba(0,0,0,0.3);
+}
+
+/* 卡片背面 */
+.spec-root .card-back { transform: rotateY(180deg); }
+.spec-root .card-back .card-content { justify-content: flex-start; }
+.spec-root .card-back-hd {
+  display:flex; align-items:baseline; gap:10px;
+  padding-bottom:8px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom:8px;
+}
+.spec-root .card-back-id {
+  font-family: var(--font-en); font-size:0.7em; color: var(--cc); letter-spacing:0.2em;
+}
+.spec-root .card-back-nm {
+  font-size:1em; color:#fff; letter-spacing:0.15em;
+}
+.spec-root .card-back-desc {
+  font-size:0.82em; line-height:1.75; color: rgba(226,223,240,0.85);
+  flex:1; overflow-y:auto; white-space:pre-wrap;
+  scrollbar-width:thin; scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.spec-root .card-back-desc::-webkit-scrollbar { width:3px; }
+.spec-root .card-back-desc::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius:2px; }
+.spec-root .card-btns {
+  display:flex; gap:8px; margin-top:8px; flex-shrink:0;
+}
+.spec-root .card-btn {
+  flex:1; padding:5px 0;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-xs);
+  color: var(--cc); font-size:0.72em; letter-spacing:0.15em;
+  cursor:pointer; font-family: var(--font-cn);
+  transition: all 0.25s;
+}
+.spec-root .card-btn:hover {
+  background: var(--cc); color:#000;
+  box-shadow: 0 0 10px var(--cc);
+}
+
+/* 悬停效果 */
+.spec-root .card:hover .card-face:not(.card-back) {
+  box-shadow: 0 0 24px var(--cc), 0 8px 32px rgba(0,0,0,0.4);
+  border-color: var(--cc);
+}
+.spec-root .card.unv .card-face { border-style:dashed; opacity:0.8; }
+
+/* ============ FORM SECTION ============ */
+.spec-root .form-section {
+  position:relative; z-index:2;
+  margin: 14px 40px 0;
+}
+.spec-root .form-toggle {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 12px 20px;
+  cursor:pointer; list-style:none;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  transition: all 0.3s;
+}
+.spec-root .form-toggle::-webkit-details-marker { display:none; }
+.spec-root .form-toggle:hover { background: rgba(155,109,255,0.06); }
+.spec-root details.form-section[open] > .form-toggle {
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-bottom-color: transparent;
+  background: rgba(155,109,255,0.06);
+}
+.spec-root .form-toggle-label {
+  font-size:0.88em; letter-spacing:0.2em; color: var(--violet);
+}
+.spec-root .form-toggle-arrow {
+  font-size:0.65em; color: var(--text-dim);
+  transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+.spec-root details.form-section[open] > .form-toggle .form-toggle-arrow { transform: rotate(180deg); }
+
+.spec-root .form-body {
+  padding: 20px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--glass-border);
+  border-top:none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  animation: specSlideDown 0.4s ease;
+}
+.spec-root .f-row { display:flex; flex-direction:column; gap:5px; }
+.spec-root .f-row.fw { grid-column: 1 / -1; }
+.spec-root .f-row label {
+  font-size:0.72em; color: var(--text-dim); letter-spacing:0.12em;
+}
+.spec-root .f-row input,
+.spec-root .f-row select,
+.spec-root .f-row textarea {
+  padding: 8px 14px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-xs);
+  color:#fff;
+  font-family: var(--font-cn); font-size:0.88em;
+  transition: all 0.3s;
+}
+.spec-root .f-row input:focus,
+.spec-root .f-row select:focus,
+.spec-root .f-row textarea:focus {
+  outline:none; border-color: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-dim);
+}
+.spec-root .f-row textarea { min-height:60px; resize:vertical; }
+.spec-root .f-submit {
+  grid-column: 1 / -1;
+  padding: 10px;
+  background: linear-gradient(135deg, var(--gold), #a07830);
+  border:none; border-radius: var(--radius-xs);
+  color: #0a0a15; font-weight:600; letter-spacing:0.3em;
+  cursor:pointer; font-family: var(--font-cn);
+  transition: all 0.25s;
+  box-shadow: 0 2px 12px var(--gold-dim);
+}
+.spec-root .f-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--gold-glow);
+}
+
+/* ============ EMPTY & STATUS ============ */
+.spec-root .spec-msg {
+  text-align:center; padding:30px; color: var(--text-dim);
+  font-size:0.88em; letter-spacing:0.2em;
+}
+.spec-root .spec-msg.ld::after { content:"..."; animation: specPulse 1s infinite; }
+
+/* ============ TOAST ============ */
+.spec-root-toast {
+  position:fixed; top:28px; right:28px; z-index:10000;
+  padding: 10px 24px;
+  background: rgba(6,6,15,0.95);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-xs);
+  color: var(--gold); font-size:0.85em; letter-spacing:0.15em;
+  font-family: "Noto Serif SC", serif;
+  box-shadow: 0 4px 30px rgba(201,168,76,0.3);
+  animation: specRootIn 0.4s ease;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+/* ============ PARTICLES ============ */
+.spec-root-ptc {
+  position:fixed; width:3px; height:3px; border-radius:50%;
+  pointer-events:none; z-index:9999;
+  animation: specParticleBurst 0.7s ease-out forwards;
+}
+
+/* ============ DIAG ============ */
+.spec-root .diag-section {
+  position:relative; z-index:2;
+  margin: 14px 40px 22px;
+}
+.spec-root .diag-toggle {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 10px 20px;
+  cursor:pointer; list-style:none;
+  background: rgba(255,60,60,0.04);
+  border: 1px solid rgba(255,60,60,0.12);
+  border-radius: var(--radius-sm);
+  font-size:0.8em; color: rgba(255,120,120,0.7);
+  transition: all 0.3s;
+}
+.spec-root .diag-toggle::-webkit-details-marker { display:none; }
+.spec-root details.diag-section[open] > .diag-toggle {
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0; border-bottom-color:transparent;
+}
+.spec-root .diag-body {
+  padding: 14px 20px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,60,60,0.12);
+  border-top:none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  font-size:0.78em; color:#aaa;
+}
+.spec-root .diag-body pre {
+  background: rgba(0,0,0,0.5); padding:10px;
+  border-radius: var(--radius-xs);
+  max-height:160px; overflow:auto;
+  white-space:pre-wrap; word-break:break-all;
+  font-size:0.9em; color:#999; margin:8px 0;
+}
+.spec-root .diag-btn {
+  padding:5px 12px; background:rgba(255,60,60,0.1);
+  border:1px solid rgba(255,60,60,0.25); border-radius: var(--radius-xs);
+  color: rgba(255,120,120,0.8); cursor:pointer;
+  font-size:0.85em; font-family:var(--font-cn); margin:3px;
+  transition: all 0.3s;
+}
+.spec-root .diag-btn:hover { background:rgba(255,60,60,0.25); }
+
+/* ============ FOOTER ============ */
+.spec-root .ftr {
+  position:relative; z-index:2;
+  padding: 16px 40px 20px;
+  text-align:center;
+}
+.spec-root .ftr-line {
+  height:1px; margin-bottom:12px;
+  background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+}
+.spec-root .ftr-text {
+  font-size:0.65em; color: var(--text-dim); letter-spacing:0.3em;
+  font-family: var(--font-en);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:640px) {
+  .spec-root .hdr { padding: 24px 20px 18px; }
+  .spec-root .hdr-title { font-size: 1.6em; letter-spacing:0.25em; }
+  .spec-root .toolbar { padding:12px 20px; }
+  .spec-root .chart-wrap { margin: 0 20px; }
+  .spec-root .tier-section { margin-left:20px; margin-right:20px; }
+  .spec-root .form-section { margin-left:20px; margin-right:20px; }
+  .spec-root .diag-section { margin-left:20px; margin-right:20px; }
+  .spec-root .ftr { padding: 14px 20px 18px; }
+  .spec-root .tier-grid { grid-template-columns: 1fr; padding: 14px; }
+  .spec-root .form-body { grid-template-columns: 1fr; }
+  .spec-root .card { height: 200px; }
+  .spec-root .chart-body { height:100px; }
+}
+</style>
+
+<div class="spec-root" id="specRoot">
+  <!-- 背景层 -->
+  <div class="bg-layer" id="specBg">
+    <div class="bg-gradient"></div>
+    <div class="bg-scanline"></div>
+    <div class="bg-orbit-ring r1"><div class="bg-orbit-dot"></div></div>
+    <div class="bg-orbit-ring r2"><div class="bg-orbit-dot"></div></div>
+    <div class="bg-orbit-ring r3"></div>
+  </div>
+
+  <!-- 头部 -->
+  <div class="hdr">
+    <div class="hdr-ornament-top">
+      <div class="dot"></div><div class="line"></div><div class="diamond"></div><div class="line"></div><div class="dot"></div>
+    </div>
+    <div class="hdr-eng">SPIRIT-TOUCH PERIODIC TABLE</div>
+    <h1 class="hdr-title">灵触周期表</h1>
+    <div class="hdr-sub">已验证 <span id="specVerCount">--</span> / 理论推导上限 241</div>
+    <div class="hdr-divider"></div>
+  </div>
+
+  <!-- 工具栏 -->
+  <div class="toolbar">
+    <button class="tbtn on" data-d="all"><span>全域</span></button>
+    <button class="tbtn" data-d="物质域"><span>物质</span></button>
+    <button class="tbtn" data-d="情感域"><span>情感</span></button>
+    <button class="tbtn" data-d="支配域"><span>支配</span></button>
+    <button class="tbtn" data-d="生存域"><span>生存</span></button>
+    <button class="tbtn" data-d="未知"><span>未知</span></button>
+    <input type="text" class="t-search" id="specSrch" placeholder="序号 / 名称 / 能力关键字...">
+    <button class="t-add" id="specAddBtn"><span>+ 录入</span></button>
+  </div>
+
+  <!-- 分布图表 -->
+  <details class="chart-wrap" id="specChartWrap" open>
+    <summary class="chart-header">
+      <div class="chart-label">域分布概览</div>
+      <div class="chart-arrow">&#9660;</div>
+    </summary>
+    <div class="chart-body" id="specChart"></div>
+  </details>
+
+  <!-- 卡片区域（将由JS动态生成tier-section） -->
+  <div id="specTiers"></div>
+
+  <!-- 录入表单 -->
+  <details class="form-section" id="specFormSec">
+    <summary class="form-toggle">
+      <div class="form-toggle-label">新灵触录入</div>
+      <div class="form-toggle-arrow">&#9660;</div>
+    </summary>
+    <form class="form-body" id="specForm">
+      <div class="f-row">
+        <label>序号</label>
+        <input type="number" id="fId" required min="1" max="241">
+      </div>
+      <div class="f-row">
+        <label>归属</label>
+        <select id="fDom" required>
+          <option value="物质域">物质域</option>
+          <option value="情感域">情感域</option>
+          <option value="支配域">支配域</option>
+          <option value="生存域">生存域</option>
+          <option value="未知">未知</option>
+        </select>
+      </div>
+      <div class="f-row">
+        <label>名称</label>
+        <input type="text" id="fNm" required maxlength="20">
+      </div>
+      <div class="f-row">
+        <label>验证状态</label>
+        <select id="fVer">
+          <option value="true">在册记录</option>
+          <option value="false">理论推导</option>
+        </select>
+      </div>
+      <div class="f-row fw">
+        <label>具体能力</label>
+        <textarea id="fAbi" required></textarea>
+      </div>
+      <button type="submit" class="f-submit">写入灵殿档案</button>
+    </form>
+  </details>
+
+  <!-- 诊断面板 -->
+  <details class="diag-section" id="specDiag">
+    <summary class="diag-toggle">
+      <span>连接诊断</span>
+      <span>&#9660;</span>
+    </summary>
+    <div class="diag-body">
+      <p>世界书: <code id="dWb">--</code> | UID: <code id="dUid">--</code> | triggerSlash: <code id="dTs">--</code></p>
+      <div>
+        <button class="diag-btn" id="dRead">测试读取</button>
+        <button class="diag-btn" id="dWrite">测试写入</button>
+        <button class="diag-btn" id="dClear">清除日志</button>
+      </div>
+      <pre id="dLog">等待操作...</pre>
+    </div>
+  </details>
+
+  <!-- 底部 -->
+  <div class="ftr">
+    <div class="ftr-line"></div>
+    <div class="ftr-text">ARCHIVED BY THE SPIRIT SANCTUM</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  /* ========== CONFIG ========== */
+  var WB = '{思牵今夜肠应直，雨冷香魂吊书客}';
+  var UID = 6;
+  /* ============================ */
+
+  var root = document.getElementById('specRoot');
+  if (!root || root.dataset.si === '1') return;
+  root.dataset.si = '1';
+
+  var DC = {
+    '\u7269\u8d28\u57df':'#3ec9bb', '\u60c5\u611f\u57df':'#d76b94',
+    '\u652f\u914d\u57df':'#a478f5', '\u751f\u5b58\u57df':'#e09a4a', '\u672a\u77e5':'#7a819c'
+  };
+  var TIERS = [
+    { key:'t1', from:1, to:10, label:'\u524d\u5341\u5e8f\u5217', sub:'\u8fd1\u6cd5\u5219\u7ea7', accent:'#c9a84c' },
+    { key:'t2', from:11, to:30, label:'\u5341\u81f3\u4e09\u5341\u5e8f\u5217', sub:'\u5927\u8303\u56f4\u5e72\u6d89\u7ea7', accent:'#a478f5' },
+    { key:'t3', from:31, to:70, label:'\u4e09\u5341\u81f3\u4e03\u5341\u5e8f\u5217', sub:'\u5e38\u89c4\u4e2d\u575a\u7ea7', accent:'#3ec9bb' },
+    { key:'t4', from:71, to:105, label:'\u4e03\u5341\u81f3\u4e00\u3007\u4e94\u5e8f\u5217', sub:'\u57fa\u7840\u4e0e\u7279\u5316\u7ea7', accent:'#e09a4a' },
+    { key:'t5', from:106, to:999, label:'\u7406\u8bba\u63a8\u5bfc\u5e8f\u5217', sub:'\u672a\u8bc1\u5b9e', accent:'#7a819c' }
+  ];
+
+  var data = [];
+  var fDom = 'all';
+  var fQ = '';
+
+  /* ========== UTILS ========== */
+  function dlog(m) {
+    var el = document.getElementById('dLog');
+    if (el) { var t = new Date().toLocaleTimeString(); el.textContent = '['+t+'] '+m+'\n'+el.textContent; }
+  }
+  function toast(m, c) {
+    var t = document.createElement('div');
+    t.className = 'spec-root-toast';
+    t.textContent = m;
+    if (c) { t.style.borderColor = c; t.style.color = c; }
+    document.body.appendChild(t);
+    setTimeout(function(){ t.style.opacity='0'; t.style.transition='opacity 0.4s'; }, 2000);
+    setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 2600);
+  }
+  function particles(x, y, c) {
+    for (var i=0; i<10; i++) {
+      var p = document.createElement('div');
+      p.className = 'spec-root-ptc';
+      p.style.left = x+'px'; p.style.top = y+'px';
+      if (c) p.style.background = c;
+      var a = Math.PI*2*i/10, d = 30+Math.random()*25;
+      p.style.setProperty('--dx', Math.cos(a)*d+'px');
+      p.style.setProperty('--dy', Math.sin(a)*d+'px');
+      document.body.appendChild(p);
+      (function(el){ setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); },700); })(p);
+    }
+  }
+  function esc(s) { var d=document.createElement('div'); d.appendChild(document.createTextNode(String(s))); return d.innerHTML; }
+  function pad3(n) { var s=String(n); while(s.length<3) s='0'+s; return s; }
+
+  /* ========== STARS ========== */
+  function initStars() {
+    var bg = document.getElementById('specBg');
+    for (var i=0; i<70; i++) {
+      var s = document.createElement('div');
+      s.className = 'bg-star';
+      s.style.left = Math.random()*100+'%';
+      s.style.top = Math.random()*100+'%';
+      s.style.animationDelay = Math.random()*4+'s';
+      s.style.animationDuration = (2+Math.random()*5)+'s';
+      var sz = 0.8+Math.random()*1.5;
+      s.style.width = sz+'px'; s.style.height = sz+'px';
+      bg.appendChild(s);
+    }
+  }
+
+  /* ========== DATA IO ========== */
+  function sanitize(r) {
+    if (typeof r !== 'string') r = String(r||'');
+    r = r.replace(/^\uFEFF/,'').replace(/<[^>]*>/g,'');
+    r = r.replace(/\u201c/g,'"').replace(/\u201d/g,'"').replace(/\u2018/g,"'").replace(/\u2019/g,"'");
+    return r.trim();
+  }
+  function extractArr(raw) {
+    raw = sanitize(raw);
+    try { var d=JSON.parse(raw); if(Array.isArray(d)) return d; } catch(e){}
+    var a=raw.indexOf('['), b=raw.lastIndexOf(']');
+    if (a!==-1 && b>a) { try { var d2=JSON.parse(raw.substring(a,b+1)); if(Array.isArray(d2)) return d2; } catch(e2){} }
+    var lines=raw.split('\n');
+    for (var i=0;i<lines.length;i++) { var l=lines[i].trim(); if(l.charAt(0)==='[') { try { var d3=JSON.parse(l); if(Array.isArray(d3)) return d3; } catch(e3){} } }
+    return null;
+  }
+
+  async function loadData() {
+    dlog('Reading wb="'+WB+'" uid='+UID);
+    if (typeof triggerSlash !== 'function') { dlog('triggerSlash not found'); return []; }
+    var cmd = '/getentryfield file="'+WB+'" field=content '+UID;
+    try {
+      var raw = await triggerSlash(cmd);
+      dlog('Raw len='+(raw?raw.length:0));
+      if (!raw || String(raw).trim().length===0) { dlog('Empty return'); return []; }
+      var arr = extractArr(String(raw));
+      if (arr && arr.length>0) { dlog('Parsed '+arr.length+' entries'); return arr; }
+      dlog('Parse failed. Raw: '+String(raw).substring(0,300));
+      return [];
+    } catch(e) { dlog('Read error: '+e.message); return []; }
+  }
+
+  async function saveData(arr) {
+    if (typeof triggerSlash !== 'function') return false;
+    var json = JSON.stringify(arr);
+    var cmd = '/setentryfield file="'+WB+'" uid='+UID+' field=content '+json;
+    try {
+      await triggerSlash(cmd);
+      var vr = await triggerSlash('/getentryfield file="'+WB+'" field=content '+UID);
+      var va = extractArr(String(vr));
+      if (va && va.length === arr.length) { dlog('Write verified: '+va.length); return true; }
+      dlog('Write verify mismatch'); return false;
+    } catch(e) { dlog('Write error: '+e.message); return false; }
+  }
+
+  /* ========== RENDER CHART ========== */
+  function renderChart() {
+    var ch = document.getElementById('specChart');
+    if (!ch) return;
+    var doms = ['\u7269\u8d28\u57df','\u60c5\u611f\u57df','\u652f\u914d\u57df','\u751f\u5b58\u57df'];
+    var labels = ['\u7269\u8d28','\u60c5\u611f','\u652f\u914d','\u751f\u5b58'];
+    var counts = doms.map(function(d){ return data.filter(function(x){ return x.domain===d; }).length; });
+    var mx = Math.max.apply(null, counts.concat([1]));
+    ch.innerHTML = '';
+    doms.forEach(function(d,i){
+      var col = document.createElement('div');
+      col.className = 'chart-col';
+      var pct = Math.round(counts[i]/mx*100)+'%';
+      col.innerHTML =
+        '<div class="chart-bar-wrap" style="--bh:'+pct+';">'+
+          '<div class="chart-bar" style="--bc:'+DC[d]+';" data-n="'+counts[i]+'"></div>'+
+        '</div>'+
+        '<div class="chart-bar-label">'+labels[i]+'</div>';
+      ch.appendChild(col);
+    });
+  }
+
+  /* ========== RENDER TIERS ========== */
+  function renderTiers() {
+    var container = document.getElementById('specTiers');
+    if (!container) return;
+    container.innerHTML = '';
+
+    var list = data.slice().sort(function(a,b){ return a.id - b.id; });
+    if (fDom !== 'all') list = list.filter(function(x){ return x.domain === fDom; });
+    if (fQ) { var q=fQ.toLowerCase(); list = list.filter(function(x){
+      return String(x.id).indexOf(q)!==-1 || x.name.toLowerCase().indexOf(q)!==-1 || x.ability.toLowerCase().indexOf(q)!==-1;
+    }); }
+
+    // 更新已验证计数
+    var vc = data.filter(function(x){ return x.verified; }).length;
+    var vcEl = document.getElementById('specVerCount');
+    if (vcEl) vcEl.textContent = String(vc);
+
+    if (list.length === 0) {
+      container.innerHTML = '<div class="spec-msg">暂无符合条件的灵触记录</div>';
+      return;
+    }
+
+    TIERS.forEach(function(tier) {
+      var items = list.filter(function(x){ return x.id >= tier.from && x.id <= tier.to; });
+      if (items.length === 0) return;
+
+      var det = document.createElement('details');
+      det.className = 'tier-section';
+      det.open = true;
+
+      var sum = document.createElement('summary');
+      sum.className = 'tier-toggle';
+      sum.style.setProperty('--tier-accent', tier.accent);
+      sum.innerHTML =
+        '<div class="tier-info">'+
+          '<div class="tier-num">No.'+pad3(tier.from)+' - '+pad3(tier.to)+'</div>'+
+          '<div class="tier-name">'+esc(tier.label)+' <span style="opacity:0.4;font-size:0.85em;margin-left:4px;">'+esc(tier.sub)+'</span></div>'+
+        '</div>'+
+        '<div class="tier-right">'+
+          '<div class="tier-count">'+items.length+'</div>'+
+          '<div class="tier-arrow">&#9660;</div>'+
+        '</div>';
+      det.appendChild(sum);
+
+      var grid = document.createElement('div');
+      grid.className = 'tier-grid';
+
+      items.forEach(function(item, idx) {
+        var card = document.createElement('div');
+        card.className = 'card' + (item.verified ? '' : ' unv');
+        card.style.setProperty('--cc', DC[item.domain] || DC['\u672a\u77e5']);
+        card.style.animationDelay = (idx * 0.06)+'s';
+
+        var ids = pad3(item.id);
+        card.innerHTML =
+          '<div class="card-inner">'+
+            '<div class="card-face">'+
+              '<div class="card-shine"></div><div class="card-arc"></div><div class="card-corner-line"></div>'+
+              '<div class="card-content">'+
+                '<div class="card-tag">'+(item.verified?'VERIFIED':'THEORY')+'</div>'+
+                '<div class="card-seq">No.</div>'+
+                '<div class="card-num">'+ids+'</div>'+
+                '<div class="card-name">'+esc(item.name)+'</div>'+
+                '<div class="card-domain-tag">'+esc(item.domain)+'</div>'+
+              '</div>'+
+            '</div>'+
+            '<div class="card-face card-back">'+
+              '<div class="card-shine"></div><div class="card-arc"></div>'+
+              '<div class="card-content">'+
+                '<div class="card-back-hd">'+
+                  '<div class="card-back-id">No.'+ids+'</div>'+
+                  '<div class="card-back-nm">'+esc(item.name)+'</div>'+
+                '</div>'+
+                '<div class="card-back-desc">'+esc(item.ability)+'</div>'+
+                '<div class="card-btns">'+
+                  '<button class="card-btn" data-a="back">返回</button>'+
+                  '<button class="card-btn" data-a="del" data-did="'+item.id+'">删除</button>'+
+                '</div>'+
+              '</div>'+
+            '</div>'+
+          '</div>';
+
+        card.addEventListener('click', function(e) {
+          var tgt = e.target;
+          if (tgt.classList.contains('card-btn')) {
+            e.stopPropagation();
+            var act = tgt.getAttribute('data-a');
+            if (act==='back') { card.classList.remove('flip'); }
+            else if (act==='del') {
+              var did = parseInt(tgt.getAttribute('data-did'),10);
+              if (confirm('\u786e\u8ba4\u79fb\u9664 No.'+ids+' '+item.name+'\uff1f')) {
+                data = data.filter(function(x){ return x.id!==did; });
+                saveData(data).then(function(ok){ if(ok){ toast('\u5df2\u79fb\u9664',DC[item.domain]); renderChart(); renderTiers(); } });
+              }
+            }
+            return;
+          }
+          if (!card.classList.contains('flip')) {
+            var r = card.getBoundingClientRect();
+            particles(r.left+r.width/2, r.top+r.height/2, DC[item.domain]);
+          }
+          card.classList.toggle('flip');
+        });
+
+        grid.appendChild(card);
+      });
+
+      det.appendChild(grid);
+      container.appendChild(det);
+    });
+  }
+
+  /* ========== EVENTS ========== */
+  function bind() {
+    var btns = root.querySelectorAll('.tbtn');
+    for (var i=0; i<btns.length; i++) {
+      btns[i].addEventListener('click', function(){
+        for (var j=0;j<btns.length;j++) btns[j].classList.remove('on');
+        this.classList.add('on');
+        fDom = this.getAttribute('data-d');
+        renderTiers();
+      });
+    }
+
+    var srch = document.getElementById('specSrch');
+    if (srch) srch.addEventListener('input', function(){ fQ=this.value.trim(); renderTiers(); });
+
+    var addBtn = document.getElementById('specAddBtn');
+    if (addBtn) addBtn.addEventListener('click', function(){
+      var sec = document.getElementById('specFormSec');
+      if (sec) { sec.open=!sec.open; if(sec.open) sec.scrollIntoView({behavior:'smooth',block:'center'}); }
+    });
+
+    var form = document.getElementById('specForm');
+    if (form) form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      var id=parseInt(document.getElementById('fId').value,10);
+      var dom=document.getElementById('fDom').value;
+      var nm=document.getElementById('fNm').value.trim();
+      var abi=document.getElementById('fAbi').value.trim();
+      var ver=document.getElementById('fVer').value==='true';
+      if (!id||!nm||!abi) { toast('\u5b57\u6bb5\u4e0d\u5b8c\u6574','#ff7777'); return; }
+      if (data.some(function(x){return x.id===id;})) {
+        if (!confirm('No.'+id+' \u5df2\u5b58\u5728\uff0c\u8986\u76d6\uff1f')) return;
+        data = data.filter(function(x){return x.id!==id;});
+      }
+      data.push({id:id,domain:dom,name:nm,ability:abi,verified:ver});
+      var ok = await saveData(data);
+      if (ok) { toast('\u5df2\u5199\u5165\u6863\u6848',DC[dom]); form.reset(); document.getElementById('specFormSec').open=false; renderChart(); renderTiers(); }
+      else { toast('\u5199\u5165\u5931\u8d25','#ff7777'); }
+    });
+
+    // diagnostics
+    var dw=document.getElementById('dWb'), du=document.getElementById('dUid'), dt=document.getElementById('dTs');
+    if(dw) dw.textContent=WB; if(du) du.textContent=String(UID);
+    if(dt) dt.textContent=(typeof triggerSlash==='function')?'\u53ef\u7528':'\u4e0d\u53ef\u7528';
+
+    var drb=document.getElementById('dRead');
+    if(drb) drb.addEventListener('click', async function(){
+      dlog('--- Manual Read Test ---');
+      if(typeof triggerSlash!=='function'){dlog('No triggerSlash');return;}
+      try{
+        var r=await triggerSlash('/getentryfield file="'+WB+'" field=content '+UID);
+        dlog('Return: '+String(r));
+        var a=extractArr(String(r));
+        dlog(a?'OK: '+a.length+' items':'Parse failed');
+      }catch(e){dlog('Err: '+e.message);}
+    });
+    var dwb=document.getElementById('dWrite');
+    if(dwb) dwb.addEventListener('click', async function(){
+      dlog('--- Manual Write Test ---');
+      if(typeof triggerSlash!=='function'){dlog('No triggerSlash');return;}
+      var td='[{"id":999,"domain":"\u672a\u77e5","name":"\u6d4b\u8bd5","ability":"\u8bca\u65ad\u6d4b\u8bd5","verified":false}]';
+      try{
+        await triggerSlash('/setentryfield file="'+WB+'" uid='+UID+' field=content '+td);
+        var r=await triggerSlash('/getentryfield file="'+WB+'" field=content '+UID);
+        var a=extractArr(String(r));
+        dlog(a&&a.length===1&&a[0].id===999?'Write OK!':'Write verify failed');
+        if(a&&a[0]&&a[0].id===999) toast('R/W OK','#3ec9bb');
+      }catch(e){dlog('Err: '+e.message);}
+    });
+    var dcb=document.getElementById('dClear');
+    if(dcb) dcb.addEventListener('click',function(){ var el=document.getElementById('dLog'); if(el) el.textContent='Cleared.'; });
+  }
+
+  /* ========== INIT ========== */
+  async function init() {
+    initStars();
+    bind();
+    data = await loadData();
+    if (data.length===0) {
+      document.getElementById('specTiers').innerHTML='<div class="spec-msg">\u672a\u8bfb\u53d6\u5230\u6570\u636e\uff0c\u8bf7\u5c55\u5f00\u8bca\u65ad\u9762\u677f</div>';
+      toast('\u6570\u636e\u52a0\u8f7d\u5931\u8d25','#ff7777');
+    } else {
+      renderChart();
+      renderTiers();
+      toast('\u5df2\u8f7d\u5165 '+data.length+' \u6761\u7075\u89e6','#c9a84c');
+    }
+  }
+
+  init();
+})();
+</script>
+
+</body>
+</html>
