@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>方舟 · 第四隔离区</title>
-    <!-- 引入字体 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;600;700;900&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
     <style>
         /* ===== 全局重置 ===== */
@@ -218,10 +217,10 @@
         .notice--warn { background: rgba(255,170,51,0.06); border-left: 3px solid rgba(255,170,51,0.6); margin-bottom: 8px; }
         .notice--info { background: rgba(0,180,255,0.06); border-left: 3px solid rgba(0,180,255,0.5); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
-        /* ===== 立绘画廊 ===== */
+        /* ===== 立绘画廊 - 增强描述 ===== */
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 14px;
             padding: 16px 18px;
         }
@@ -238,7 +237,7 @@
             transform: translateY(-4px);
             box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(0, 180, 255, 0.1);
         }
-        @keyframes portrait-in { from{ opacity:0; transform:translateY(20px) scale(0.97); } to{ opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes portrait-in { from{ opacity:0; transform:translateY(20px) scale(0.97); } to{ opacity:1; transform:translateY(0); } }
         .portrait-btn {
             display: block; width: 100%; border: none; background: transparent;
             cursor: pointer; padding: 0; text-align: inherit; color: inherit;
@@ -266,19 +265,21 @@
             color: #88ccff; margin-top: 2px;
         }
 
-        /* ===== 角色简介列表 ===== */
+        /* ===== 角色简介列表 - 增强描述 ===== */
         .info-list { padding: 4px 0; }
         .info-row {
-            display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
-            padding: 11px 18px; border-bottom: 1px solid rgba(0, 120, 200, 0.06);
+            display: flex; flex-direction: column; gap: 4px;
+            padding: 14px 18px; border-bottom: 1px solid rgba(0, 120, 200, 0.06);
             transition: background 0.25s, padding-left 0.25s;
         }
         .info-row:last-child { border-bottom: none; }
         .info-row:hover { background: rgba(0, 180, 255, 0.02); padding-left: 22px; }
         .info-label {
-            font-size: 12px; font-weight: 600; color: #00aaff; white-space: nowrap; flex-shrink: 0;
+            font-size: 13px; font-weight: 600; color: #00aaff;
         }
-        .info-value { font-size: 13px; font-weight: 500; color: #c8d6e5; text-align: right; line-height: 1.55; }
+        .info-value {
+            font-size: 12px; font-weight: 400; color: #b0c4d8; line-height: 1.65;
+        }
 
         /* ===== 开场白网格 ===== */
         .opening-grid {
@@ -370,7 +371,7 @@
         }
         @media (max-width: 600px) {
             .content { padding: 0 14px 14px; }
-            .gallery { grid-template-columns: 1fr; padding: 12px 14px; }
+            .gallery { grid-template-columns: 1fr; }
             .opening-grid { grid-template-columns: 1fr; }
             .page-wrap { margin: 0; border-radius: 0; border: none; }
             .hero-title { font-size: 34px; letter-spacing: 0.22em; }
@@ -381,15 +382,11 @@
 </head>
 <body>
     <div class="page-wrap" id="app">
-        <!-- 顶部流光条 -->
         <div class="top-bar"></div>
 
-        <!-- 粒子层 -->
         <div class="particle-layer" aria-hidden="true">
-            <!-- 动态生成粒子由JS填充 -->
-        </div>
+            </div>
 
-        <!-- 光晕层 -->
         <div class="orb-layer" aria-hidden="true">
             <div class="orb orb-1"></div>
             <div class="orb orb-2"></div>
@@ -398,7 +395,6 @@
         </div>
 
         <div class="content">
-            <!-- 版权声明 -->
             <div class="card anim-card" style="--cd:0.05s;">
                 <div class="card-head"><span class="dot dot--warn"></span> 版权声明</div>
                 <div class="card-body">
@@ -409,7 +405,6 @@
                 </div>
             </div>
 
-            <!-- 转载声明 -->
             <div class="card anim-card" style="--cd:0.12s;">
                 <div class="card-head"><span class="dot dot--warn"></span> 转载声明</div>
                 <div class="card-body">
@@ -424,7 +419,6 @@
                 </div>
             </div>
 
-            <!-- 标题区 -->
             <div class="hero">
                 <div class="hero-emblem">🛸</div>
                 <div class="hero-badge"><span class="badge-dot"></span> 第四隔离区 · 方舟</div>
@@ -433,37 +427,29 @@
                 <div class="hero-divider"><span class="divider-diamond">◆</span></div>
             </div>
 
-            <!-- 角色画廊 -->
             <div class="card anim-card" style="--cd:0.26s;">
                 <div class="card-head"><span class="dot dot--cyan"></span> 登场人物</div>
                 <div class="gallery" id="characterGallery">
-                    <!-- 由JS动态渲染 -->
-                </div>
+                    </div>
             </div>
 
-            <!-- 角色简介 -->
             <div class="card anim-card" style="--cd:0.34s;">
                 <div class="card-head"><span class="dot dot--blue"></span> 人物志</div>
                 <div class="info-list" id="infoList">
-                    <!-- 由JS动态渲染 -->
-                </div>
+                    </div>
             </div>
 
-            <!-- 开场白选择 -->
             <div class="card anim-card" style="--cd:0.42s;">
                 <div class="card-head"><span class="dot dot--cyan"></span> 开启故事</div>
                 <div class="opening-grid" id="openingGrid">
-                    <!-- 由JS动态渲染 -->
-                </div>
+                    </div>
             </div>
 
-            <!-- 管理面板 - 提供扩展接口 -->
             <div class="manage-panel">
                 <button class="manage-btn" onclick="addCharacter()">+ 添加新角色</button>
                 <button class="manage-btn" onclick="addOpening()">+ 添加新开场白</button>
             </div>
 
-            <!-- 底部 -->
             <footer class="page-footer">
                 <p class="footer-main">残响之下，欲望如潮</p>
                 <p class="footer-sub">方舟 · 第四隔离区 · 灵殿纪元</p>
@@ -472,18 +458,62 @@
     </div>
 
     <script>
-        // ===== 数据定义 - 可扩展 =====
-        // 角色数据
+        // ===== 数据定义 - 角色详细数据 =====
         let characters = [
-            { name: '顾绵', desc: '相依为命的妹妹', img: 'https://i.postimg.cc/HW54W7hY/NAI-1779954964109.png', tag: '平民' },
-            { name: '沈令仪', desc: '前灵殿十二席·无冕', img: 'https://i.postimg.cc/6QmgKG1k/NAI-1779959895021.png', tag: '支配域·共振阶' },
-            { name: '云棠', desc: '同小队的队友', img: 'https://i.postimg.cc/pTkvKd0K/NAI-1779970871105.png', tag: '情感域·统御阶' },
-            { name: '裴璟', desc: '灵殿十二席·不染', img: 'https://i.postimg.cc/02pNN7mV/NAI-1779958503739.png', tag: '物质域·同化阶' },
-            { name: '赫兰', desc: '骑士团团长', img: 'https://i.postimg.cc/LsZPNnww/wei-xin-tu-pian-20260528220514-811-49.jpg', tag: '特化型构造体' },
-            { name: '糯糯', desc: '生存类实体·游离阶', img: 'https://i.postimg.cc/jqX2hxw0/NAI-1779955962110.png', tag: '契约伙伴' },
-            { name: '碎珀', desc: '物质类实体·汇聚阶', img: 'https://i.postimg.cc/j28YWdxL/NAI-1779958844644.png', tag: '灵殿代号' },
-            { name: '绮梦', desc: '情感类实体·汇聚阶', img: 'https://i.postimg.cc/KjtgFwxf/NAI-1779958621344.png', tag: '灵殿代号' },
-            { name: '丝萝', desc: '支配类实体·汇聚阶', img: 'https://i.postimg.cc/SQ1PzPLd/NAI-1779958979374.png', tag: '灵殿代号' },
+            {
+                name: '顾绵',
+                desc: '你的亲生妹妹，小名绵绵。十七岁，第四隔离区方舟的普通居民。性格活泼依赖哥哥，对你有着极强的情感依赖。日常喜欢黏在你身边，撒娇时会把脸埋在你胳膊里。很怕孤独，晚上需要你哄着才能入睡。',
+                img: 'https://i.postimg.cc/HW54W7hY/NAI-1779954964109.png',
+                tag: '平民 · 妹妹'
+            },
+            {
+                name: '沈令仪',
+                desc: '二十七岁，你的隔壁邻居。曾为灵殿十二席之一，封号"无冕"，阶别达支配域·同化阶。后因严重受污染而隐退至方舟，阶别跌落至共振阶。受污染影响会产生强烈的性欲冲动，需要你的灵力或体液压制。外表成熟优雅，说话带点慵懒的调子。',
+                img: 'https://i.postimg.cc/6QmgKG1k/NAI-1779959895021.png',
+                tag: '前灵殿十二席 · 无冕'
+            },
+            {
+                name: '云棠',
+                desc: '二十一岁，与你同属一支冒险者小队。对外公开身份为触源阶灵媒者，实际阶别为情感域·统御阶。性格开朗随和，战斗时却异常伶俐。喜欢和你待在一起，偶尔会以"队友间的默契"为由靠得很近。对你有着极强的关注和守护欲。',
+                img: 'https://i.postimg.cc/pTkvKd0K/NAI-1779970871105.png',
+                tag: '同队队友 · 冒险者'
+            },
+            {
+                name: '裴璟',
+                desc: '二十六岁，灵殿十二席之一，封号"不染"。物质域·同化阶灵媒者。外表端庄冷厉，说话直白不拐弯。曾是沈令仪的同期搭档，对她的隐退颇有微词。性格实际傲娇，嘴上不饶人但行动很可靠。执行任务时极其专注，私底下却有些生活不能自理的笨拙。',
+                img: 'https://i.postimg.cc/02pNN7mV/NAI-1779958503739.png',
+                tag: '灵殿十二席 · 不染'
+            },
+            {
+                name: '赫兰',
+                desc: '外表年龄约二十七岁，你所属区域骑士团团长。特化型构造体(进攻型)，战力对标汇聚阶灵媒者。军纪严明但包容心强，对下属既严厉又照顾。作为构造体，身体部分为精密机械结构，意识通过云端控制。说话简洁干脆，行动力极强。',
+                img: 'https://i.postimg.cc/LsZPNnww/wei-xin-tu-pian-20260528220514-811-49.jpg',
+                tag: '骑士团团长 · 构造体'
+            },
+            {
+                name: '糯糯',
+                desc: '生存类实体，游离阶。本体为奶白色毛绒球体，可化为成熟女性体型。与你通过交合温和化后成为第一个契约伙伴。智力较低，像只大型宠物，对你的体液有强烈依赖。喜欢蹭你、撒娇，饿了会发出糯糯的叫声。性格温顺单纯。',
+                img: 'https://i.postimg.cc/jqX2hxw0/NAI-1779955962110.png',
+                tag: '契约实体 · 游离阶'
+            },
+            {
+                name: '碎珀',
+                desc: '物质类实体，汇聚阶。灵殿代号"碎珀"。外表看起来像十四、五岁的少女，实际盘踞在方舟底层仓储区。性格傲娇暴躁，喜欢嘲讽人，但对特定对象会表现出意外的依赖。能操控范围内所有无生命物体，能力范围约为一个足球场大小。',
+                img: 'https://i.postimg.cc/j28YWdxL/NAI-1779958844644.png',
+                tag: '实体 · 汇聚阶'
+            },
+            {
+                name: '绮梦',
+                desc: '情感类实体，汇聚阶。灵殿代号"绮梦"。外表二十岁出头，游走于方舟娱乐区。自称"姐姐"，喜欢用肢体接触和感知污染来编织梦境，以此控制人类。说话语气亲昵得让人起鸡皮疙瘩，但本质上只是遵循本能的捕食者。',
+                img: 'https://i.postimg.cc/KjtgFwxf/NAI-1779958621344.png',
+                tag: '实体 · 汇聚阶'
+            },
+            {
+                name: '丝萝',
+                desc: '支配类实体，汇聚阶。灵殿代号"丝萝"。外表十六、七岁的病娇少女。能强制覆写低阶生命体的身体控制权。极度害怕孤独，追求极致的"陪伴"，曾因此将一整支巡逻队变成自己的人偶。说话语速很慢，带着甜甜的尾音。',
+                img: 'https://i.postimg.cc/SQ1PzPLd/NAI-1779958979374.png',
+                tag: '实体 · 汇聚阶'
+            },
         ];
 
         // 开场白数据
@@ -522,12 +552,12 @@
                 div.innerHTML = `
                     <button type="button" class="portrait-btn" aria-label="${ch.name}立绘">
                         <div class="portrait-viewport">
-                            <img class="portrait-img" src="${ch.img}" alt="${ch.name}立绘" loading="lazy" referrerpolicy="no-referrer">
+                            <img class="portrait-img" src="${ch.img}" alt="${ch.name}立绘" loading="lazy" referrerpolicy="no-referrer" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%230a0e14%22 width=%22200%22 height=%22200%22/%3E%3Ctext fill=%22%234a6a8a%22 font-size=%2214%22 x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dominant-baseline=%22central%22%3E%24{ch.name}%3C/text%3E%3C/svg%3E'">
                         </div>
                     </button>
                     <div class="portrait-info">
                         <strong class="portrait-name">${ch.name}</strong>
-                        <span>${ch.desc}</span>
+                        <span>${ch.desc.length > 60 ? ch.desc.substring(0, 60) + '...' : ch.desc}</span>
                         <span class="portrait-tag">${ch.tag || ''}</span>
                     </div>
                 `;
@@ -593,7 +623,7 @@
         function addCharacter() {
             const name = prompt('请输入角色姓名：');
             if (!name) return;
-            const desc = prompt('请输入角色简介：');
+            const desc = prompt('请输入角色详细简介：');
             const img = prompt('请输入角色立绘链接：');
             const tag = prompt('请输入角色标签（如身份/阶别）：');
             characters.push({
