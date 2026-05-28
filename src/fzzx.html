@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"></head>
+<body>
+<style>
+.pr-root{--deep:#06060f;--gold:#c9a84c;--gold-d:rgba(201,168,76,.3);--gold-g:rgba(201,168,76,.55);--cyan:#52cfe6;--cyan-d:rgba(82,207,230,.2);--violet:#9b6dff;--violet-d:rgba(155,109,255,.2);--c-mat:#3ec9bb;--c-emo:#d76b94;--c-dom:#a478f5;--c-sur:#e09a4a;--c-unk:#7a819c;--glass:rgba(255,255,255,.025);--gb:rgba(255,255,255,.07);--txt:#e2dff0;--txt-d:rgba(226,223,240,.4);--r:14px;--rs:8px;--rx:4px;--fc:"Noto Serif SC","Songti SC",serif;--fe:"Cinzel","Cormorant Garamond",serif;font-family:var(--fc);color:var(--txt);width:100%;max-width:920px;margin:20px auto;background:var(--deep);border-radius:var(--r);position:relative;overflow:hidden;border:1px solid rgba(201,168,76,.15);box-shadow:0 0 80px rgba(155,109,255,.08),inset 0 0 80px rgba(0,0,0,.5);animation:prIn 1s cubic-bezier(.22,1,.36,1)}
+@keyframes prIn{from{opacity:0;transform:translateY(40px)scale(.97);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+@keyframes prPulse{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes prOrbit{to{transform:rotate(360deg)}}
+@keyframes prShimmer{to{background-position:200% center}}
+@keyframes prGlow{0%,100%{text-shadow:0 0 6px currentColor}50%{text-shadow:0 0 14px currentColor,0 0 28px currentColor}}
+@keyframes prSlide{from{opacity:0;max-height:0;transform:translateY(-6px)}to{opacity:1;max-height:6000px;transform:none}}
+@keyframes prScan{from{top:-2px}to{top:100%}}
+@keyframes prPop{0%{transform:scale(.85);opacity:0}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+.pr-root .pr-bg{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.pr-root .pr-bg-grad{position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 20% 10%,rgba(155,109,255,.05)0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 90%,rgba(82,207,230,.04)0%,transparent 50%)}
+.pr-root .pr-star{position:absolute;width:1.5px;height:1.5px;background:#fff;border-radius:50%;animation:prPulse 3s ease-in-out infinite;box-shadow:0 0 4px rgba(255,255,255,.7)}
+.pr-root .pr-orb{position:absolute;top:50%;left:50%;border-radius:50%;border:1px dashed rgba(201,168,76,.06);animation:prOrbit 100s linear infinite;pointer-events:none}
+.pr-root .pr-orb.o1{width:500px;height:500px;margin:-250px 0 0 -250px}.pr-root .pr-orb.o2{width:720px;height:720px;margin:-360px 0 0 -360px;animation-direction:reverse;animation-duration:140s;border-color:rgba(155,109,255,.05)}
+.pr-root .pr-scan{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.05),transparent);animation:prScan 14s linear infinite}
+.pr-root .pr-hdr{position:relative;z-index:2;padding:32px 36px 22px;text-align:center}
+.pr-root .pr-hdr-orn{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px}
+.pr-root .pr-hdr-orn .ln{height:1px;width:55px;background:linear-gradient(90deg,transparent,var(--gold-d),transparent)}
+.pr-root .pr-hdr-orn .dm{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);box-shadow:0 0 8px var(--gold-g);display:inline-block}
+.pr-root .pr-hdr-orn .dt{width:3px;height:3px;background:var(--gold-d);border-radius:50%;display:inline-block}
+.pr-root .pr-hdr-en{font-family:var(--fe);font-size:.68em;letter-spacing:.55em;color:var(--txt-d);margin-bottom:6px}
+.pr-root .pr-hdr h1{font-size:2.2em;font-weight:300;letter-spacing:.45em;margin:0;background:linear-gradient(90deg,transparent 5%,var(--gold) 30%,#fff 50%,var(--gold) 70%,transparent 95%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:prShimmer 5s linear infinite;line-height:1.3}
+.pr-root .pr-hdr-sub{font-size:.76em;color:var(--txt-d);letter-spacing:.25em;margin-top:8px}
+.pr-root .pr-hdr-div{margin-top:18px;height:1px;background:linear-gradient(90deg,transparent,var(--gold-d),rgba(155,109,255,.12),var(--gold-d),transparent)}
+/* 折叠区块 */
+.pr-root .pr-sec{position:relative;z-index:2;margin:12px 36px 0}
+.pr-root .pr-sec-sum{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;cursor:pointer;list-style:none;background:var(--glass);border:1px solid var(--gb);border-radius:var(--rs);transition:all .3s;position:relative;overflow:hidden}
+.pr-root .pr-sec-sum::-webkit-details-marker{display:none}
+.pr-root .pr-sec-sum::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sec-c,var(--gold));box-shadow:0 0 8px var(--sec-c,var(--gold-g));transition:width .3s}
+.pr-root .pr-sec-sum:hover{background:rgba(255,255,255,.035)}.pr-root .pr-sec-sum:hover::before{width:4px}
+.pr-root details.pr-sec[open]>.pr-sec-sum{border-radius:var(--rs) var(--rs) 0 0;border-bottom-color:transparent}
+.pr-root .pr-sec-label{font-size:.92em;letter-spacing:.18em;color:var(--sec-c,var(--gold))}
+.pr-root .pr-sec-hint{font-size:.7em;color:var(--txt-d);letter-spacing:.1em;margin-left:10px}
+.pr-root .pr-sec-arr{font-size:.6em;color:var(--txt-d);transition:transform .4s cubic-bezier(.4,0,.2,1)}
+.pr-root details.pr-sec[open]>.pr-sec-sum .pr-sec-arr{transform:rotate(180deg)}
+.pr-root .pr-sec-body{padding:20px;background:rgba(0,0,0,.15);border:1px solid var(--gb);border-top:none;border-radius:0 0 var(--rs) var(--rs);animation:prSlide .45s ease}
+/* 表单网格 */
+.pr-root .pr-fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pr-root .pr-fg.c3{grid-template-columns:1fr 1fr 1fr}
+.pr-root .pr-fi{display:flex;flex-direction:column;gap:4px}
+.pr-root .pr-fi.fw{grid-column:1/-1}
+.pr-root .pr-fi label{font-size:.72em;color:var(--txt-d);letter-spacing:.1em}
+.pr-root .pr-fi input,.pr-root .pr-fi select,.pr-root .pr-fi textarea{padding:7px 12px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);border-radius:var(--rx);color:#fff;font-family:var(--fc);font-size:.85em;transition:all .3s}
+.pr-root .pr-fi input:focus,.pr-root .pr-fi select:focus,.pr-root .pr-fi textarea:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 10px var(--cyan-d)}
+.pr-root .pr-fi select option{background:#1a1a2e;color:#fff}
+.pr-root .pr-fi textarea{min-height:90px;resize:vertical;line-height:1.7}
+/* 灵触 */
+.pr-root .pr-sp-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.pr-root .pr-sp-fbtn{padding:4px 12px;background:transparent;border:1px solid rgba(255,255,255,.1);border-radius:16px;color:rgba(255,255,255,.45);cursor:pointer;font-size:.75em;letter-spacing:.1em;font-family:var(--fc);transition:all .3s}
+.pr-root .pr-sp-fbtn:hover{border-color:var(--gold);color:#fff}
+.pr-root .pr-sp-fbtn.on{border-color:var(--gold);color:var(--gold);box-shadow:0 0 10px var(--gold-d)}
+.pr-root .pr-sp-search{flex:1;min-width:100px;padding:5px 12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:16px;color:#fff;font-size:.78em;font-family:var(--fc)}
+.pr-root .pr-sp-search:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 8px var(--cyan-d)}
+.pr-root .pr-sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;max-height:300px;overflow-y:auto;padding:4px 2px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.1) transparent}
+.pr-root .pr-sp-grid::-webkit-scrollbar{width:3px}.pr-root .pr-sp-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px}
+.pr-root .pr-sp-card{padding:10px;border:1px solid var(--sc);border-radius:var(--rs);background:linear-gradient(150deg,rgba(14,13,34,.88),rgba(6,6,15,.94));cursor:pointer;transition:all .35s;position:relative;overflow:hidden;animation:prPop .4s ease backwards}
+.pr-root .pr-sp-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--sc),transparent);opacity:.5}
+.pr-root .pr-sp-card:hover{border-color:var(--sc);box-shadow:0 0 14px var(--sc);transform:translateY(-2px)}
+.pr-root .pr-sp-card.sel{box-shadow:0 0 18px var(--sc),inset 0 0 14px rgba(0,0,0,.3);border-width:2px}
+.pr-root .pr-sp-card.sel::after{content:"";position:absolute;top:7px;right:7px;width:12px;height:12px;border-radius:50%;background:var(--sc);box-shadow:0 0 6px var(--sc)}
+.pr-root .pr-sp-card .sp-no{font-family:var(--fe);font-size:1.4em;font-weight:700;color:var(--sc);line-height:1;text-shadow:0 0 8px var(--sc);animation:prGlow 5s ease-in-out infinite}
+.pr-root .pr-sp-card .sp-nm{font-size:.88em;color:#fff;letter-spacing:.12em;margin-top:5px}
+.pr-root .pr-sp-card .sp-dom{font-size:.6em;color:var(--sc);letter-spacing:.1em;margin-top:3px;opacity:.7}
+.pr-root .pr-sp-card .sp-tag{position:absolute;bottom:5px;right:7px;font-size:.48em;letter-spacing:.15em;color:var(--sc);opacity:.4;font-family:var(--fe)}
+.pr-root .pr-sp-card.unv{border-style:dashed;opacity:.75}
+.pr-root .pr-sp-sel-list{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.pr-root .pr-sp-sel-tag{padding:3px 10px;background:rgba(0,0,0,.35);border:1px solid var(--gold-d);border-radius:10px;font-size:.75em;color:var(--gold);display:flex;align-items:center;gap:5px;animation:prPop .3s ease}
+.pr-root .pr-sp-sel-tag .x{cursor:pointer;opacity:.5;transition:opacity .2s}.pr-root .pr-sp-sel-tag .x:hover{opacity:1}
+.pr-root .pr-sp-addbtn{margin-top:10px;padding:5px 14px;background:linear-gradient(135deg,var(--violet),var(--cyan));border:none;border-radius:14px;color:#fff;cursor:pointer;font-size:.75em;letter-spacing:.1em;font-family:var(--fc);transition:all .25s;box-shadow:0 2px 10px var(--violet-d)}
+.pr-root .pr-sp-addbtn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(155,109,255,.4)}
+.pr-root .pr-sp-addform{margin-top:10px;padding:14px;background:rgba(0,0,0,.25);border:1px solid var(--gb);border-radius:var(--rs);display:none;animation:prSlide .35s ease}
+.pr-root .pr-sp-addform.show{display:block}
+/* 角色卡片 */
+.pr-root .pr-ch-toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.pr-root .pr-ch-syncbtn{padding:5px 14px;background:rgba(201,168,76,.08);border:1px solid var(--gold-d);border-radius:14px;color:var(--gold);cursor:pointer;font-size:.75em;letter-spacing:.1em;font-family:var(--fc);transition:all .3s}
+.pr-root .pr-ch-syncbtn:hover{background:rgba(201,168,76,.2)}
+.pr-root .pr-ch-syncbtn:disabled{opacity:.4;cursor:not-allowed}
+.pr-root .pr-ch-syncstatus{font-size:.7em;color:var(--txt-d);letter-spacing:.08em}
+.pr-root .pr-ch-list{display:flex;flex-direction:column;gap:8px}
+.pr-root .pr-ch-card{animation:prPop .35s ease backwards}
+.pr-root .pr-ch-card-sum{display:flex;align-items:center;gap:8px;padding:12px 16px;cursor:pointer;list-style:none;background:rgba(0,0,0,.2);border:1px solid var(--gb);border-radius:var(--rs);transition:all .3s;flex-wrap:wrap}
+.pr-root .pr-ch-card-sum::-webkit-details-marker{display:none}
+.pr-root .pr-ch-card-sum:hover{background:rgba(255,255,255,.03)}
+.pr-root details.pr-ch-card[open]>.pr-ch-card-sum{border-radius:var(--rs) var(--rs) 0 0;border-bottom-color:transparent}
+.pr-root .pr-ch-card-name{font-size:.92em;color:#fff;letter-spacing:.1em}
+.pr-root .pr-ch-badge{font-size:.58em;padding:2px 8px;border-radius:8px;letter-spacing:.08em;font-weight:600;white-space:nowrap}
+.pr-root .pr-ch-badge.new{background:rgba(82,207,230,.12);border:1px solid rgba(82,207,230,.35);color:var(--cyan)}
+.pr-root .pr-ch-badge.exist{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold)}
+.pr-root .pr-ch-badge.gd{background:rgba(255,255,255,.04);border:1px solid var(--gb);color:var(--txt-d)}
+.pr-root .pr-ch-card-aff{font-size:.75em;color:var(--gold);margin-left:auto}
+.pr-root .pr-ch-card-arr{font-size:.55em;color:var(--txt-d);transition:transform .4s cubic-bezier(.4,0,.2,1)}
+.pr-root details.pr-ch-card[open]>.pr-ch-card-sum .pr-ch-card-arr{transform:rotate(180deg)}
+.pr-root .pr-ch-card-body{padding:16px;background:rgba(0,0,0,.12);border:1px solid var(--gb);border-top:none;border-radius:0 0 var(--rs) var(--rs);animation:prSlide .4s ease}
+.pr-root .pr-ch-subsec{margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.06)}
+.pr-root .pr-ch-subsec-title{font-size:.72em;color:var(--violet);letter-spacing:.15em;margin-bottom:8px}
+.pr-root .pr-ch-slider{-webkit-appearance:none;appearance:none;flex:1;height:4px;border-radius:2px;background:linear-gradient(90deg,#3a3a5c,var(--gold));outline:none;cursor:pointer}
+.pr-root .pr-ch-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold-g);cursor:pointer;transition:transform .2s}
+.pr-root .pr-ch-slider::-webkit-slider-thumb:hover{transform:scale(1.2)}
+.pr-root .pr-ch-val{font-size:.82em;color:var(--gold);min-width:26px;text-align:right;font-weight:600}
+.pr-root .pr-ch-del{padding:4px 10px;background:rgba(255,60,60,.08);border:1px solid rgba(255,60,60,.18);border-radius:var(--rx);color:rgba(255,120,120,.6);cursor:pointer;font-size:.7em;font-family:var(--fc);transition:all .3s}
+.pr-root .pr-ch-del:hover{background:rgba(255,60,60,.25);color:#ff8888}
+/* 新角色表单 */
+.pr-root .pr-newch-sec{margin:10px 0 0}
+.pr-root .pr-newch-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;cursor:pointer;list-style:none;background:rgba(82,207,230,.04);border:1px solid rgba(82,207,230,.12);border-radius:var(--rs);font-size:.85em;color:var(--cyan);letter-spacing:.15em;transition:all .3s}
+.pr-root .pr-newch-toggle::-webkit-details-marker{display:none}
+.pr-root .pr-newch-toggle:hover{background:rgba(82,207,230,.08)}
+.pr-root details.pr-newch-sec[open]>.pr-newch-toggle{border-radius:var(--rs) var(--rs) 0 0;border-bottom-color:transparent}
+.pr-root .pr-newch-body{padding:16px;background:rgba(0,0,0,.15);border:1px solid rgba(82,207,230,.12);border-top:none;border-radius:0 0 var(--rs) var(--rs);animation:prSlide .4s ease}
+.pr-root .pr-newch-body[data-ng="male"] .fonly{display:none}
+.pr-root .pr-newch-body[data-ng="female"] .fonly{display:flex}
+.pr-root .pr-newch-body .fonly{flex-direction:column;gap:4px}
+.pr-root .pr-newch-body[data-ng="male"] .fonly-grid{display:none}
+.pr-root .pr-newch-body[data-ng="female"] .fonly-grid{display:grid}
+.pr-root .pr-newch-submit{margin-top:12px;padding:8px 0;width:100%;background:linear-gradient(135deg,var(--cyan),var(--violet));border:none;border-radius:var(--rx);color:#fff;font-weight:600;letter-spacing:.25em;cursor:pointer;font-family:var(--fc);transition:all .25s;box-shadow:0 2px 10px var(--cyan-d)}
+.pr-root .pr-newch-submit:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(82,207,230,.4)}
+/* 开场白 */
+.pr-root .pr-opening-hint{font-size:.7em;color:var(--txt-d);margin-bottom:8px;letter-spacing:.06em;line-height:1.6}
+/* 底部 */
+.pr-root .pr-footer{position:relative;z-index:2;padding:20px 36px 28px;text-align:center}
+.pr-root .pr-confirm{padding:14px 48px;background:linear-gradient(135deg,var(--gold),#a07830);border:none;border-radius:var(--rs);color:#0a0a15;font-size:1.05em;font-weight:600;letter-spacing:.4em;cursor:pointer;font-family:var(--fc);transition:all .3s;box-shadow:0 4px 20px var(--gold-d);position:relative;overflow:hidden}
+.pr-root .pr-confirm:hover{transform:translateY(-3px);box-shadow:0 8px 30px var(--gold-g)}
+.pr-root .pr-confirm:active{transform:translateY(0)}
+.pr-root .pr-confirm::after{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);transition:left .5s}
+.pr-root .pr-confirm:hover::after{left:100%}
+.pr-root .pr-confirm:disabled{opacity:.5;cursor:not-allowed;transform:none}.pr-root .pr-confirm:disabled::after{display:none}
+.pr-root .pr-ftr{position:relative;z-index:2;text-align:center;padding:0 36px 20px}
+.pr-root .pr-ftr-ln{height:1px;margin-bottom:10px;background:linear-gradient(90deg,transparent,var(--gold-d),transparent)}
+.pr-root .pr-ftr-txt{font-size:.6em;color:var(--txt-d);letter-spacing:.35em;font-family:var(--fe)}
+.pr-toast{position:fixed;top:28px;right:28px;z-index:10000;padding:10px 22px;background:rgba(6,6,15,.95);border:1px solid var(--gold);border-radius:var(--rx);color:var(--gold);font-size:.82em;letter-spacing:.12em;font-family:"Noto Serif SC",serif;box-shadow:0 4px 24px rgba(201,168,76,.3);animation:prPop .35s ease;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.pr-root .pr-msg{text-align:center;padding:16px;color:var(--txt-d);font-size:.82em;letter-spacing:.12em}
+/* 补丁预览 */
+.pr-root .pr-patch-sec{position:relative;z-index:2;margin:12px 36px 0}
+.pr-root .pr-patch-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;cursor:pointer;list-style:none;background:rgba(82,207,230,.03);border:1px solid rgba(82,207,230,.1);border-radius:var(--rs);font-size:.78em;color:rgba(82,207,230,.6);transition:all .3s}
+.pr-root .pr-patch-toggle::-webkit-details-marker{display:none}
+.pr-root details.pr-patch-sec[open]>.pr-patch-toggle{border-radius:var(--rs) var(--rs) 0 0;border-bottom-color:transparent}
+.pr-root .pr-patch-body{padding:12px 18px;background:rgba(0,0,0,.3);border:1px solid rgba(82,207,230,.1);border-top:none;border-radius:0 0 var(--rs) var(--rs);animation:prSlide .35s ease}
+.pr-root .pr-patch-body pre{background:rgba(0,0,0,.5);padding:10px;border-radius:var(--rx);max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-all;font-size:.75em;color:#aac;margin:0;line-height:1.5;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.08) transparent}
+.pr-root .pr-patch-body pre::-webkit-scrollbar{width:3px}.pr-root .pr-patch-body pre::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.pr-root .pr-patch-refresh{margin-top:8px;padding:4px 12px;background:rgba(82,207,230,.06);border:1px solid rgba(82,207,230,.18);border-radius:var(--rx);color:rgba(82,207,230,.65);cursor:pointer;font-size:.75em;font-family:var(--fc);transition:all .3s}
+.pr-root .pr-patch-refresh:hover{background:rgba(82,207,230,.15)}
+/* 诊断 */
+.pr-root .pr-diag-sec{position:relative;z-index:2;margin:12px 36px 0}
+.pr-root .pr-diag-toggle{display:flex;align-items:center;justify-content:space-between;padding:8px 18px;cursor:pointer;list-style:none;background:rgba(255,60,60,.03);border:1px solid rgba(255,60,60,.1);border-radius:var(--rs);font-size:.72em;color:rgba(255,120,120,.5);transition:all .3s}
+.pr-root .pr-diag-toggle::-webkit-details-marker{display:none}
+.pr-root details.pr-diag-sec[open]>.pr-diag-toggle{border-radius:var(--rs) var(--rs) 0 0;border-bottom-color:transparent}
+.pr-root .pr-diag-body{padding:10px 16px;background:rgba(0,0,0,.35);border:1px solid rgba(255,60,60,.1);border-top:none;border-radius:0 0 var(--rs) var(--rs);font-size:.72em;color:#999}
+.pr-root .pr-diag-body pre{background:rgba(0,0,0,.5);padding:8px;border-radius:var(--rx);max-height:160px;overflow:auto;white-space:pre-wrap;word-break:break-all;font-size:.85em;color:#888;margin:6px 0}
+.pr-root .pr-diag-btn{padding:4px 10px;background:rgba(255,60,60,.08);border:1px solid rgba(255,60,60,.18);border-radius:var(--rx);color:rgba(255,120,120,.65);cursor:pointer;font-size:.85em;font-family:var(--fc);margin:3px;transition:all .3s}
+.pr-root .pr-diag-btn:hover{background:rgba(255,60,60,.22)}
+@media(max-width:640px){
+.pr-root .pr-hdr{padding:22px 20px 16px}.pr-root .pr-hdr h1{font-size:1.5em;letter-spacing:.2em}.pr-root .pr-sec,.pr-root .pr-patch-sec,.pr-root .pr-diag-sec{margin-left:20px;margin-right:20px}.pr-root .pr-footer{padding:16px 20px 22px}.pr-root .pr-fg,.pr-root .pr-fg.c3{grid-template-columns:1fr}.pr-root .pr-sp-grid{grid-template-columns:repeat(auto-fill,minmax(115px,1fr))}.pr-root .pr-ch-card-sum{font-size:.85em}
+}
+</style>
+
+<div class="pr-root" id="prRoot">
+<div class="pr-bg" id="prBg"><div class="pr-bg-grad"></div><div class="pr-scan"></div><div class="pr-orb o1"></div><div class="pr-orb o2"></div></div>
+<div class="pr-hdr">
+<div class="pr-hdr-orn"><div class="dt"></div><div class="ln"></div><div class="dm"></div><div class="ln"></div><div class="dt"></div></div>
+<div class="pr-hdr-en">SPIRIT SANCTUM ARCHIVE INITIALIZATION</div>
+<h1>灵殿档案 · 初始化</h1>
+<div class="pr-hdr-sub">配置世界参数与角色设定，确认后写入变量并进入叙事</div>
+<div class="pr-hdr-div"></div>
+</div>
+
+<details class="pr-sec" open style="--sec-c:var(--cyan)">
+<summary class="pr-sec-sum"><div><span class="pr-sec-label">世界设定</span><span class="pr-sec-hint">区域 / 时间 / 天气</span></div><div class="pr-sec-arr">&#9660;</div></summary>
+<div class="pr-sec-body"><div class="pr-fg">
+<div class="pr-fi"><label>当前区域</label><select id="prArea"><option value="零号·起源城">零号 · 起源城</option><option value="第一·伊甸">第一 · 伊甸</option><option value="第二·巴别">第二 · 巴别</option><option value="第三·深空">第三 · 深空</option><option value="第四·方舟" selected>第四 · 方舟</option><option value="第五·熔炉">第五 · 熔炉</option><option value="第六·倒影">第六 · 倒影</option><option value="第七·极昼">第七 · 极昼</option></select></div>
+<div class="pr-fi"><label>天气</label><select id="prWeather"><option value="晴">晴</option><option value="多云">多云</option><option value="阴" selected>阴</option><option value="小雨">小雨</option><option value="大雨">大雨</option><option value="暴雨">暴雨</option><option value="雾">雾</option><option value="雪">雪</option><option value="沙尘">沙尘</option><option value="灵能风暴">灵能风暴</option></select></div>
+<div class="pr-fi"><label>日期</label><input type="date" id="prDate" value="2027-03-15"></div>
+<div class="pr-fi"><label>时间</label><input type="time" id="prTime" value="08:00"></div>
+</div></div>
+</details>
+
+<details class="pr-sec" open style="--sec-c:var(--violet)">
+<summary class="pr-sec-sum"><div><span class="pr-sec-label">灵媒者设定</span><span class="pr-sec-hint">阶别 / 灵触选择</span></div><div class="pr-sec-arr">&#9660;</div></summary>
+<div class="pr-sec-body">
+<div class="pr-fg" style="margin-bottom:14px"><div class="pr-fi"><label>主角阶别</label><select id="prRank"><option value="无">无</option><option value="触源阶">触源阶</option><option value="共振阶" selected>共振阶</option><option value="统御阶">统御阶</option><option value="同化阶">同化阶</option></select></div></div>
+<label style="font-size:.72em;color:var(--txt-d);letter-spacing:.1em;display:block;margin-bottom:8px">灵触选择（点击选取/取消，可多选）</label>
+<div class="pr-sp-tools"><button class="pr-sp-fbtn on" data-fd="all">全部</button><button class="pr-sp-fbtn" data-fd="物质域">物质</button><button class="pr-sp-fbtn" data-fd="情感域">情感</button><button class="pr-sp-fbtn" data-fd="支配域">支配</button><button class="pr-sp-fbtn" data-fd="生存域">生存</button><input type="text" class="pr-sp-search" id="prSpSearch" placeholder="序号 / 名称..."></div>
+<div class="pr-sp-grid" id="prSpGrid"><div class="pr-msg">正在读取灵触周期表...</div></div>
+<div class="pr-sp-sel-list" id="prSpSel"></div>
+<button class="pr-sp-addbtn" id="prSpAddToggle">+ 自定义新灵触（同步写入周期表）</button>
+<div class="pr-sp-addform" id="prSpAddForm"><div class="pr-fg">
+<div class="pr-fi"><label>序号</label><input type="number" id="prNsId" min="1" max="241"></div>
+<div class="pr-fi"><label>归属</label><select id="prNsDom"><option value="物质域">物质域</option><option value="情感域">情感域</option><option value="支配域">支配域</option><option value="生存域">生存域</option><option value="未知">未知</option></select></div>
+<div class="pr-fi"><label>名称</label><input type="text" id="prNsNm" maxlength="20"></div>
+<div class="pr-fi"><label>验证状态</label><select id="prNsVer"><option value="true">在册记录</option><option value="false">理论推导</option></select></div>
+<div class="pr-fi fw"><label>能力</label><textarea id="prNsAbi" style="min-height:45px"></textarea></div>
+<div class="pr-fi fw"><button class="pr-sp-addbtn" id="prNsSubmit" style="margin:0;width:100%">写入周期表并选取</button></div>
+</div></div>
+</div>
+</details>
+
+<details class="pr-sec" open style="--sec-c:var(--c-emo)">
+<summary class="pr-sec-sum"><div><span class="pr-sec-label">角色设定</span><span class="pr-sec-hint">已有角色编辑 / 新角色创建</span></div><div class="pr-sec-arr">&#9660;</div></summary>
+<div class="pr-sec-body">
+<div class="pr-ch-toolbar">
+<button class="pr-ch-syncbtn" id="prChSync">同步MVU已有数据</button>
+<span class="pr-ch-syncstatus" id="prChSyncSt"></span>
+</div>
+<div class="pr-ch-list" id="prChList"></div>
+<details class="pr-newch-sec" id="prNewChSec">
+<summary class="pr-newch-toggle"><span>+ 添加新角色</span><span>&#9660;</span></summary>
+<div class="pr-newch-body" id="prNewChBody" data-ng="female">
+<div class="pr-fg" style="margin-bottom:10px">
+<div class="pr-fi"><label>角色名称</label><input type="text" id="prNewNm" placeholder="必填"></div>
+<div class="pr-fi"><label>性别分类</label><select id="prNewGd"><option value="female">女性角色</option><option value="male">男性角色</option></select></div>
+</div>
+<div class="pr-ch-subsec-title">基础属性</div>
+<div class="pr-fg">
+<div class="pr-fi fw"><label>好感度</label><div style="display:flex;align-items:center;gap:10px"><input type="range" class="pr-ch-slider" min="0" max="100" value="20" id="prNewAff"><span class="pr-ch-val" id="prNewAffV">20</span></div></div>
+<div class="pr-fi"><label>阶别</label><select id="prNewRank"><option value="无">无</option><option value="触源阶">触源阶</option><option value="共振阶">共振阶</option><option value="统御阶">统御阶</option><option value="同化阶">同化阶</option><option value="游离阶">游离阶</option><option value="汇聚阶">汇聚阶</option><option value="概念阶">概念阶</option><option value="源核阶">源核阶</option></select></div>
+<div class="pr-fi"><label>灵触</label><input type="text" id="prNewSp" value="无"></div>
+<div class="pr-fi fonly"><label>净化度</label><input type="number" id="prNewPur" value="0" min="0" max="100"></div>
+<div class="pr-fi fonly"><label>当前情绪</label><select id="prNewEmo"><option value="平静">平静</option><option value="开心">开心</option><option value="生气">生气</option><option value="委屈">委屈</option><option value="紧张">紧张</option><option value="悲伤">悲伤</option><option value="恐惧">恐惧</option><option value="害羞">害羞</option><option value="焦虑">焦虑</option></select></div>
+<div class="pr-fi"><label>是否在场</label><select id="prNewPres"><option value="false">否</option><option value="true">是</option></select></div>
+</div>
+<div class="pr-ch-subsec fonly-grid" style="margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.06)"><div class="pr-ch-subsec-title">三围（可选）</div><div class="pr-fg c3">
+<div class="pr-fi"><label>胸围</label><input type="text" id="prNewBust" placeholder="可选"></div>
+<div class="pr-fi"><label>腰围</label><input type="text" id="prNewWaist" placeholder="可选"></div>
+<div class="pr-fi"><label>臀围</label><input type="text" id="prNewHip" placeholder="可选"></div>
+</div></div>
+<div class="pr-ch-subsec fonly-grid" style="margin-top:12px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.06)"><div class="pr-ch-subsec-title">穿着（可选）</div><div class="pr-fg">
+<div class="pr-fi"><label>上衣</label><input type="text" id="prNewTop" placeholder="可选"></div>
+<div class="pr-fi"><label>下衣</label><input type="text" id="prNewBot" placeholder="可选"></div>
+<div class="pr-fi"><label>内衣</label><input type="text" id="prNewBra" placeholder="可选"></div>
+<div class="pr-fi"><label>内裤</label><input type="text" id="prNewPan" placeholder="可选"></div>
+</div></div>
+<button class="pr-newch-submit" id="prNewChAdd">添加此角色到列表</button>
+</div>
+</details>
+</div>
+</details>
+
+<details class="pr-sec" open style="--sec-c:var(--gold)">
+<summary class="pr-sec-sum"><div><span class="pr-sec-label">开场白</span><span class="pr-sec-hint">叙事起点</span></div><div class="pr-sec-arr">&#9660;</div></summary>
+<div class="pr-sec-body">
+<div class="pr-opening-hint">描述故事起始场景。此文本连同初始化摘要一起作为首条用户消息发送，AI随后基于此与MVU变量展开叙事。</div>
+<div class="pr-fi fw"><textarea id="prOpening" placeholder="例：2027年3月的方舟区笼罩在一层薄灰色的低云之下，隔离区边界的第三遍临时警报刚刚解除..."></textarea></div>
+</div>
+</details>
+
+<details class="pr-patch-sec" id="prPatchSec">
+<summary class="pr-patch-toggle"><span>JSONPatch 预览</span><span>&#9660;</span></summary>
+<div class="pr-patch-body"><pre id="prPatchPre">点击下方刷新预览将要写入的变量补丁。</pre><button class="pr-patch-refresh" id="prPatchRefresh">刷新预览</button></div>
+</details>
+
+<details class="pr-diag-sec" id="prDiagSec">
+<summary class="pr-diag-toggle"><span>连接诊断</span><span>&#9660;</span></summary>
+<div class="pr-diag-body">
+<p>triggerSlash: <code id="dTs">--</code> | getContext: <code id="dCtx">--</code></p>
+<div><button class="pr-diag-btn" id="dTestRead">测试读取MVU</button><button class="pr-diag-btn" id="dClear">清除日志</button></div>
+<pre id="dLog">等待操作...</pre>
+</div>
+</details>
+
+<div class="pr-footer"><button class="pr-confirm" id="prConfirm">初始化并开始</button></div>
+<div class="pr-ftr"><div class="pr-ftr-ln"></div><div class="pr-ftr-txt">ARCHIVED BY THE SPIRIT SANCTUM</div></div>
+</div>
+
+<script>
+(function(){
+var WB='{思牵今夜肠应直，雨冷香魂吊书客}';
+var SP_UID=6;
+var root=document.getElementById('prRoot');
+if(!root||root.dataset.pri==='1')return;
+root.dataset.pri='1';
+var DC={'物质域':'#3ec9bb','情感域':'#d76b94','支配域':'#a478f5','生存域':'#e09a4a','未知':'#7a819c'};
+var RANKS=['无','触源阶','共振阶','统御阶','同化阶','游离阶','汇聚阶','概念阶','源核阶'];
+var EMOTIONS=['平静','开心','生气','委屈','紧张','悲伤','恐惧','害羞','焦虑'];
+
+var specData=[];
+var selected={};
+var existingSpirits={};
+var chars=[];
+var removedExisting=[];
+var spFilter='all',spQuery='';
+
+/* === 工具 === */
+function toast(m,c){var t=document.createElement('div');t.className='pr-toast';t.textContent=m;if(c){t.style.borderColor=c;t.style.color=c;}document.body.appendChild(t);setTimeout(function(){t.style.opacity='0';t.style.transition='opacity .4s';},2200);setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},2800);}
+function esc(s){var d=document.createElement('div');d.appendChild(document.createTextNode(String(s)));return d.innerHTML;}
+function pad3(n){var s=String(n);while(s.length<3)s='0'+s;return s;}
+function dlog(m){var el=document.getElementById('dLog');if(el){el.textContent='['+new Date().toLocaleTimeString()+'] '+m+'\n'+el.textContent;}console.log('[PR] '+m);}
+function sanitize(r){if(typeof r!=='string')r=String(r||'');return r.replace(/^\uFEFF/,'').replace(/<[^>]*>/g,'').replace(/\u201c/g,'"').replace(/\u201d/g,'"').replace(/\u2018/g,"'").replace(/\u2019/g,"'").trim();}
+function tryParseJSON(raw){
+  raw=sanitize(raw);if(!raw||raw==='undefined'||raw==='null')return null;
+  try{var d=JSON.parse(raw);return d;}catch(e){}
+  var s=raw.indexOf('{'),e2=raw.lastIndexOf('}');
+  if(s!==-1&&e2>s){try{return JSON.parse(raw.substring(s,e2+1));}catch(e3){}}
+  var a=raw.indexOf('['),b=raw.lastIndexOf(']');
+  if(a!==-1&&b>a){try{return JSON.parse(raw.substring(a,b+1));}catch(e4){}}
+  return null;
+}
+
+/* === 星空 === */
+function initStars(){var bg=document.getElementById('prBg');for(var i=0;i<55;i++){var s=document.createElement('div');s.className='pr-star';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDelay=Math.random()*4+'s';s.style.animationDuration=(2+Math.random()*5)+'s';var sz=.8+Math.random()*1.5;s.style.width=sz+'px';s.style.height=sz+'px';bg.appendChild(s);}}
+
+/* === 灵触周期表 IO === */
+async function loadSpectrum(){
+  if(typeof triggerSlash!=='function')return[];
+  try{var raw=await triggerSlash('/getentryfield file="'+WB+'" field=content '+SP_UID);if(!raw)return[];var arr=tryParseJSON(String(raw));return(Array.isArray(arr)&&arr.length>0)?arr:[];}catch(e){return[];}
+}
+async function saveSpectrum(arr){
+  if(typeof triggerSlash!=='function')return false;
+  try{await triggerSlash('/setentryfield file="'+WB+'" uid='+SP_UID+' field=content '+JSON.stringify(arr));return true;}catch(e){return false;}
+}
+
+/* === MVU读取 - 多策略 === */
+async function tryGetVar(key){
+  if(typeof triggerSlash!=='function')return null;
+  var strategies=[
+    '/getvar key='+key,
+    '/getvar key="'+key+'"',
+  ];
+  for(var i=0;i<strategies.length;i++){
+    try{
+      var raw=await triggerSlash(strategies[i]);
+      if(raw&&String(raw).trim()&&String(raw).trim()!=='undefined'&&String(raw).trim()!==''){
+        dlog('getvar "'+key+'" 策略'+i+' 返回长度:'+String(raw).length);
+        return tryParseJSON(String(raw));
+      }
+    }catch(e){}
+  }
+  return null;
+}
+
+function tryContextRead(){
+  try{
+    if(typeof getContext==='function'){
+      var ctx=getContext();
+      if(ctx){
+        var vars=null;
+        if(ctx.chatMetadata&&ctx.chatMetadata.variables)vars=ctx.chatMetadata.variables;
+        else if(ctx.chat_metadata&&ctx.chat_metadata.variables)vars=ctx.chat_metadata.variables;
+        if(vars&&typeof vars==='object'){dlog('Context读取成功，keys:'+Object.keys(vars).join(','));return vars;}
+      }
+    }
+  }catch(e){dlog('Context读取异常:'+e.message);}
+  try{
+    if(typeof SillyTavern!=='undefined'&&SillyTavern.getContext){
+      var ctx2=SillyTavern.getContext();
+      var v2=ctx2&&ctx2.chatMetadata&&ctx2.chatMetadata.variables;
+      if(v2){dlog('SillyTavern.getContext 成功');return v2;}
+    }
+  }catch(e2){}
+  return null;
+}
+
+async function readMvuData(){
+  dlog('开始读取MVU数据...');
+  var result={};var keys=['世界','主角','女性角色','男性角色'];
+
+  // 策略1: 直接context读取
+  var ctxData=tryContextRead();
+  if(ctxData){
+    for(var i=0;i<keys.length;i++){if(ctxData[keys[i]])result[keys[i]]=ctxData[keys[i]];}
+    if(Object.keys(result).length>0){dlog('Context策略命中 '+Object.keys(result).length+' 个顶级键');return result;}
+  }
+
+  // 策略2: getvar逐个读取
+  for(var i=0;i<keys.length;i++){
+    var val=await tryGetVar(keys[i]);
+    if(val!==null){result[keys[i]]=val;dlog('getvar命中: '+keys[i]);}
+  }
+  if(Object.keys(result).length>0)return result;
+
+  // 策略3: 尝试读取整个MVU对象
+  var rootKeys=['变量','mvu','mvu_data','data','state'];
+  for(var i=0;i<rootKeys.length;i++){
+    var val=await tryGetVar(rootKeys[i]);
+    if(val&&typeof val==='object'&&!Array.isArray(val)){
+      dlog('根键"'+rootKeys[i]+'"命中');
+      for(var j=0;j<keys.length;j++){if(val[keys[j]])result[keys[j]]=val[keys[j]];}
+      if(Object.keys(result).length>0)return result;
+    }
+  }
+
+  dlog('所有读取策略均未返回有效数据');
+  return Object.keys(result).length>0?result:null;
+}
+
+/* === 角色字段提取 === */
+function extractChar(name,gender,d){
+  var c={name:name,gender:gender,existing:true,origData:JSON.parse(JSON.stringify(d))};
+  c['好感度']=(typeof d['好感度']==='number')?d['好感度']:0;
+  c['阶别']=d['阶别']||'无';
+  c['灵触']=d['灵触']||'无';
+  c['是否在场']=!!d['是否在场'];
+  if(gender==='female'){
+    c['净化度']=(typeof d['净化度']==='number')?d['净化度']:0;
+    c['当前情绪']=d['当前情绪']||'平静';
+    var sw=d['三围'];
+    if(sw&&typeof sw==='object'){c['三围_胸围']=sw['胸围']||'';c['三围_腰围']=sw['腰围']||'';c['三围_臀围']=sw['臀围']||'';}
+    else{c['三围_胸围']='';c['三围_腰围']='';c['三围_臀围']='';}
+    var cz=d['穿着'];
+    if(cz&&typeof cz==='object'){c['穿着_上衣']=cz['上衣']||'';c['穿着_下衣']=cz['下衣']||'';c['穿着_内衣']=cz['内衣']||'';c['穿着_内裤']=cz['内裤']||'';}
+    else{c['穿着_上衣']='';c['穿着_下衣']='';c['穿着_内衣']='';c['穿着_内裤']='';}
+  }
+  return c;
+}
+
+/* === MVU同步 === */
+async function syncMvu(){
+  var stEl=document.getElementById('prChSyncSt');
+  if(stEl)stEl.textContent='同步中...';
+  var data=await readMvuData();
+  if(!data){if(stEl){stEl.textContent='未读取到MVU数据（可能为首次初始化）';stEl.style.color='var(--txt-d)';}return false;}
+  var loaded=false;
+
+  if(data['主角']&&typeof data['主角']==='object'){
+    var p=data['主角'];
+    if(p['阶别']&&p['阶别']!=='待初始化'){var el=document.getElementById('prRank');if(el)el.value=p['阶别'];}
+    if(p['当前区域']&&p['当前区域']!=='待初始化'){var el2=document.getElementById('prArea');if(el2)el2.value=p['当前区域'];}
+    if(p['灵触']&&typeof p['灵触']==='object'){
+      existingSpirits=p['灵触'];
+      Object.keys(existingSpirits).forEach(function(nm){
+        var sp=specData.filter(function(x){return x.name===nm;})[0];
+        if(sp)selected[sp.id]={id:sp.id,name:nm,domain:sp.domain};
+      });
+    }
+    loaded=true;
+  }
+  if(data['世界']&&typeof data['世界']==='object'){
+    var w=data['世界'];
+    if(w['天气']&&w['天气']!=='待初始化'){var el3=document.getElementById('prWeather');if(el3)el3.value=w['天气'];}
+    loaded=true;
+  }
+
+  // 角色
+  chars=[];removedExisting=[];
+  if(data['女性角色']&&typeof data['女性角色']==='object'){
+    Object.keys(data['女性角色']).forEach(function(nm){chars.push(extractChar(nm,'female',data['女性角色'][nm]));});
+    loaded=true;
+  }
+  if(data['男性角色']&&typeof data['男性角色']==='object'){
+    Object.keys(data['男性角色']).forEach(function(nm){chars.push(extractChar(nm,'male',data['男性角色'][nm]));});
+    loaded=true;
+  }
+
+  if(stEl){stEl.textContent=loaded?('已同步: '+chars.length+'位角色, '+Object.keys(existingSpirits).length+'项灵触'):'未读取到有效数据';stEl.style.color=loaded?'#3ec9bb':'var(--txt-d)';}
+  renderSpGrid();renderSelList();renderChars();
+  return loaded;
+}
+
+/* === 灵触渲染 === */
+function renderSpGrid(){
+  var grid=document.getElementById('prSpGrid');grid.innerHTML='';
+  var list=specData.slice().sort(function(a,b){return a.id-b.id;});
+  if(spFilter!=='all')list=list.filter(function(x){return x.domain===spFilter;});
+  if(spQuery){var q=spQuery.toLowerCase();list=list.filter(function(x){return String(x.id).indexOf(q)!==-1||x.name.toLowerCase().indexOf(q)!==-1;});}
+  if(!list.length){grid.innerHTML='<div class="pr-msg">无匹配灵触</div>';return;}
+  list.forEach(function(item,idx){
+    var c=document.createElement('div');
+    c.className='pr-sp-card'+(item.verified?'':' unv')+(selected[item.id]?' sel':'');
+    c.style.setProperty('--sc',DC[item.domain]||DC['未知']);
+    c.style.animationDelay=(idx*.03)+'s';
+    c.innerHTML='<div class="sp-no">'+pad3(item.id)+'</div><div class="sp-nm">'+esc(item.name)+'</div><div class="sp-dom">'+esc(item.domain)+'</div><div class="sp-tag">'+(item.verified?'VER':'THY')+'</div>';
+    c.setAttribute('data-sid',String(item.id));
+    c.addEventListener('click',function(){
+      var sid=parseInt(this.getAttribute('data-sid'),10);
+      if(selected[sid])delete selected[sid];
+      else{var sp=specData.filter(function(x){return x.id===sid;})[0];if(sp)selected[sid]={id:sp.id,name:sp.name,domain:sp.domain};}
+      renderSpGrid();renderSelList();
+    });
+    grid.appendChild(c);
+  });
+}
+function renderSelList(){
+  var wrap=document.getElementById('prSpSel');wrap.innerHTML='';
+  Object.keys(selected).forEach(function(k){
+    var sp=selected[k];var isE=existingSpirits[sp.name];
+    var tag=document.createElement('div');tag.className='pr-sp-sel-tag';
+    tag.innerHTML='No.'+pad3(sp.id)+' '+esc(sp.name)+(isE?' <span style="opacity:.35;font-size:.8em">[已有]</span>':'')+' <span class="x" data-rid="'+sp.id+'">&#10005;</span>';
+    tag.querySelector('.x').addEventListener('click',function(e){e.stopPropagation();delete selected[parseInt(this.getAttribute('data-rid'),10)];renderSpGrid();renderSelList();});
+    wrap.appendChild(tag);
+  });
+}
+
+/* === 角色列表渲染 === */
+function renderChars(){
+  var list=document.getElementById('prChList');list.innerHTML='';
+  if(!chars.length){list.innerHTML='<div class="pr-msg">暂无角色，请从上方同步或从下方添加</div>';return;}
+  chars.forEach(function(ch,idx){
+    var isF=ch.gender==='female';
+    var det=document.createElement('details');det.className='pr-ch-card';det.style.animationDelay=(idx*.05)+'s';
+    // summary
+    var sum=document.createElement('summary');sum.className='pr-ch-card-sum';
+    sum.innerHTML='<span class="pr-ch-card-name">'+esc(ch.name)+'</span>'+
+      '<span class="pr-ch-badge '+(ch.existing?'exist':'new')+'">'+(ch.existing?'已有':'新增')+'</span>'+
+      '<span class="pr-ch-badge gd">'+(isF?'女性':'男性')+'</span>'+
+      '<span class="pr-ch-card-aff">好感 <em id="prAffP'+idx+'">'+ch['好感度']+'</em></span>'+
+      '<span class="pr-ch-card-arr">&#9660;</span>';
+    det.appendChild(sum);
+    // body
+    var body=document.createElement('div');body.className='pr-ch-card-body';
+    var h='<div class="pr-fg">';
+    // 好感度
+    h+='<div class="pr-fi fw"><label>好感度</label><div style="display:flex;align-items:center;gap:10px"><input type="range" class="pr-ch-slider" min="0" max="100" value="'+ch['好感度']+'" data-ci="'+idx+'" data-f="好感度"><span class="pr-ch-val" id="prChV'+idx+'">'+ch['好感度']+'</span></div></div>';
+    // 阶别
+    h+='<div class="pr-fi"><label>阶别</label><select data-ci="'+idx+'" data-f="阶别">';
+    RANKS.forEach(function(r){h+='<option value="'+r+'"'+(ch['阶别']===r?' selected':'')+'>'+r+'</option>';});
+    h+='</select></div>';
+    // 灵触
+    h+='<div class="pr-fi"><label>灵触</label><input type="text" value="'+esc(ch['灵触'])+'" data-ci="'+idx+'" data-f="灵触"></div>';
+    // 是否在场
+    h+='<div class="pr-fi"><label>是否在场</label><select data-ci="'+idx+'" data-f="是否在场"><option value="false"'+(ch['是否在场']?'':' selected')+'>否</option><option value="true"'+(ch['是否在场']?' selected':'')+'>是</option></select></div>';
+    if(isF){
+      h+='<div class="pr-fi"><label>净化度</label><input type="number" min="0" max="100" value="'+ch['净化度']+'" data-ci="'+idx+'" data-f="净化度"></div>';
+      h+='<div class="pr-fi"><label>当前情绪</label><select data-ci="'+idx+'" data-f="当前情绪">';
+      EMOTIONS.forEach(function(e){h+='<option value="'+e+'"'+(ch['当前情绪']===e?' selected':'')+'>'+e+'</option>';});
+      h+='</select></div>';
+    }
+    h+='</div>';
+    if(isF){
+      h+='<div class="pr-ch-subsec"><div class="pr-ch-subsec-title">三围</div><div class="pr-fg c3">';
+      h+='<div class="pr-fi"><label>胸围</label><input type="text" value="'+esc(ch['三围_胸围']||'')+'" data-ci="'+idx+'" data-f="三围_胸围" placeholder="可选"></div>';
+      h+='<div class="pr-fi"><label>腰围</label><input type="text" value="'+esc(ch['三围_腰围']||'')+'" data-ci="'+idx+'" data-f="三围_腰围" placeholder="可选"></div>';
+      h+='<div class="pr-fi"><label>臀围</label><input type="text" value="'+esc(ch['三围_臀围']||'')+'" data-ci="'+idx+'" data-f="三围_臀围" placeholder="可选"></div>';
+      h+='</div></div>';
+      h+='<div class="pr-ch-subsec"><div class="pr-ch-subsec-title">穿着</div><div class="pr-fg">';
+      h+='<div class="pr-fi"><label>上衣</label><input type="text" value="'+esc(ch['穿着_上衣']||'')+'" data-ci="'+idx+'" data-f="穿着_上衣" placeholder="可选"></div>';
+      h+='<div class="pr-fi"><label>下衣</label><input type="text" value="'+esc(ch['穿着_下衣']||'')+'" data-ci="'+idx+'" data-f="穿着_下衣" placeholder="可选"></div>';
+      h+='<div class="pr-fi"><label>内衣</label><input type="text" value="'+esc(ch['穿着_内衣']||'')+'" data-ci="'+idx+'" data-f="穿着_内衣" placeholder="可选"></div>';
+      h+='<div class="pr-fi"><label>内裤</label><input type="text" value="'+esc(ch['穿着_内裤']||'')+'" data-ci="'+idx+'" data-f="穿着_内裤" placeholder="可选"></div>';
+      h+='</div></div>';
+    }
+    h+='<div style="text-align:right;margin-top:10px"><button class="pr-ch-del" data-ci="'+idx+'">移除此角色</button></div>';
+    body.innerHTML=h;
+    det.appendChild(body);
+    list.appendChild(det);
+  });
+  // 事件委托
+  bindCharEvents();
+}
+
+function bindCharEvents(){
+  var list=document.getElementById('prChList');
+  list.onchange=list.oninput=function(e){
+    var ci=parseInt(e.target.getAttribute('data-ci'),10);
+    var f=e.target.getAttribute('data-f');
+    if(isNaN(ci)||!f||!chars[ci])return;
+    if(f==='是否在场'){chars[ci][f]=e.target.value==='true';}
+    else if(e.target.type==='range'||e.target.type==='number'){
+      chars[ci][f]=parseInt(e.target.value,10)||0;
+      if(f==='好感度'){
+        var vEl=document.getElementById('prChV'+ci);var pEl=document.getElementById('prAffP'+ci);
+        if(vEl)vEl.textContent=e.target.value;if(pEl)pEl.textContent=e.target.value;
+      }
+    }else{chars[ci][f]=e.target.value;}
+  };
+  list.onclick=function(e){
+    if(e.target.classList.contains('pr-ch-del')){
+      var ci=parseInt(e.target.getAttribute('data-ci'),10);
+      if(!chars[ci])return;
+      if(chars[ci].existing){
+        if(!confirm('移除已有角色 '+chars[ci].name+'？将从MVU中删除此角色数据。'))return;
+        removedExisting.push({name:chars[ci].name,gender:chars[ci].gender});
+      }
+      chars.splice(ci,1);renderChars();
+    }
+  };
+}
+
+/* === 构建JSONPatch === */
+function buildPatches(){
+  var P=[];
+  var area=document.getElementById('prArea').value;
+  var dateVal=document.getElementById('prDate').value;
+  var timeVal=document.getElementById('prTime').value;
+  var weather=document.getElementById('prWeather').value;
+  var rank=document.getElementById('prRank').value;
+  var dp=dateVal.split('-');
+  var dateStr=(dp.length===3)?(dp[0]+'年'+parseInt(dp[1],10)+'月'+parseInt(dp[2],10)+'日'):dateVal;
+  P.push({op:'replace',path:'/世界/日期',value:dateStr});
+  P.push({op:'replace',path:'/世界/时间',value:timeVal});
+  P.push({op:'replace',path:'/世界/天气',value:weather});
+  P.push({op:'replace',path:'/主角/阶别',value:rank});
+  P.push({op:'replace',path:'/主角/当前区域',value:area});
+
+  // 灵触 patch
+  var selNames={};
+  Object.keys(selected).forEach(function(k){
+    var sp=selected[k];selNames[sp.name]=true;
+    if(!existingSpirits[sp.name]){P.push({op:'insert',path:'/主角/灵触/'+sp.name,value:{域:sp.domain,编号:String(sp.id)}});}
+  });
+  Object.keys(existingSpirits).forEach(function(nm){
+    if(!selNames[nm])P.push({op:'remove',path:'/主角/灵触/'+nm});
+  });
+
+  // 移除的已有角色
+  removedExisting.forEach(function(r){
+    var prefix=r.gender==='female'?'/女性角色/':'/男性角色/';
+    P.push({op:'remove',path:prefix+r.name});
+  });
+
+  // 角色 patch
+  chars.forEach(function(ch){
+    var prefix=ch.gender==='female'?'/女性角色/':'/男性角色/';
+    var isF=ch.gender==='female';
+    if(!ch.existing){
+      // insert new
+      var obj;
+      if(isF){
+        var sw=buildSW(ch);var cz=buildCZ(ch,null);
+        obj={'三围':sw,'灵触':ch['灵触']||'无','阶别':ch['阶别']||'无','物品':{},'穿着':cz,'内心活动':'无','好感度':ch['好感度']||0,'净化度':ch['净化度']||0,'当前情绪':ch['当前情绪']||'平静','是否在场':!!ch['是否在场']};
+      }else{
+        obj={'物品':{},'灵触':ch['灵触']||'无','阶别':ch['阶别']||'无','好感度':ch['好感度']||0,'饰品':{},'是否在场':!!ch['是否在场']};
+      }
+      P.push({op:'insert',path:prefix+ch.name,value:obj});
+    }else{
+      // replace changed fields
+      var od=ch.origData;if(!od)return;
+      var fields=['好感度','阶别','灵触','是否在场'];
+      if(isF)fields=fields.concat(['净化度','当前情绪']);
+      fields.forEach(function(f){
+        var ov=od[f];if(ov===undefined)ov=null;
+        var nv=ch[f];
+        if(f==='好感度'||f==='净化度'){ov=(typeof ov==='number')?ov:0;nv=(typeof nv==='number')?nv:0;}
+        if(f==='是否在场'){ov=!!ov;nv=!!nv;}
+        if(JSON.stringify(ov)!==JSON.stringify(nv)){P.push({op:'replace',path:prefix+ch.name+'/'+f,value:nv});}
+      });
+      if(isF){
+        var newSW=buildSW(ch);var origSW=od['三围'];
+        if(JSON.stringify(origSW)!==JSON.stringify(newSW)){P.push({op:'replace',path:prefix+ch.name+'/三围',value:newSW});}
+        var newCZ=buildCZ(ch,od);var origCZ=od['穿着'];
+        if(JSON.stringify(origCZ)!==JSON.stringify(newCZ)){P.push({op:'replace',path:prefix+ch.name+'/穿着',value:newCZ});}
+      }
+    }
+  });
+  return P;
+}
+
+function buildSW(ch){
+  var b=ch['三围_胸围']||'',w=ch['三围_腰围']||'',h=ch['三围_臀围']||'';
+  if(!b&&!w&&!h)return '待初始化';
+  return{'胸围':b||'待初始化','腰围':w||'待初始化','臀围':h||'待初始化'};
+}
+function buildCZ(ch,od){
+  var t=ch['穿着_上衣']||'',b=ch['穿着_下衣']||'',u=ch['穿着_内衣']||'',p=ch['穿着_内裤']||'';
+  if(!t&&!b&&!u&&!p)return '待初始化';
+  var acc={};
+  if(od&&od['穿着']&&typeof od['穿着']==='object'&&od['穿着']['饰品'])acc=od['穿着']['饰品'];
+  return{'上衣':t||'待初始化','下衣':b||'待初始化','内衣':u||'待初始化','内裤':p||'待初始化','饰品':acc};
+}
+
+function buildUpdateBlock(patches){
+  var selC=Object.keys(selected).length;
+  var newC=chars.filter(function(c){return!c.existing;}).length;
+  var modC=chars.filter(function(c){
+    if(!c.existing)return false;
+    var od=c.origData;if(!od)return false;
+    return JSON.stringify(od['好感度'])!==JSON.stringify(c['好感度'])||od['阶别']!==c['阶别']||od['灵触']!==c['灵触'];
+  }).length;
+  var rmC=removedExisting.length;
+  var a='Prologue initialization setup.\n- calculate time passed: initial setup, no time passed\n- decide whether dramatic updates are allowed: yes (initialization)\n- analyze: world date/time/weather/area set; protagonist rank and '+selC+' spirit-touch(es) configured; '+newC+' new char(s) inserted, '+modC+' existing modified, '+rmC+' removed';
+  return '<UpdateVariable>\n<Analysis>'+a+'\n</Analysis>\n<JSONPatch>\n'+JSON.stringify(patches,null,2)+'\n</JSONPatch>\n</UpdateVariable>';
+}
+
+/* === 确认提交 === */
+async function onConfirm(){
+  var opening=document.getElementById('prOpening').value.trim();
+  if(!opening){toast('请填写开场白内容','#ff7777');return;}
+  var btn=document.getElementById('prConfirm');btn.disabled=true;btn.textContent='正在写入变量...';
+  var patches=buildPatches();
+  if(!patches.length){toast('无任何变量变更','#ff7777');btn.disabled=false;btn.textContent='初始化并开始';return;}
+  if(typeof triggerSlash!=='function'){toast('triggerSlash不可用','#ff7777');btn.disabled=false;btn.textContent='初始化并开始';return;}
+
+  try{
+    var updateBlock=buildUpdateBlock(patches);
+    await triggerSlash('/sendas name={{char}} '+updateBlock);
+    await new Promise(function(r){setTimeout(r,1200);});
+
+    btn.textContent='发送开场白...';
+    var area=document.getElementById('prArea').value;
+    var dateVal=document.getElementById('prDate').value;var dp=dateVal.split('-');
+    var dateStr=(dp.length===3)?(dp[0]+'年'+parseInt(dp[1],10)+'月'+parseInt(dp[2],10)+'日'):dateVal;
+    var timeVal=document.getElementById('prTime').value;
+    var weather=document.getElementById('prWeather').value;
+    var rank=document.getElementById('prRank').value;
+    var spiritNames=Object.keys(selected).map(function(k){var sp=selected[k];return sp.name+'('+sp.domain+'/No.'+pad3(sp.id)+')';}).join('、')||'无';
+    var charSummary=chars.map(function(c){return c.name+'('+(c.gender==='female'?'女':'男')+','+(c.existing?'已有':'新')+',好感'+c['好感度']+')';}).join('、')||'无';
+    var sysMsg='[初始化完成]\n区域：'+area+'\n日期：'+dateStr+'\n时间：'+timeVal+'\n天气：'+weather+'\n阶别：'+rank+'\n灵触：'+spiritNames+'\n关联角色：'+charSummary+'\n\n'+opening;
+    await triggerSlash('/send '+sysMsg);
+    await triggerSlash('/trigger');
+    toast('初始化完成，变量已写入','#3ec9bb');
+    btn.textContent='已完成';
+  }catch(e){toast('执行异常：'+e.message,'#ff7777');btn.disabled=false;btn.textContent='初始化并开始';}
+}
+
+/* === 事件绑定 === */
+function bind(){
+  // 灵触筛选
+  var fbs=root.querySelectorAll('.pr-sp-fbtn');
+  for(var i=0;i<fbs.length;i++){fbs[i].addEventListener('click',function(){for(var j=0;j<fbs.length;j++)fbs[j].classList.remove('on');this.classList.add('on');spFilter=this.getAttribute('data-fd');renderSpGrid();});}
+  document.getElementById('prSpSearch').addEventListener('input',function(){spQuery=this.value.trim();renderSpGrid();});
+  document.getElementById('prSpAddToggle').addEventListener('click',function(){var f=document.getElementById('prSpAddForm');f.classList.toggle('show');if(f.classList.contains('show'))f.scrollIntoView({behavior:'smooth',block:'center'});});
+  document.getElementById('prNsSubmit').addEventListener('click',async function(){
+    var id=parseInt(document.getElementById('prNsId').value,10);var dom=document.getElementById('prNsDom').value;
+    var nm=document.getElementById('prNsNm').value.trim();var abi=document.getElementById('prNsAbi').value.trim();
+    var ver=document.getElementById('prNsVer').value==='true';
+    if(!id||!nm||!abi){toast('请填写完整信息','#ff7777');return;}
+    if(specData.some(function(x){return x.id===id;})){if(!confirm('No.'+id+'已存在，是否覆盖？'))return;specData=specData.filter(function(x){return x.id!==id;});}
+    specData.push({id:id,domain:dom,name:nm,ability:abi,verified:ver});
+    var ok=await saveSpectrum(specData);
+    if(ok){toast('已写入周期表并选取',DC[dom]);selected[id]={id:id,name:nm,domain:dom};renderSpGrid();renderSelList();
+    document.getElementById('prNsId').value='';document.getElementById('prNsNm').value='';document.getElementById('prNsAbi').value='';document.getElementById('prSpAddForm').classList.remove('show');
+    }else{toast('写入失败','#ff7777');}
+  });
+
+  // 同步按钮
+  document.getElementById('prChSync').addEventListener('click',async function(){
+    this.disabled=true;this.textContent='同步中...';
+    var ok=await syncMvu();
+    this.disabled=false;this.textContent='同步MVU已有数据';
+    if(ok)toast('已同步','#3ec9bb');else toast('未读取到数据，请查看诊断面板','#7a819c');
+  });
+
+  // 新角色 - 性别切换
+  document.getElementById('prNewGd').addEventListener('change',function(){document.getElementById('prNewChBody').setAttribute('data-ng',this.value);});
+  document.getElementById('prNewAff').addEventListener('input',function(){document.getElementById('prNewAffV').textContent=this.value;});
+
+  // 新角色 - 添加
+  document.getElementById('prNewChAdd').addEventListener('click',function(){
+    var nm=document.getElementById('prNewNm').value.trim();
+    if(!nm){toast('请输入角色名称','#ff7777');return;}
+    var gd=document.getElementById('prNewGd').value;
+    if(chars.some(function(c){return c.name===nm;})){toast('该角色已在列表中','#ff7777');return;}
+    var isF=gd==='female';
+    var nc={name:nm,gender:gd,existing:false,origData:null};
+    nc['好感度']=parseInt(document.getElementById('prNewAff').value,10)||20;
+    nc['阶别']=document.getElementById('prNewRank').value||'无';
+    nc['灵触']=document.getElementById('prNewSp').value.trim()||'无';
+    nc['是否在场']=document.getElementById('prNewPres').value==='true';
+    if(isF){
+      nc['净化度']=parseInt(document.getElementById('prNewPur').value,10)||0;
+      nc['当前情绪']=document.getElementById('prNewEmo').value||'平静';
+      nc['三围_胸围']=document.getElementById('prNewBust').value.trim();
+      nc['三围_腰围']=document.getElementById('prNewWaist').value.trim();
+      nc['三围_臀围']=document.getElementById('prNewHip').value.trim();
+      nc['穿着_上衣']=document.getElementById('prNewTop').value.trim();
+      nc['穿着_下衣']=document.getElementById('prNewBot').value.trim();
+      nc['穿着_内衣']=document.getElementById('prNewBra').value.trim();
+      nc['穿着_内裤']=document.getElementById('prNewPan').value.trim();
+    }
+    chars.push(nc);renderChars();
+    document.getElementById('prNewNm').value='';document.getElementById('prNewAff').value='20';document.getElementById('prNewAffV').textContent='20';
+    document.getElementById('prNewSp').value='无';document.getElementById('prNewRank').value='无';document.getElementById('prNewPres').value='false';
+    if(isF){document.getElementById('prNewPur').value='0';document.getElementById('prNewEmo').value='平静';
+    document.getElementById('prNewBust').value='';document.getElementById('prNewWaist').value='';document.getElementById('prNewHip').value='';
+    document.getElementById('prNewTop').value='';document.getElementById('prNewBot').value='';document.getElementById('prNewBra').value='';document.getElementById('prNewPan').value='';}
+    document.getElementById('prNewChSec').open=false;
+    toast('已添加 '+nm,'#3ec9bb');
+  });
+
+  // JSONPatch预览
+  document.getElementById('prPatchRefresh').addEventListener('click',function(){
+    var patches=buildPatches();
+    document.getElementById('prPatchPre').textContent=patches.length?JSON.stringify(patches,null,2):'当前无任何变量变更。';
+  });
+
+  // 确认
+  document.getElementById('prConfirm').addEventListener('click',onConfirm);
+
+  // 诊断
+  document.getElementById('dTs').textContent=(typeof triggerSlash==='function')?'可用':'不可用';
+  document.getElementById('dCtx').textContent=(typeof getContext==='function')?'可用':'不可用';
+  document.getElementById('dTestRead').addEventListener('click',async function(){
+    dlog('--- 手动测试MVU读取 ---');
+    var data=await readMvuData();
+    if(data){
+      dlog('读取成功，顶级键: '+Object.keys(data).join(', '));
+      Object.keys(data).forEach(function(k){
+        var v=data[k];
+        if(typeof v==='object'){dlog(k+': '+JSON.stringify(v).substring(0,300));}
+        else{dlog(k+': '+String(v).substring(0,200));}
+      });
+    }else{dlog('所有策略均未返回有效数据');}
+  });
+  document.getElementById('dClear').addEventListener('click',function(){document.getElementById('dLog').textContent='已清除。';});
+}
+
+/* === 初始化 === */
+async function init(){
+  initStars();bind();
+  specData=await loadSpectrum();
+  if(specData.length>0){renderSpGrid();toast('已载入'+specData.length+'条灵触','#c9a84c');}
+  else{document.getElementById('prSpGrid').innerHTML='<div class="pr-msg">未读取到灵触数据</div>';}
+  await syncMvu();
+}
+
+init();
+})();
+</script>
+
+</body>
+</html>
