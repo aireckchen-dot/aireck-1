@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>触界·灵殿档案 v3</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<style>
+/* ============ 主题变量 ============ */
+.touchworld-panel{
+  --tw-bg:linear-gradient(135deg,#0a0814 0%,#1a0f2e 50%,#0d1b2a 100%);
+  --tw-glass:rgba(20,18,38,0.55);
+  --tw-glass-hi:rgba(40,32,72,0.7);
+  --tw-border:rgba(180,160,255,0.18);
+  --tw-text:#e6e3f5;
+  --tw-text-dim:#9b96b8;
+  --tw-accent:#b89cff;
+  --tw-accent2:#7ee0ff;
+  --tw-accent3:#ff9ec7;
+  --tw-danger:#ff6b8a;
+  --tw-success:#7ee0a8;
+  --tw-shadow:0 8px 32px rgba(0,0,0,0.45);
+  --tw-glow:0 0 18px rgba(184,156,255,0.45);
+}
+.touchworld-panel.tw-light{
+  --tw-bg:linear-gradient(135deg,#f4eefd 0%,#fbe9f0 50%,#e9f3ff 100%);
+  --tw-glass:rgba(255,255,255,0.6);
+  --tw-glass-hi:rgba(255,255,255,0.82);
+  --tw-border:rgba(140,110,200,0.22);
+  --tw-text:#2a213f;
+  --tw-text-dim:#776a96;
+  --tw-accent:#8a5cff;
+  --tw-accent2:#3aa7d6;
+  --tw-accent3:#e06a9b;
+  --tw-shadow:0 8px 28px rgba(80,40,140,0.18);
+  --tw-glow:0 0 14px rgba(138,92,255,0.35);
+}
+
+.touchworld-panel{
+  font-family:"Inter","PingFang SC","Microsoft YaHei",sans-serif;
+  width:100%;max-width:1000px;margin:14px auto;
+  background:var(--tw-bg);color:var(--tw-text);
+  border-radius:24px;box-shadow:var(--tw-shadow);
+  overflow:hidden;position:relative;
+  border:1px solid var(--tw-border);
+}
+.touchworld-panel *{box-sizing:border-box;}
+.touchworld-panel button{font-family:inherit;}
+
+/* ============ 折叠控制 ============ */
+.tw-collapse-body{
+  max-height:5000px;
+  overflow:hidden;
+  transition:max-height .55s cubic-bezier(.4,0,.2,1),opacity .35s ease;
+  opacity:1;
+}
+.touchworld-panel.tw-collapsed .tw-collapse-body{
+  max-height:0;
+  opacity:0;
+  pointer-events:none;
+}
+.tw-collapse-toggle{
+  background:var(--tw-glass);border:1px solid var(--tw-border);
+  color:var(--tw-text);min-width:34px;height:34px;border-radius:10px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all .25s ease;padding:0 10px;font-size:12px;
+}
+.tw-collapse-toggle:hover{transform:translateY(-2px);box-shadow:var(--tw-glow);color:var(--tw-accent);}
+.tw-collapse-toggle i{transition:transform .35s ease;}
+.touchworld-panel.tw-collapsed .tw-collapse-toggle i.fa-chevron-up{transform:rotate(180deg);}
+/* 折叠态微型信息条 */
+.tw-mini-bar{
+  display:none;padding:6px 14px;font-size:11px;
+  color:var(--tw-text-dim);letter-spacing:1px;
+  background:linear-gradient(180deg,transparent,var(--tw-glass));
+  border-top:1px solid var(--tw-border);
+}
+.touchworld-panel.tw-collapsed .tw-mini-bar{display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+.tw-mini-bar .mi{display:flex;align-items:center;gap:5px;}
+.tw-mini-bar .mi i{color:var(--tw-accent);font-size:10px;}
+
+/* ============ 动态背景 ============ */
+.tw-bg-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+.tw-bg-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:0.5;animation:tw-drift 22s ease-in-out infinite;}
+.tw-bg-orb.o1{width:300px;height:300px;background:radial-gradient(circle,#7d4fff 0%,transparent 70%);top:-80px;left:-60px;}
+.tw-bg-orb.o2{width:260px;height:260px;background:radial-gradient(circle,#ff6e9c 0%,transparent 70%);bottom:-80px;right:-40px;animation-delay:-7s;}
+.tw-bg-orb.o3{width:220px;height:220px;background:radial-gradient(circle,#4fc3ff 0%,transparent 70%);top:40%;left:50%;animation-delay:-14s;}
+@keyframes tw-drift{
+  0%,100%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(30px,-25px) scale(1.08);}
+  66%{transform:translate(-25px,30px) scale(0.95);}
+}
+.tw-particle{position:absolute;width:3px;height:3px;background:var(--tw-accent);border-radius:50%;opacity:0.7;box-shadow:0 0 8px var(--tw-accent);animation:tw-float 14s linear infinite;}
+@keyframes tw-float{
+  0%{transform:translateY(110%) translateX(0);opacity:0;}
+  10%{opacity:0.8;}
+  90%{opacity:0.8;}
+  100%{transform:translateY(-20%) translateX(40px);opacity:0;}
+}
+
+/* ============ 顶部栏 ============ */
+.tw-header{
+  position:relative;z-index:2;padding:18px 22px 14px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-bottom:1px solid var(--tw-border);
+  background:linear-gradient(180deg,var(--tw-glass-hi),transparent);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.tw-title{display:flex;align-items:center;gap:12px;cursor:pointer;}
+.tw-title-mark{
+  width:38px;height:38px;border-radius:12px;
+  background:linear-gradient(135deg,var(--tw-accent),var(--tw-accent2));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--tw-glow);font-size:18px;color:#fff;
+}
+.tw-title h1{margin:0;font-size:18px;letter-spacing:2px;
+  background:linear-gradient(90deg,var(--tw-accent),var(--tw-accent3));
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.tw-title small{display:block;color:var(--tw-text-dim);font-size:11px;letter-spacing:4px;margin-top:2px;}
+
+.tw-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.tw-btn{
+  background:var(--tw-glass);border:1px solid var(--tw-border);
+  color:var(--tw-text);min-width:34px;height:34px;border-radius:10px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all .25s ease;padding:0 10px;font-size:12px;
+}
+.tw-btn:hover{transform:translateY(-2px);box-shadow:var(--tw-glow);color:var(--tw-accent);}
+.tw-btn.icon{padding:0;width:34px;}
+
+/* ============ 标签页 ============ */
+.tw-tabs{position:relative;z-index:2;display:flex;gap:6px;padding:10px 18px 0;flex-wrap:wrap;}
+.tw-tab{
+  padding:8px 14px;border-radius:12px 12px 0 0;cursor:pointer;
+  background:transparent;color:var(--tw-text-dim);font-size:12px;letter-spacing:1.5px;
+  border:1px solid transparent;border-bottom:none;
+  transition:all .25s ease;display:flex;align-items:center;gap:6px;
+}
+.tw-tab:hover{color:var(--tw-text);background:var(--tw-glass);}
+.tw-tab.active{
+  background:var(--tw-glass-hi);color:var(--tw-accent);
+  border-color:var(--tw-border);
+  box-shadow:0 -4px 18px rgba(184,156,255,0.15) inset;
+}
+
+/* ============ 主体 ============ */
+.tw-body{position:relative;z-index:2;padding:18px;min-height:520px;}
+.tw-page{display:none;animation:tw-fade .45s ease;}
+.tw-page.active{display:block;}
+@keyframes tw-fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.tw-card{
+  background:var(--tw-glass);border:1px solid var(--tw-border);
+  border-radius:16px;padding:14px 16px;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  transition:all .3s ease;position:relative;overflow:hidden;
+}
+.tw-card:hover{border-color:var(--tw-accent);}
+.tw-card::before{
+  content:"";position:absolute;top:-2px;left:-100%;width:60%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--tw-accent),transparent);
+  animation:tw-stream 4s linear infinite;
+}
+@keyframes tw-stream{0%{left:-60%;}100%{left:120%;}}
+
+.tw-card h3{margin:0 0 10px;font-size:13px;letter-spacing:3px;color:var(--tw-accent);
+  display:flex;align-items:center;gap:8px;
+  border-left:3px solid var(--tw-accent);padding-left:10px;}
+.tw-card h3 .count{margin-left:auto;font-size:11px;color:var(--tw-text-dim);letter-spacing:1px;}
+
+/* ============ 世界栏 ============ */
+.tw-world-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px;}
+.tw-world-cell{
+  background:var(--tw-glass-hi);border:1px solid var(--tw-border);
+  border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;
+  transition:all .25s ease;
+}
+.tw-world-cell:hover{transform:translateY(-2px);border-color:var(--tw-accent2);}
+.tw-world-cell .ic{
+  width:34px;height:34px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--tw-accent),var(--tw-accent2));
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  box-shadow:0 0 12px rgba(184,156,255,0.4);
+}
+.tw-world-cell .lb{font-size:10px;color:var(--tw-text-dim);letter-spacing:2px;}
+.tw-world-cell .vl{font-size:13px;font-weight:600;margin-top:2px;color:var(--tw-text);}
+
+/* ============ 主角 ============ */
+.tw-pc{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px;margin-bottom:14px;}
+@media(max-width:760px){.tw-pc{grid-template-columns:1fr;}}
+.tw-pc-stat{display:flex;flex-direction:column;gap:6px;}
+.tw-pc-row{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px dashed var(--tw-border);}
+.tw-pc-row:last-child{border-bottom:none;}
+.tw-pc-row span:first-child{color:var(--tw-text-dim);letter-spacing:1px;}
+.tw-pc-row span:last-child{color:var(--tw-text);font-weight:500;}
+.tw-tag-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.tw-tag{
+  font-size:11px;padding:3px 10px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(184,156,255,0.18),rgba(126,224,255,0.18));
+  border:1px solid var(--tw-border);color:var(--tw-text);
+}
+.tw-tag.empty{color:var(--tw-text-dim);font-style:italic;}
+.tw-tag.gold{background:linear-gradient(135deg,#ffd28a,#ff9ec7);color:#1a0a14;font-weight:600;}
+
+.tw-rank-bar{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-top:6px;position:relative;}
+.tw-rank-fill{height:100%;background:linear-gradient(90deg,var(--tw-accent),var(--tw-accent3));border-radius:3px;transition:width 1s ease;box-shadow:0 0 8px var(--tw-accent);}
+.tw-rank-marks{position:absolute;inset:0;display:flex;justify-content:space-between;}
+.tw-rank-marks span{width:1px;height:100%;background:rgba(255,255,255,0.18);}
+
+/* ============ TOP3 ============ */
+.tw-top-rel{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+@media(max-width:640px){.tw-top-rel{grid-template-columns:1fr;}}
+.tw-top-cell{
+  background:var(--tw-glass-hi);border:1px solid var(--tw-border);border-radius:14px;
+  padding:12px;display:flex;align-items:center;gap:10px;position:relative;overflow:hidden;
+}
+.tw-top-cell .rk{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+  background:linear-gradient(135deg,var(--tw-accent),var(--tw-accent3));color:#fff;font-size:13px;
+}
+.tw-top-cell:nth-child(1) .rk{background:linear-gradient(135deg,#ffd28a,#ff9ec7);color:#3a1a25;}
+.tw-top-cell:nth-child(2) .rk{background:linear-gradient(135deg,#d8d8d8,#a8a8c4);color:#1a1428;}
+.tw-top-cell:nth-child(3) .rk{background:linear-gradient(135deg,#d99a6c,#a37445);color:#fff;}
+.tw-top-cell .info{flex:1;min-width:0;}
+.tw-top-cell .nm{font-size:13px;font-weight:600;letter-spacing:1px;}
+.tw-top-cell .meta{font-size:10px;color:var(--tw-text-dim);margin-top:2px;letter-spacing:1px;}
+
+/* ============ 排序/搜索 ============ */
+.tw-toolbar{
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  margin-bottom:12px;padding:8px 12px;
+  background:var(--tw-glass-hi);border:1px solid var(--tw-border);border-radius:12px;
+}
+.tw-toolbar input,.tw-toolbar select{
+  background:rgba(0,0,0,0.25);border:1px solid var(--tw-border);
+  color:var(--tw-text);padding:6px 10px;border-radius:8px;font-size:12px;outline:none;
+}
+.touchworld-panel.tw-light .tw-toolbar input,
+.touchworld-panel.tw-light .tw-toolbar select{background:rgba(255,255,255,0.6);}
+.tw-toolbar input{flex:1;min-width:120px;}
+.tw-toolbar .seg{display:flex;background:rgba(0,0,0,0.2);border-radius:8px;padding:2px;}
+.touchworld-panel.tw-light .tw-toolbar .seg{background:rgba(0,0,0,0.06);}
+.tw-toolbar .seg button{
+  background:transparent;border:none;color:var(--tw-text-dim);
+  padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;letter-spacing:1px;
+}
+.tw-toolbar .seg button.active{background:var(--tw-accent);color:#fff;}
+
+/* ============ 角色卡 ============ */
+.tw-char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+.tw-char{
+  position:relative;border-radius:18px;overflow:hidden;
+  background:var(--tw-glass);border:1px solid var(--tw-border);
+  perspective:1200px;cursor:pointer;
+  transition:all .35s cubic-bezier(.25,.8,.25,1);
+  min-height:340px;
+}
+.tw-char:hover{transform:translateY(-4px);border-color:var(--tw-accent);box-shadow:var(--tw-glow);}
+.tw-char.in-scene{box-shadow:0 0 0 1px var(--tw-accent2),0 8px 24px rgba(126,224,255,0.18);}
+.tw-char.in-scene::after{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--tw-accent2),transparent);
+  animation:tw-pulse 2.4s ease-in-out infinite;z-index:5;
+}
+@keyframes tw-pulse{0%,100%{opacity:0.4;}50%{opacity:1;}}
+
+.tw-char-inner{position:relative;width:100%;height:100%;transition:transform .8s;transform-style:preserve-3d;min-height:340px;}
+.tw-char.flipped .tw-char-inner{transform:rotateY(180deg);}
+.tw-char-face{position:absolute;inset:0;backface-visibility:hidden;display:flex;flex-direction:column;}
+
+.tw-char-front .portrait{
+  flex:1;background-size:cover;background-position:center top;
+  background-color:rgba(255,255,255,0.04);
+  position:relative;overflow:hidden;min-height:200px;
+}
+.tw-char-front .portrait::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,0.88));
+}
+.tw-char-front .portrait .empty-tag{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;color:var(--tw-text-dim);
+  font-size:11px;letter-spacing:2px;gap:8px;z-index:1;
+}
+.tw-char-front .portrait .empty-tag i{font-size:32px;opacity:0.45;}
+.tw-char-front .portrait .add-link{
+  margin-top:6px;font-size:10px;color:var(--tw-accent);text-decoration:underline;cursor:pointer;
+}
+.tw-char-front .meta{
+  position:absolute;bottom:0;left:0;right:0;padding:12px;z-index:2;color:#fff;
+}
+.tw-char-front .meta .nm{font-size:16px;font-weight:600;letter-spacing:2px;
+  text-shadow:0 0 12px rgba(0,0,0,0.6);}
+.tw-char-front .meta .sub{font-size:11px;color:rgba(255,255,255,0.78);margin-top:2px;letter-spacing:2px;}
+
+.tw-badge{
+  position:absolute;top:10px;left:10px;z-index:3;
+  padding:3px 9px;border-radius:20px;font-size:10px;letter-spacing:1px;
+  background:rgba(0,0,0,0.55);color:#fff;backdrop-filter:blur(6px);
+  display:flex;align-items:center;gap:5px;border:1px solid rgba(255,255,255,0.18);
+}
+.tw-badge.absent{opacity:0.55;}
+.tw-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--tw-accent2);box-shadow:0 0 6px var(--tw-accent2);}
+.tw-badge.absent .dot{background:#888;box-shadow:none;}
+.tw-mood{
+  position:absolute;top:10px;right:10px;z-index:3;
+  padding:3px 9px;border-radius:20px;font-size:10px;
+  background:rgba(0,0,0,0.55);color:#fff;backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,0.18);
+}
+.tw-quick-edit{
+  position:absolute;top:38px;right:10px;z-index:3;
+  width:24px;height:24px;border-radius:50%;
+  background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.18);
+  color:#fff;font-size:10px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .25s;
+}
+.tw-char:hover .tw-quick-edit{opacity:1;}
+.tw-quick-edit:hover{background:var(--tw-accent);}
+
+.tw-progress{margin-top:6px;}
+.tw-progress .lb{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,0.85);letter-spacing:1px;margin-bottom:3px;}
+.tw-progress .track{height:5px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden;position:relative;}
+.tw-progress .fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.2,.8,.2,1);}
+.tw-progress.favor .fill{background:linear-gradient(90deg,#ff9ec7,#ffb38a);box-shadow:0 0 6px #ff9ec7;}
+.tw-progress.purify .fill{background:linear-gradient(90deg,#7ee0ff,#b89cff);box-shadow:0 0 6px #b89cff;}
+
+/* ============ 卡背 ============ */
+.tw-char-back{
+  transform:rotateY(180deg);
+  background:linear-gradient(160deg,var(--tw-glass-hi),var(--tw-glass));
+  padding:14px;font-size:12px;display:flex;flex-direction:column;gap:6px;
+  overflow-y:auto;
+}
+.tw-char-back h4{margin:0 0 4px;font-size:13px;color:var(--tw-accent);letter-spacing:2px;}
+.tw-back-row{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--tw-border);font-size:11px;}
+.tw-back-row span:first-child{color:var(--tw-text-dim);letter-spacing:1px;flex-shrink:0;}
+.tw-back-row span:last-child{text-align:right;color:var(--tw-text);}
+
+.tw-bubble{
+  position:relative;margin-top:8px;padding:8px 10px 8px 28px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(184,156,255,0.1),rgba(126,224,255,0.08));
+  border:1px solid var(--tw-border);font-size:11px;color:var(--tw-text);font-style:italic;
+  line-height:1.55;
+}
+.tw-bubble::before{
+  content:"\f075";font-family:"Font Awesome 6 Free";font-weight:900;
+  position:absolute;left:9px;top:9px;color:var(--tw-accent);font-size:11px;font-style:normal;
+}
+
+/* ============ 男性 ============ */
+.tw-male-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.tw-male{display:flex;gap:12px;padding:12px;background:var(--tw-glass);border:1px solid var(--tw-border);border-radius:14px;transition:all .25s;position:relative;}
+.tw-male:hover{border-color:var(--tw-accent);transform:translateX(3px);}
+.tw-male .av{
+  width:64px;height:64px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#3a3050,#1a1428) center/cover;
+  border:2px solid var(--tw-border);display:flex;align-items:center;justify-content:center;
+  color:var(--tw-text-dim);font-size:22px;cursor:pointer;transition:all .25s;
+}
+.tw-male .av:hover{border-color:var(--tw-accent);}
+.tw-male .info{flex:1;min-width:0;}
+.tw-male .info .nm{font-size:14px;font-weight:600;letter-spacing:2px;display:flex;align-items:center;gap:8px;}
+.tw-male .info .nm .dot{width:7px;height:7px;border-radius:50%;background:var(--tw-accent2);box-shadow:0 0 6px var(--tw-accent2);}
+.tw-male .info .nm .dot.absent{background:#666;box-shadow:none;}
+.tw-male .info .meta{font-size:11px;color:var(--tw-text-dim);margin-top:2px;letter-spacing:1px;}
+.tw-male .info .stats{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.tw-male .edit-av{
+  position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;
+  background:var(--tw-glass-hi);border:1px solid var(--tw-border);color:var(--tw-text-dim);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:9px;
+  opacity:0;transition:opacity .25s;
+}
+.tw-male:hover .edit-av{opacity:1;}
+.tw-male .edit-av:hover{color:var(--tw-accent);border-color:var(--tw-accent);}
+
+/* ============ 灵触 ============ */
+.tw-touch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.tw-touch{padding:12px;background:var(--tw-glass);border:1px solid var(--tw-border);border-radius:14px;transition:all .25s;}
+.tw-touch:hover{border-color:var(--tw-accent2);transform:translateY(-2px);}
+.tw-touch .nm{font-size:14px;color:var(--tw-accent);letter-spacing:2px;}
+.tw-touch .lb{font-size:10px;color:var(--tw-text-dim);margin-top:2px;letter-spacing:2px;}
+
+/* ============ 物品 ============ */
+.tw-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.tw-item{
+  padding:10px 12px;background:var(--tw-glass-hi);border:1px solid var(--tw-border);
+  border-radius:12px;transition:all .25s;cursor:pointer;
+}
+.tw-item:hover{border-color:var(--tw-accent2);transform:translateY(-2px);}
+.tw-item .nm{font-size:13px;font-weight:600;display:flex;justify-content:space-between;}
+.tw-item .nm .qty{color:var(--tw-accent2);font-size:11px;}
+.tw-item .desc{font-size:11px;color:var(--tw-text-dim);margin-top:4px;line-height:1.5;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.tw-item.expanded .desc{-webkit-line-clamp:unset;}
+
+/* ============ 柱图 ============ */
+.tw-chart{display:flex;align-items:flex-end;gap:6px;height:90px;margin-top:10px;padding:0 4px;}
+.tw-chart .bar{
+  flex:1;background:linear-gradient(180deg,var(--tw-accent),var(--tw-accent2));
+  border-radius:4px 4px 0 0;position:relative;min-height:4px;
+  transition:height 1s cubic-bezier(.2,.8,.2,1);cursor:pointer;
+}
+.tw-chart .bar:hover{filter:brightness(1.25);}
+.tw-chart .bar::after{
+  content:attr(data-name);position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
+  font-size:9px;color:var(--tw-text-dim);white-space:nowrap;letter-spacing:1px;
+}
+.tw-chart .bar::before{
+  content:attr(data-val);position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+  font-size:10px;color:var(--tw-accent);font-weight:600;
+}
+
+/* ============ 配置弹窗 ============ */
+.tw-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9999;
+  display:none;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(6px);
+}
+.tw-modal.show{display:flex;}
+.tw-modal-box{
+  background:#1a1428;border:1px solid var(--tw-border);
+  border-radius:18px;padding:20px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;
+  color:#e6e3f5;
+}
+.tw-modal-box h3{margin:0 0 6px;color:var(--tw-accent);letter-spacing:2px;display:flex;align-items:center;gap:8px;}
+.tw-modal-box .hint{font-size:11px;color:var(--tw-text-dim);line-height:1.6;margin:6px 0 12px;}
+.tw-modal-box label{display:block;font-size:11px;color:var(--tw-text-dim);margin-top:10px;letter-spacing:1px;}
+.tw-modal-box input,.tw-modal-box select,.tw-modal-box textarea{
+  width:100%;padding:8px 10px;background:rgba(0,0,0,0.35);
+  border:1px solid var(--tw-border);border-radius:8px;color:#fff;font-size:12px;margin-top:4px;
+  font-family:inherit;outline:none;
+}
+.tw-modal-box input:focus,.tw-modal-box select:focus,.tw-modal-box textarea:focus{border-color:var(--tw-accent);}
+.tw-modal-box textarea{min-height:90px;resize:vertical;font-family:monospace;}
+.tw-modal-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;flex-wrap:wrap;}
+.tw-modal-actions button{padding:8px 16px;border:none;border-radius:8px;cursor:pointer;font-size:12px;letter-spacing:1px;}
+.tw-btn-primary{background:linear-gradient(135deg,#b89cff,#ff9ec7);color:#fff;}
+.tw-btn-success{background:#7ee0a8;color:#0a1f15;}
+.tw-btn-ghost{background:transparent;color:#9b96b8;border:1px solid rgba(180,160,255,0.18)!important;}
+
+.tw-mode-tabs{display:flex;gap:4px;background:rgba(0,0,0,0.3);padding:3px;border-radius:10px;margin-top:6px;}
+.tw-mode-tabs button{
+  flex:1;background:transparent;border:none;color:#9b96b8;
+  padding:7px 10px;border-radius:7px;cursor:pointer;font-size:11px;letter-spacing:1px;
+}
+.tw-mode-tabs button.active{background:#b89cff;color:#fff;}
+
+.tw-stage-row{
+  display:grid;grid-template-columns:auto 1fr 1fr 2.2fr auto;gap:6px;align-items:center;margin-top:6px;
+  font-size:11px;
+}
+.tw-stage-row input{margin-top:0;}
+.tw-stage-row .grip{cursor:grab;color:#9b96b8;padding:0 4px;}
+.tw-stage-row button.del{
+  background:transparent;border:1px solid rgba(180,160,255,0.18);color:#ff6b8a;
+  width:30px;height:30px;border-radius:8px;cursor:pointer;
+}
+.tw-preview{
+  width:100%;height:120px;margin-top:8px;border-radius:10px;
+  background:rgba(0,0,0,0.3) center/contain no-repeat;border:1px dashed rgba(180,160,255,0.18);
+  display:flex;align-items:center;justify-content:center;color:#9b96b8;font-size:11px;
+}
+
+.tw-status-line{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 10px;background:rgba(0,0,0,0.25);border-radius:8px;margin-top:8px;font-size:11px;
+}
+.tw-status-line .ok{color:#7ee0a8;}
+.tw-status-line .err{color:#ff6b8a;}
+
+/* ============ 折叠默认设置 ============ */
+.tw-default-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px;background:rgba(0,0,0,0.2);border-radius:10px;
+  margin-top:10px;font-size:12px;
+}
+.tw-switch{
+  position:relative;width:42px;height:22px;border-radius:11px;cursor:pointer;
+  background:rgba(255,255,255,0.1);border:1px solid rgba(180,160,255,0.18);
+  transition:background .25s;
+}
+.tw-switch.on{background:rgba(184,156,255,0.45);}
+.tw-switch::after{
+  content:"";position:absolute;width:16px;height:16px;border-radius:50%;
+  top:2px;left:3px;background:#fff;transition:transform .25s ease;
+}
+.tw-switch.on::after{transform:translateX(19px);}
+
+/* ============ Toast ============ */
+.tw-toast{
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);
+  padding:10px 18px;border-radius:24px;color:#fff;font-size:12px;letter-spacing:1px;z-index:10001;
+  background:rgba(20,18,38,0.95);border:1px solid rgba(180,160,255,0.18);
+  opacity:0;transition:all .35s;pointer-events:none;
+  display:flex;align-items:center;gap:8px;
+}
+.tw-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.tw-toast.success{border-color:#7ee0a8;color:#7ee0a8;}
+.tw-toast.error{border-color:#ff6b8a;color:#ff6b8a;}
+
+/* ============ 来源标记 ============ */
+.tw-source-tag{
+  font-size:9px;padding:1px 5px;border-radius:4px;
+  letter-spacing:1px;font-weight:600;vertical-align:middle;margin-left:3px;
+}
+.tw-source-tag.local{background:rgba(126,224,168,0.2);color:#7ee0a8;}
+.tw-source-tag.wb{background:rgba(184,156,255,0.2);color:#b89cff;}
+
+/* ============ 移动端 ============ */
+@media(max-width:640px){
+  .touchworld-panel{margin:8px;border-radius:18px;}
+  .tw-header{padding:14px;flex-direction:column;align-items:flex-start;}
+  .tw-tools{width:100%;}
+  .tw-title h1{font-size:15px;}
+  .tw-body{padding:12px;}
+  .tw-tabs{padding:8px 10px 0;}
+  .tw-tab{padding:6px 10px;font-size:11px;}
+  .tw-tab span{display:none;}
+  .tw-char-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .tw-char{min-height:300px;}
+  .tw-male-grid{grid-template-columns:1fr;}
+  .tw-stage-row{grid-template-columns:1fr 1fr;}
+  .tw-stage-row input[type=text]{grid-column:1/-1;}
+  .tw-stage-row .grip{display:none;}
+}
+.tw-empty{padding:30px;text-align:center;color:var(--tw-text-dim);font-size:12px;letter-spacing:2px;}
+.tw-empty i{font-size:30px;display:block;margin-bottom:10px;opacity:0.4;}
+</style>
+
+<div class="touchworld-panel" id="twPanel">
+  <div class="tw-bg-layer">
+    <div class="tw-bg-orb o1"></div>
+    <div class="tw-bg-orb o2"></div>
+    <div class="tw-bg-orb o3"></div>
+    <div id="twParticles"></div>
+  </div>
+
+  <!-- 顶部栏 -->
+  <div class="tw-header">
+    <div class="tw-title" id="twTitleToggle" title="点击折叠/展开">
+      <div class="tw-title-mark"><i class="fas fa-eye"></i></div>
+      <div>
+        <h1>触界·灵殿档案</h1>
+        <small>SPIRIT  ARCHIVE  v3</small>
+      </div>
+    </div>
+    <div class="tw-tools">
+      <button class="tw-collapse-toggle" id="twCollapseBtn" title="折叠/展开"><i class="fas fa-chevron-up"></i></button>
+      <button class="tw-btn icon" id="twThemeBtn" title="切换主题"><i class="fas fa-moon"></i></button>
+      <button class="tw-btn" id="twConfigBtn" title="立绘配置"><i class="fas fa-images"></i><span>立绘</span></button>
+      <button class="tw-btn icon" id="twSyncBtn" title="重新加载配置"><i class="fas fa-cloud-arrow-down"></i></button>
+    </div>
+  </div>
+
+  <!-- 折叠态微型信息条 -->
+  <div class="tw-mini-bar" id="twMiniBar"></div>
+
+  <!-- 可折叠主体 -->
+  <div class="tw-collapse-body" id="twCollapseBody">
+    <div class="tw-tabs">
+      <div class="tw-tab active" data-page="page-world"><i class="fas fa-globe"></i><span>世界</span></div>
+      <div class="tw-tab" data-page="page-female"><i class="fas fa-venus"></i><span>女性档案</span></div>
+      <div class="tw-tab" data-page="page-male"><i class="fas fa-mars"></i><span>男性档案</span></div>
+      <div class="tw-tab" data-page="page-touch"><i class="fas fa-fingerprint"></i><span>灵触·物品</span></div>
+      <div class="tw-tab" data-page="page-stats"><i class="fas fa-chart-column"></i><span>数据</span></div>
+    </div>
+    <div class="tw-body">
+      <div class="tw-page active" id="page-world">
+        <div class="tw-card" style="margin-bottom:14px;">
+          <h3><i class="fas fa-compass"></i>WORLD STATE</h3>
+          <div class="tw-world-grid" id="twWorldGrid"></div>
+          <div id="twEvents"></div>
+        </div>
+        <div class="tw-card" style="margin-bottom:14px;">
+          <h3><i class="fas fa-user-astronaut"></i>PROTAGONIST</h3>
+          <div class="tw-pc">
+            <div class="tw-pc-stat" id="twPcCore"></div>
+            <div class="tw-pc-stat">
+              <div style="font-size:11px;color:var(--tw-text-dim);letter-spacing:2px;margin-bottom:4px;">契约角色</div>
+              <div class="tw-tag-list" id="twPcContracts"></div>
+            </div>
+            <div class="tw-pc-stat">
+              <div style="font-size:11px;color:var(--tw-text-dim);letter-spacing:2px;margin-bottom:4px;">灵触</div>
+              <div class="tw-tag-list" id="twPcTouches"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tw-card" style="margin-bottom:14px;">
+          <h3><i class="fas fa-crown"></i>TOP RELATIONS<span class="count" id="twTopCnt"></span></h3>
+          <div class="tw-top-rel" id="twTopRel"></div>
+        </div>
+        <div class="tw-card">
+          <h3><i class="fas fa-id-card"></i>FEMALE IN SCENE<span class="count" id="twSceneCnt"></span></h3>
+          <div class="tw-char-grid" id="twFemaleGrid"></div>
+        </div>
+      </div>
+      <div class="tw-page" id="page-female">
+        <div class="tw-card">
+          <h3><i class="fas fa-venus"></i>FULL FEMALE REGISTRY<span class="count" id="twFemaleAllCnt"></span></h3>
+          <div class="tw-toolbar">
+            <input type="text" id="twFemaleSearch" placeholder="搜索名字 / 阶别 / 灵触 / 情绪…">
+            <div class="seg" id="twFemaleSort">
+              <button data-sort="default" class="active">默认</button>
+              <button data-sort="favor">好感</button>
+              <button data-sort="purify">净化</button>
+              <button data-sort="scene">在场</button>
+            </div>
+          </div>
+          <div class="tw-char-grid" id="twFemaleAll"></div>
+        </div>
+      </div>
+      <div class="tw-page" id="page-male">
+        <div class="tw-card">
+          <h3><i class="fas fa-mars"></i>MALE REGISTRY<span class="count" id="twMaleAllCnt"></span></h3>
+          <div class="tw-male-grid" id="twMaleGrid"></div>
+        </div>
+      </div>
+      <div class="tw-page" id="page-touch">
+        <div class="tw-card" style="margin-bottom:14px;">
+          <h3><i class="fas fa-fingerprint"></i>SPIRIT TOUCHES</h3>
+          <div class="tw-touch-grid" id="twTouchGrid"></div>
+        </div>
+        <div class="tw-card">
+          <h3><i class="fas fa-box-archive"></i>INVENTORY<span class="count" id="twInvCnt"></span></h3>
+          <div class="tw-items" id="twItemGrid"></div>
+        </div>
+      </div>
+      <div class="tw-page" id="page-stats">
+        <div class="tw-card" style="margin-bottom:14px;">
+          <h3><i class="fas fa-heart"></i>FAVOR DISTRIBUTION</h3>
+          <div class="tw-chart" id="twFavorChart"></div>
+          <div style="height:28px;"></div>
+        </div>
+        <div class="tw-card">
+          <h3><i class="fas fa-droplet"></i>PURIFY DISTRIBUTION</h3>
+          <div class="tw-chart" id="twPurifyChart"></div>
+          <div style="height:28px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 弹窗 -->
+<div class="tw-modal" id="twModal">
+<div class="tw-modal-box">
+  <h3><i class="fas fa-images"></i> 立绘 / 头像配置</h3>
+  <p class="hint">
+    自动读取逻辑：本地有配置则用本地，本地缺失则自动静默读取世界书。手动保存时同时写入双端。<br>
+    阶段优先级 = 好感门槛 + 净化门槛之和（高者优先），均需同时满足。
+  </p>
+
+  <label>世界书名称（不含 .json）</label>
+  <input type="text" id="twWbFile" placeholder="例如：触界世界书">
+  <label>条目 UID</label>
+  <input type="number" id="twWbUid" placeholder="例如：12">
+  <div class="tw-status-line">
+    <span id="twWbStatus">未检查</span>
+    <button class="tw-btn-ghost" id="twWbTest" style="padding:4px 10px;border-radius:6px;font-size:11px;">检查连接</button>
+  </div>
+
+  <hr style="border:none;border-top:1px solid rgba(180,160,255,0.18);margin:14px 0;">
+
+  <!-- 折叠默认状态 -->
+  <div class="tw-default-row">
+    <span>状态栏默认折叠</span>
+    <div class="tw-switch" id="twDefaultCollapse" title="开启后状态栏初始为折叠态"></div>
+  </div>
+
+  <hr style="border:none;border-top:1px solid rgba(180,160,255,0.18);margin:14px 0;">
+
+  <label>角色名（与 MVU 中名字一致）</label>
+  <select id="twCfgName"></select>
+
+  <label>默认立绘 / 头像 URL</label>
+  <input type="text" id="twCfgDefault" placeholder="https://...">
+  <div class="tw-preview" id="twCfgPreview">立绘预览</div>
+
+  <label>阶段立绘 <span style="color:#9b96b8;font-weight:normal;">（好感≥ / 净化≥ / URL）</span></label>
+  <div id="twCfgStages"></div>
+  <button class="tw-btn-ghost" id="twCfgAddStage" style="margin-top:6px;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:11px;">
+    <i class="fas fa-plus"></i> 添加阶段
+  </button>
+
+  <div class="tw-modal-actions">
+    <button class="tw-btn-ghost" id="twCfgExport"><i class="fas fa-file-export"></i> 导出</button>
+    <button class="tw-btn-ghost" id="twCfgImport"><i class="fas fa-file-import"></i> 导入</button>
+    <button class="tw-btn-ghost" id="twCfgCancel">关闭</button>
+    <button class="tw-btn-primary" id="twCfgSave"><i class="fas fa-floppy-disk"></i> 保存</button>
+  </div>
+</div>
+</div>
+
+<div class="tw-toast" id="twToast"></div>
+
+<script>
+(function(){
+  const root=document.getElementById('twPanel');
+  const hasGAV=typeof getAllVariables==='function';
+  const hasTS=typeof triggerSlash==='function';
+  const hasLodash=typeof _!=='undefined'&&typeof _.get==='function';
+  if(!hasLodash){window._={get:(o,p,d)=>{try{return p.split('.').reduce((a,k)=>a==null?a:a[k],o)??d;}catch(e){return d;}}};}
+  const all=hasGAV?getAllVariables():{};
+  const STAT='stat_data';
+
+  /* ====== 预填常量（填一次即可） ====== */
+  const PREFILL_WB_FILE='{思牵今夜肠应直，雨冷香魂吊书客}';  // 示例: '触界世界书'
+  const PREFILL_WB_UID='74';   // 示例: '12'
+  /* =================================== */
+
+  const LOCAL_KEY='tw_portrait_v3';
+  const META_KEY='tw_meta_v3';
+
+  /* ====== Meta 存储 ====== */
+  function loadMeta(){try{return JSON.parse(localStorage.getItem(META_KEY)||'{}');}catch(e){return{};}}
+  function saveMeta(m){localStorage.setItem(META_KEY,JSON.stringify(m));}
+  let meta=Object.assign({wbFile:PREFILL_WB_FILE,wbUid:PREFILL_WB_UID,defaultCollapsed:false},loadMeta());
+  if(PREFILL_WB_FILE&&!meta.wbFile)meta.wbFile=PREFILL_WB_FILE;
+  if(PREFILL_WB_UID&&!meta.wbUid)meta.wbUid=PREFILL_WB_UID;
+
+  /* ====== 立绘双轨存取 ====== */
+  let localCfg={};
+  let wbCfg={};
+  let mergedCfg={};
+
+  function readLocal(){try{return JSON.parse(localStorage.getItem(LOCAL_KEY)||'{}');}catch(e){return{};}}
+  function writeLocal(c){localStorage.setItem(LOCAL_KEY,JSON.stringify(c));}
+
+  async function readWB(){
+    if(!hasTS||!meta.wbFile||!meta.wbUid)return {};
+    try{
+      const raw=await triggerSlash(`/getentryfield file="${meta.wbFile}" field=content ${meta.wbUid}`);
+      if(!raw||raw.trim()===''||raw.trim()==='null')return {};
+      return JSON.parse(raw);
+    }catch(e){return {};}
+  }
+  async function writeWB(c){
+    if(!hasTS||!meta.wbFile||!meta.wbUid)return false;
+    try{await triggerSlash(`/setentryfield file="${meta.wbFile}" uid=${meta.wbUid} field=content ${JSON.stringify(c)}`);return true;}
+    catch(e){return false;}
+  }
+
+  /* 合并：本地 > 世界书，per-character 粒度 */
+  function mergeCfg(){
+    const result={};
+    const allNames=new Set([...Object.keys(localCfg),...Object.keys(wbCfg)]);
+    allNames.forEach(name=>{
+      const l=localCfg[name];
+      const w=wbCfg[name];
+      if(l&&(l.def||(l.stages&&l.stages.length))){
+        result[name]={...l,_src:'local'};
+      }else if(w){
+        result[name]={...w,_src:'wb'};
+      }
+    });
+    mergedCfg=result;
+  }
+
+  function pickPortrait(name,favor,purify){
+    const cfg=mergedCfg[name];if(!cfg)return {url:'',src:''};
+    if(Array.isArray(cfg.stages)){
+      const sorted=[...cfg.stages].sort((a,b)=>(b.minF+b.minP)-(a.minF+a.minP));
+      for(const s of sorted){if(favor>=s.minF&&purify>=s.minP&&s.url)return {url:s.url,src:cfg._src||''};}
+    }
+    return {url:cfg.def||'',src:cfg._src||''};
+  }
+
+  /* 初始化：先读本地（同步），再静默拉世界书（异步），拉完合并后刷新 */
+  localCfg=readLocal();
+  mergeCfg(); // 先用本地
+
+  async function initWBSilent(){
+    wbCfg=await readWB();
+    mergeCfg();
+    refreshAllRender();
+  }
+
+  /* ====== Toast ====== */
+  const toastEl=document.getElementById('twToast');
+  let toastTimer;
+  function toast(msg,type){
+    clearTimeout(toastTimer);
+    toastEl.className='tw-toast '+(type||'');
+    toastEl.innerHTML=`<i class="fas ${type==='error'?'fa-circle-exclamation':type==='success'?'fa-circle-check':'fa-circle-info'}"></i>${msg}`;
+    toastEl.classList.add('show');
+    toastTimer=setTimeout(()=>toastEl.classList.remove('show'),2400);
+  }
+
+  /* ====== 折叠 ====== */
+  const COLLAPSE_KEY='tw_collapsed_v3';
+  function getCollapseState(){
+    const saved=localStorage.getItem(COLLAPSE_KEY);
+    if(saved!==null)return saved==='true';
+    return !!meta.defaultCollapsed;
+  }
+  function setCollapsed(v){
+    localStorage.setItem(COLLAPSE_KEY,v?'true':'false');
+    if(v)root.classList.add('tw-collapsed');
+    else root.classList.remove('tw-collapsed');
+    updateMiniBar();
+  }
+  // 初始化
+  if(getCollapseState())root.classList.add('tw-collapsed');
+
+  document.getElementById('twCollapseBtn').addEventListener('click',()=>setCollapsed(!root.classList.contains('tw-collapsed')));
+  document.getElementById('twTitleToggle').addEventListener('click',()=>setCollapsed(!root.classList.contains('tw-collapsed')));
+
+  function updateMiniBar(){
+    const world=_.get(all,STAT+'.世界',{});
+    const pc=_.get(all,STAT+'.主角',{});
+    const fCount=Object.keys(_.get(all,STAT+'.女性角色',{})||{}).length;
+    const mCount=Object.keys(_.get(all,STAT+'.男性角色',{})||{}).length;
+    const inScene=Object.values(_.get(all,STAT+'.女性角色',{})||{}).filter(c=>c.是否在场).length;
+    document.getElementById('twMiniBar').innerHTML=`
+      <div class="mi"><i class="fas fa-calendar-days"></i>${world.日期||'-'}</div>
+      <div class="mi"><i class="fas fa-clock"></i>${world.时间||'-'}</div>
+      <div class="mi"><i class="fas fa-cloud"></i>${world.天气||'-'}</div>
+      <div class="mi"><i class="fas fa-location-dot"></i>${pc.当前区域||'-'}</div>
+      <div class="mi"><i class="fas fa-layer-group"></i>${pc.阶别||'无'}</div>
+      <div class="mi"><i class="fas fa-venus"></i>${fCount}</div>
+      <div class="mi"><i class="fas fa-mars"></i>${mCount}</div>
+      <div class="mi"><i class="fas fa-eye"></i>在场 ${inScene}</div>
+    `;
+  }
+  updateMiniBar();
+
+  /* ====== 主题 ====== */
+  const themeBtn=document.getElementById('twThemeBtn');
+  function setTheme(t){
+    if(t==='light')root.classList.add('tw-light');else root.classList.remove('tw-light');
+    themeBtn.querySelector('i').className=t==='light'?'fas fa-sun':'fas fa-moon';
+    localStorage.setItem('tw_theme',t);
+  }
+  setTheme(localStorage.getItem('tw_theme')||'dark');
+  themeBtn.addEventListener('click',()=>setTheme(root.classList.contains('tw-light')?'dark':'light'));
+
+  /* ====== 粒子 ====== */
+  const pArea=document.getElementById('twParticles');
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div');p.className='tw-particle';
+    p.style.left=(Math.random()*100)+'%';
+    p.style.animationDelay=(-Math.random()*14)+'s';
+    p.style.animationDuration=(10+Math.random()*8)+'s';
+    p.style.opacity=0.3+Math.random()*0.5;
+    pArea.appendChild(p);
+  }
+
+  /* ====== Tab ====== */
+  root.querySelectorAll('.tw-tab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      root.querySelectorAll('.tw-tab').forEach(x=>x.classList.remove('active'));
+      root.querySelectorAll('.tw-page').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      document.getElementById(t.dataset.page).classList.add('active');
+    });
+  });
+
+  /* ====== 数据 ====== */
+  const world=_.get(all,STAT+'.世界',{});
+  const pc=_.get(all,STAT+'.主角',{});
+  const females=_.get(all,STAT+'.女性角色',{})||{};
+  const males=_.get(all,STAT+'.男性角色',{})||{};
+  const fKeys=Object.keys(females);
+  const mKeys=Object.keys(males);
+
+  /* ====== 世界 ====== */
+  const worldCells=[
+    {ic:'fa-calendar-days',lb:'DATE',vl:world.日期||'未知'},
+    {ic:'fa-clock',lb:'TIME',vl:world.时间||'未知'},
+    {ic:'fa-cloud',lb:'WEATHER',vl:world.天气||'未知'},
+    {ic:'fa-location-dot',lb:'AREA',vl:pc.当前区域||'未知'},
+    {ic:'fa-bolt',lb:'STATE',vl:world.特殊状态||'无'},
+    {ic:'fa-layer-group',lb:'RANK',vl:pc.阶别||'无'},
+  ];
+  document.getElementById('twWorldGrid').innerHTML=worldCells.map(c=>`
+    <div class="tw-world-cell"><div class="ic"><i class="fas ${c.ic}"></i></div>
+      <div><div class="lb">${c.lb}</div><div class="vl">${c.vl}</div></div></div>`).join('');
+
+  const events=world.大事件||{};
+  const evKeys=Object.keys(events);
+  if(evKeys.length){
+    document.getElementById('twEvents').innerHTML=`
+      <div style="margin-top:12px;font-size:11px;color:var(--tw-text-dim);letter-spacing:2px;margin-bottom:6px;">大事件</div>
+      <div class="tw-tag-list">${evKeys.map(k=>`<span class="tw-tag${events[k]?' gold':''}">${k}${events[k]?' ✓':''}</span>`).join('')}</div>`;
+  }
+
+  /* ====== 主角 ====== */
+  const rankList=['无','触源阶','共振阶','统御阶','同化阶'];
+  const rankIdx=Math.max(0,rankList.indexOf(pc.阶别||'无'));
+  const rankPct=(rankIdx/(rankList.length-1))*100;
+  document.getElementById('twPcCore').innerHTML=`
+    <div class="tw-pc-row"><span>阶别</span><span>${pc.阶别||'无'}</span></div>
+    <div class="tw-rank-bar"><div class="tw-rank-fill" style="width:${rankPct}%;"></div><div class="tw-rank-marks">${rankList.map(()=>'<span></span>').join('')}</div></div>
+    <div class="tw-pc-row"><span>当前区域</span><span>${pc.当前区域||'未知'}</span></div>
+    <div class="tw-pc-row"><span>物品种类</span><span>${Object.keys(pc.物品栏||{}).length}</span></div>
+    <div class="tw-pc-row"><span>契约数</span><span>${Object.keys(pc.契约角色||{}).length}</span></div>`;
+
+  const contracts=pc.契约角色||{};
+  document.getElementById('twPcContracts').innerHTML=Object.keys(contracts).length
+    ?Object.keys(contracts).map(k=>`<span class="tw-tag" title="${(contracts[k]&&contracts[k].描述)||''}">${k}</span>`).join('')
+    :`<span class="tw-tag empty">暂无契约</span>`;
+  const ptouches=pc.灵触||{};
+  document.getElementById('twPcTouches').innerHTML=Object.keys(ptouches).length
+    ?Object.keys(ptouches).map(k=>`<span class="tw-tag">${k}</span>`).join('')
+    :`<span class="tw-tag empty">尚未觉醒</span>`;
+
+  /* ====== TOP3 ====== */
+  function renderTop(){
+    const arr=fKeys.map(k=>({n:k,f:Number(females[k].好感度)||0,p:Number(females[k].净化度)||0,m:females[k].当前情绪}))
+      .sort((a,b)=>b.f-a.f).slice(0,3);
+    document.getElementById('twTopCnt').textContent=fKeys.length?`共 ${fKeys.length} 人`:'';
+    document.getElementById('twTopRel').innerHTML=arr.length
+      ?arr.map((x,i)=>`<div class="tw-top-cell"><div class="rk">${i+1}</div><div class="info"><div class="nm">${x.n}</div><div class="meta">好感 ${x.f} · 净化 ${x.p} · ${x.m}</div></div></div>`).join('')
+      :`<div class="tw-empty" style="grid-column:1/-1"><i class="far fa-circle"></i>暂无角色</div>`;
+  }
+  renderTop();
+
+  /* ====== 角色卡 ====== */
+  function fmtCard(name,c){
+    const inScene=c.是否在场;
+    const fav=Number(c.好感度)||0;
+    const pur=Number(c.净化度)||0;
+    const {url:portrait,src:pSrc}=pickPortrait(name,fav,pur);
+    const wear=(typeof c.穿着==='object'&&c.穿着)?c.穿着:null;
+    const meas=(typeof c.三围==='object'&&c.三围)?c.三围:null;
+    const items=c.物品||{};
+    const itemKeys=Object.keys(items);
+
+    const srcTag=pSrc?`<span class="tw-source-tag ${pSrc}">${pSrc==='local'?'LOCAL':'WB'}</span>`:'';
+
+    const wearRows=wear?`
+      <div class="tw-back-row"><span>上衣</span><span>${wear.上衣||'-'}</span></div>
+      <div class="tw-back-row"><span>下衣</span><span>${wear.下衣||'-'}</span></div>
+      <div class="tw-back-row"><span>内衣</span><span>${wear.内衣||'-'}</span></div>
+      <div class="tw-back-row"><span>内裤</span><span>${wear.内裤||'-'}</span></div>
+      ${(wear.饰品&&Object.keys(wear.饰品).length)?Object.entries(wear.饰品).map(([k,v])=>`<div class="tw-back-row"><span>${k}</span><span>${v}</span></div>`).join(''):''}
+    `:`<div class="tw-back-row"><span>穿着</span><span>待初始化</span></div>`;
+    const measRow=meas?`<div class="tw-back-row"><span>体征</span><span>${meas.胸围||'-'} / ${meas.腰围||'-'} / ${meas.臀围||'-'}</span></div>`:'';
+
+    return `
+      <div class="tw-char ${inScene?'in-scene':''}" data-name="${name}">
+        <div class="tw-char-inner">
+          <div class="tw-char-face tw-char-front">
+            <div class="tw-badge ${inScene?'':'absent'}"><span class="dot"></span>${inScene?'在场':'未在场'}${srcTag}</div>
+            <div class="tw-mood">${c.当前情绪||'平静'}</div>
+            <div class="tw-quick-edit" data-edit="${name}" title="编辑立绘"><i class="fas fa-pen"></i></div>
+            <div class="portrait" style="${portrait?`background-image:url('${portrait}')`:''}">
+              ${portrait?'':`<div class="empty-tag"><i class="far fa-image"></i><span>立绘待添加</span><span class="add-link" data-edit="${name}">点此配置</span></div>`}
+            </div>
+            <div class="meta">
+              <div class="nm">${name}</div>
+              <div class="sub">${c.阶别||'无'} · ${c.灵触||'无'}</div>
+              <div class="tw-progress favor">
+                <div class="lb"><span>好感</span><span>${fav}/100</span></div>
+                <div class="track"><div class="fill" style="width:${fav}%;"></div></div>
+              </div>
+              <div class="tw-progress purify">
+                <div class="lb"><span>净化</span><span>${pur}/100</span></div>
+                <div class="track"><div class="fill" style="width:${pur}%;"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="tw-char-face tw-char-back">
+            <h4>${name} · 详档</h4>
+            ${measRow}
+            <div class="tw-back-row"><span>阶别</span><span>${c.阶别||'无'}</span></div>
+            <div class="tw-back-row"><span>灵触</span><span>${c.灵触||'无'}</span></div>
+            ${wearRows}
+            ${itemKeys.length?`<div class="tw-back-row"><span>持物</span><span>${itemKeys.map(k=>k+'×'+items[k].数量).join(' / ')}</span></div>`:''}
+            <div class="tw-bubble">${c.内心活动||'……'}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function bindCardEvents(scope){
+    scope.querySelectorAll('.tw-char').forEach(card=>{
+      card.addEventListener('click',e=>{
+        if(e.target.closest('.tw-quick-edit')||e.target.closest('.add-link'))return;
+        card.classList.toggle('flipped');
+      });
+    });
+    scope.querySelectorAll('[data-edit]').forEach(btn=>{
+      btn.addEventListener('click',e=>{e.stopPropagation();openModalFor(btn.dataset.edit);});
+    });
+  }
+
+  /* ====== 在场 ====== */
+  function renderInScene(){
+    const inSceneList=fKeys.filter(k=>females[k].是否在场);
+    const wrap=document.getElementById('twFemaleGrid');
+    document.getElementById('twSceneCnt').textContent=inSceneList.length?`${inSceneList.length} 人在场`:'';
+    wrap.innerHTML=inSceneList.length
+      ?inSceneList.map(k=>fmtCard(k,females[k])).join('')
+      :`<div class="tw-empty" style="grid-column:1/-1"><i class="far fa-circle"></i>当前无女性角色在场</div>`;
+    bindCardEvents(wrap);
+  }
+
+  /* ====== 全部女性 ====== */
+  let femaleSearch='';let femaleSort='default';
+  function renderAllFemale(){
+    const wrap=document.getElementById('twFemaleAll');
+    document.getElementById('twFemaleAllCnt').textContent=fKeys.length?`共 ${fKeys.length} 人`:'';
+    let arr=fKeys.slice();
+    if(femaleSearch){
+      const q=femaleSearch.toLowerCase();
+      arr=arr.filter(k=>{const c=females[k];return [k,c.阶别,c.灵触,c.当前情绪].some(v=>(v||'').toLowerCase().includes(q));});
+    }
+    if(femaleSort==='favor')arr.sort((a,b)=>(females[b].好感度||0)-(females[a].好感度||0));
+    else if(femaleSort==='purify')arr.sort((a,b)=>(females[b].净化度||0)-(females[a].净化度||0));
+    else if(femaleSort==='scene')arr.sort((a,b)=>(females[b].是否在场?1:0)-(females[a].是否在场?1:0));
+    wrap.innerHTML=arr.length
+      ?arr.map(k=>fmtCard(k,females[k])).join('')
+      :`<div class="tw-empty" style="grid-column:1/-1"><i class="fas fa-magnifying-glass"></i>没有匹配结果</div>`;
+    bindCardEvents(wrap);
+  }
+  document.getElementById('twFemaleSearch').addEventListener('input',e=>{femaleSearch=e.target.value.trim();renderAllFemale();});
+  document.querySelectorAll('#twFemaleSort button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('#twFemaleSort button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');femaleSort=b.dataset.sort;renderAllFemale();
+    });
+  });
+
+  /* ====== 男性 ====== */
+  function renderMale(){
+    const wrap=document.getElementById('twMaleGrid');
+    document.getElementById('twMaleAllCnt').textContent=mKeys.length?`共 ${mKeys.length} 人`:'';
+    wrap.innerHTML=mKeys.length?mKeys.map(name=>{
+      const m=males[name];
+      const {url:portrait,src:pSrc}=pickPortrait(name,m.好感度||0,0);
+      const items=m.物品||{};
+      const itemTags=Object.keys(items).map(k=>`<span class="tw-tag">${k}×${items[k].数量}</span>`).join('');
+      const accs=m.饰品||{};
+      const accTags=Object.keys(accs).map(k=>`<span class="tw-tag">${k}</span>`).join('');
+      const srcTag=pSrc?`<span class="tw-source-tag ${pSrc}">${pSrc==='local'?'LOCAL':'WB'}</span>`:'';
+      return `
+        <div class="tw-male">
+          <div class="av" data-edit="${name}" title="点击配置头像" style="${portrait?`background-image:url('${portrait}')`:''}">${portrait?'':'<i class="fas fa-user"></i>'}</div>
+          <div class="info">
+            <div class="nm"><span class="dot ${m.是否在场?'':'absent'}"></span>${name}${srcTag}</div>
+            <div class="meta">${m.阶别||'无'} · ${m.灵触||'无'} · 好感 ${m.好感度||0}</div>
+            <div class="stats">${itemTags||'<span class="tw-tag empty">无物品</span>'}${accTags}</div>
+          </div>
+          <div class="edit-av" data-edit="${name}" title="编辑头像"><i class="fas fa-pen"></i></div>
+        </div>`;
+    }).join(''):`<div class="tw-empty"><i class="far fa-circle"></i>暂无男性档案</div>`;
+    wrap.querySelectorAll('[data-edit]').forEach(el=>{
+      el.addEventListener('click',e=>{e.stopPropagation();openModalFor(el.dataset.edit);});
+    });
+  }
+
+  /* ====== 灵触 + 物品 ====== */
+  function renderTouchInv(){
+    const pt=pc.灵触||{};
+    document.getElementById('twTouchGrid').innerHTML=Object.keys(pt).length
+      ?Object.keys(pt).map(k=>`<div class="tw-touch"><div class="nm">${k}</div><div class="lb">域：${pt[k].域||'-'}　·　编号：${pt[k].编号||'-'}</div></div>`).join('')
+      :`<div class="tw-empty"><i class="fas fa-fingerprint"></i>尚未觉醒任何灵触</div>`;
+    const inv=pc.物品栏||{};
+    const iKeys=Object.keys(inv);
+    document.getElementById('twInvCnt').textContent=iKeys.length?`${iKeys.length} 件`:'';
+    const ig=document.getElementById('twItemGrid');
+    ig.innerHTML=iKeys.length?iKeys.map(k=>`<div class="tw-item"><div class="nm"><span>${k}</span><span class="qty">×${inv[k].数量}</span></div><div class="desc">${inv[k].描述||''}</div></div>`).join('')
+      :`<div class="tw-empty"><i class="fas fa-box-open"></i>背包空空</div>`;
+    ig.querySelectorAll('.tw-item').forEach(el=>el.addEventListener('click',()=>el.classList.toggle('expanded')));
+  }
+
+  /* ====== 图表 ====== */
+  function renderChart(targetId,key){
+    const wrap=document.getElementById(targetId);
+    const data=fKeys.map(k=>({n:k,v:Number(females[k][key])||0})).sort((a,b)=>b.v-a.v);
+    if(!data.length){wrap.innerHTML=`<div class="tw-empty"><i class="far fa-circle"></i>暂无数据</div>`;return;}
+    wrap.innerHTML=data.map(d=>`<div class="bar" data-name="${d.n}" data-val="${d.v}" style="height:0%"></div>`).join('');
+    setTimeout(()=>{wrap.querySelectorAll('.bar').forEach((b,i)=>{b.style.height=Math.max(4,(data[i].v/100)*90)+'%';});},80);
+  }
+
+  /* ====== 配置弹窗 ====== */
+  const modal=document.getElementById('twModal');
+  const cfgName=document.getElementById('twCfgName');
+  const cfgDefault=document.getElementById('twCfgDefault');
+  const cfgStages=document.getElementById('twCfgStages');
+  const cfgPreview=document.getElementById('twCfgPreview');
+
+  function rebuildNameOptions(){
+    const opts=[];
+    fKeys.forEach(k=>opts.push(`<option value="${k}">[女] ${k}</option>`));
+    mKeys.forEach(k=>opts.push(`<option value="${k}">[男] ${k}</option>`));
+    cfgName.innerHTML=opts.join('')||'<option value="">无角色</option>';
+  }
+
+  function loadEditor(name){
+    // 编辑器优先显示本地，缺失则显示世界书
+    const cfg=localCfg[name]||wbCfg[name]||{};
+    cfgDefault.value=cfg.def||'';updatePreview();
+    cfgStages.innerHTML='';
+    (cfg.stages||[]).forEach(s=>addStageRow(s.minF,s.minP,s.url));
+  }
+
+  function updatePreview(){
+    const url=cfgDefault.value.trim();
+    if(url){cfgPreview.style.backgroundImage=`url('${url}')`;cfgPreview.textContent='';}
+    else{cfgPreview.style.backgroundImage='';cfgPreview.textContent='立绘预览';}
+  }
+  cfgDefault.addEventListener('input',updatePreview);
+
+  function addStageRow(f=0,p=0,url=''){
+    const row=document.createElement('div');
+    row.className='tw-stage-row';row.draggable=true;
+    row.innerHTML=`
+      <span class="grip" title="拖拽排序"><i class="fas fa-grip-vertical"></i></span>
+      <input type="number" min="0" max="100" value="${f}" placeholder="好感≥">
+      <input type="number" min="0" max="100" value="${p}" placeholder="净化≥">
+      <input type="text" value="${url}" placeholder="https://...">
+      <button class="del" title="删除"><i class="fas fa-trash"></i></button>`;
+    row.querySelector('.del').addEventListener('click',()=>row.remove());
+    row.addEventListener('dragstart',e=>{row.classList.add('dragging');e.dataTransfer.effectAllowed='move';});
+    row.addEventListener('dragend',()=>row.classList.remove('dragging'));
+    cfgStages.appendChild(row);
+  }
+  cfgStages.addEventListener('dragover',e=>{
+    e.preventDefault();
+    const dragging=cfgStages.querySelector('.dragging');if(!dragging)return;
+    const rows=[...cfgStages.querySelectorAll('.tw-stage-row:not(.dragging)')];
+    const next=rows.find(r=>e.clientY<r.getBoundingClientRect().top+r.offsetHeight/2);
+    if(next)cfgStages.insertBefore(dragging,next);else cfgStages.appendChild(dragging);
+  });
+
+  /* 世界书连接测试 */
+  document.getElementById('twWbFile').addEventListener('input',e=>{meta.wbFile=e.target.value.trim();saveMeta(meta);});
+  document.getElementById('twWbUid').addEventListener('input',e=>{meta.wbUid=e.target.value.trim();saveMeta(meta);});
+  document.getElementById('twWbTest').addEventListener('click',async()=>{
+    const s=document.getElementById('twWbStatus');s.textContent='检查中…';s.className='';
+    try{
+      const c=await readWB();
+      s.textContent=`连接成功，存 ${Object.keys(c).length} 项`;s.className='ok';
+      wbCfg=c;mergeCfg();
+    }catch(e){s.textContent=e.message;s.className='err';}
+  });
+
+  /* 默认折叠开关 */
+  const dcSwitch=document.getElementById('twDefaultCollapse');
+  if(meta.defaultCollapsed)dcSwitch.classList.add('on');
+  dcSwitch.addEventListener('click',()=>{
+    dcSwitch.classList.toggle('on');
+    meta.defaultCollapsed=dcSwitch.classList.contains('on');
+    saveMeta(meta);
+  });
+
+  function openModalFor(name){
+    rebuildNameOptions();
+    if(name)cfgName.value=name;
+    document.getElementById('twWbFile').value=meta.wbFile||'';
+    document.getElementById('twWbUid').value=meta.wbUid||'';
+    if(cfgName.value)loadEditor(cfgName.value);else{cfgDefault.value='';cfgStages.innerHTML='';updatePreview();}
+    modal.classList.add('show');
+  }
+
+  document.getElementById('twConfigBtn').addEventListener('click',()=>openModalFor(''));
+  cfgName.addEventListener('change',()=>loadEditor(cfgName.value));
+  document.getElementById('twCfgAddStage').addEventListener('click',()=>addStageRow());
+  document.getElementById('twCfgCancel').addEventListener('click',()=>modal.classList.remove('show'));
+
+  /* 保存：同时写本地 + 世界书 */
+  document.getElementById('twCfgSave').addEventListener('click',async()=>{
+    const name=cfgName.value;if(!name)return;
+    const stages=[];
+    cfgStages.querySelectorAll('.tw-stage-row').forEach(r=>{
+      const ins=r.querySelectorAll('input');
+      stages.push({minF:parseInt(ins[0].value)||0,minP:parseInt(ins[1].value)||0,url:ins[2].value.trim()});
+    });
+    const entry={def:cfgDefault.value.trim(),stages:stages.filter(s=>s.url)};
+
+    // 写本地
+    localCfg[name]=entry;
+    writeLocal(localCfg);
+
+    // 写世界书（静默）
+    wbCfg[name]=entry;
+    const wbOk=await writeWB(wbCfg);
+
+    mergeCfg();
+    modal.classList.remove('show');
+    refreshAllRender();
+
+    if(wbOk)toast('已保存：本地 + 世界书','success');
+    else toast('已保存到本地。世界书写入失败，请检查参数','error');
+  });
+
+  document.getElementById('twCfgExport').addEventListener('click',()=>{
+    const txt=JSON.stringify(mergedCfg,null,2);
+    if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('配置已复制到剪贴板','success'));
+    else{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('已复制','success');}
+  });
+  document.getElementById('twCfgImport').addEventListener('click',async()=>{
+    const txt=prompt('粘贴配置 JSON：');if(!txt)return;
+    try{
+      const obj=JSON.parse(txt);
+      Object.assign(localCfg,obj);writeLocal(localCfg);
+      Object.assign(wbCfg,obj);await writeWB(wbCfg);
+      mergeCfg();refreshAllRender();toast('已导入','success');
+      if(cfgName.value)loadEditor(cfgName.value);
+    }catch(e){toast('JSON 格式错误','error');}
+  });
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('show');});
+
+  /* 同步按钮 */
+  document.getElementById('twSyncBtn').addEventListener('click',async()=>{
+    localCfg=readLocal();
+    wbCfg=await readWB();
+    mergeCfg();refreshAllRender();
+    toast('已重新加载双端配置','success');
+  });
+
+  function refreshAllRender(){renderInScene();renderAllFemale();renderMale();}
+
+  /* ====== 启动 ====== */
+  renderInScene();
+  renderAllFemale();
+  renderMale();
+  renderTouchInv();
+  renderChart('twFavorChart','好感度');
+  renderChart('twPurifyChart','净化度');
+
+  // 异步静默拉取世界书
+  initWBSilent();
+})();
+</script>
+</body>
+</html>
