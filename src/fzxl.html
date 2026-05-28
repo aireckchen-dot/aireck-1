@@ -1,0 +1,1536 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>灵殿修炼系统v2</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<style>
+/* ======================= RESET & VARS ======================= */
+.lp *,.lp *::before,.lp *::after{box-sizing:border-box;margin:0;padding:0;}
+.lp{
+  --bg0:#060a12;--bg1:#0b1022;--bg2:#101728;--bg3:#161e32;--bg4:#1c263e;
+  --acc:#00c8ff;--acc2:#0098cc;--acc3:rgba(0,200,255,.12);
+  --pur:#7c5ce6;--pur2:rgba(124,92,230,.12);
+  --gold:#f0c040;--gold2:rgba(240,192,64,.12);
+  --red:#ff2d55;--red2:rgba(255,45,85,.12);
+  --org:#ff8c00;--org2:rgba(255,140,0,.12);
+  --grn:#36d986;--grn2:rgba(54,217,134,.12);
+  --hp:#ff4757;--exp:#a78bfa;
+  --t1:#cdd8e6;--t2:#8293a6;--t3:#546275;
+  --glass:rgba(11,16,34,.88);--glass2:rgba(16,23,40,.92);
+  --brd:rgba(0,200,255,.08);--brd2:rgba(0,200,255,.2);
+  --glow:0 0 12px rgba(0,200,255,.25);
+  font-family:'Segoe UI','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  color:var(--t1);font-size:13px;line-height:1.5;position:relative;
+}
+
+/* ======================= SCROLLBAR ======================= */
+.lp ::-webkit-scrollbar{width:4px;height:4px;}
+.lp ::-webkit-scrollbar-track{background:transparent;}
+.lp ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+.lp ::-webkit-scrollbar-thumb:hover{background:var(--acc2);}
+
+/* ======================= DETAILS TOGGLE ======================= */
+.lp-details{width:100%;max-width:920px;margin:12px auto;}
+.lp-summary{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:13px 24px;cursor:pointer;list-style:none;
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border:1px solid var(--brd2);border-radius:12px;
+  color:var(--acc);font-size:14px;font-weight:700;
+  letter-spacing:2px;transition:all .3s;
+  box-shadow:var(--glow);position:relative;overflow:hidden;
+}
+.lp-summary::-webkit-details-marker{display:none;}
+.lp-summary:hover{box-shadow:0 0 20px rgba(0,200,255,.4);border-color:var(--acc);}
+.lp-summary::before{
+  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(0,200,255,.06),transparent);
+  animation:lpSweep 3s linear infinite;
+}
+@keyframes lpSweep{to{left:200%;}}
+.lp-arrow{transition:transform .3s;font-size:11px;}
+.lp-details[open] .lp-arrow{transform:rotate(180deg);}
+
+/* ======================= MAIN PANEL ======================= */
+.lp-main{
+  position:relative;overflow:hidden;
+  background:var(--bg0);
+  border:1px solid var(--brd);border-top:none;
+  border-radius:0 0 12px 12px;min-height:520px;
+}
+.lp-main::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 15% 10%,rgba(0,200,255,.025) 0%,transparent 50%),
+    radial-gradient(ellipse at 85% 90%,rgba(124,92,230,.025) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 50%,rgba(240,192,64,.01) 0%,transparent 40%);
+  pointer-events:none;z-index:0;
+  animation:lpBgPulse 10s ease-in-out infinite alternate;
+}
+@keyframes lpBgPulse{from{opacity:.6;}to{opacity:1;}}
+.lp-particles{position:absolute;inset:0;pointer-events:none;z-index:0;}
+.lp-floater{position:absolute;pointer-events:none;z-index:0;border-radius:50%;opacity:.12;filter:blur(1px);}
+.lp-f1{width:50px;height:50px;top:12%;right:6%;background:radial-gradient(circle,var(--acc),transparent);animation:lpFl 14s ease-in-out infinite;}
+.lp-f2{width:35px;height:35px;bottom:18%;left:4%;background:radial-gradient(circle,var(--pur),transparent);animation:lpFl 18s ease-in-out infinite reverse;}
+.lp-f3{width:25px;height:25px;top:55%;right:2%;background:radial-gradient(circle,var(--gold),transparent);animation:lpFl 22s ease-in-out infinite;animation-delay:-6s;}
+@keyframes lpFl{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(8px,-12px) scale(1.08);}66%{transform:translate(-6px,8px) scale(.92);}}
+
+/* ======================= TOPBAR ======================= */
+.lp-topbar{
+  position:relative;z-index:2;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;
+  padding:12px 16px;
+  background:linear-gradient(180deg,rgba(0,200,255,.04),transparent);
+  border-bottom:1px solid var(--brd);
+}
+.lp-winfo{display:flex;gap:8px;flex-wrap:wrap;}
+.lp-winfo span{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;font-size:11px;color:var(--t2);
+  background:rgba(0,200,255,.03);border:1px solid var(--brd);
+  border-radius:16px;letter-spacing:.3px;
+}
+.lp-winfo i{color:var(--acc);opacity:.6;font-size:10px;}
+.lp-csel{display:flex;align-items:center;gap:8px;}
+.lp-csel-label{font-size:11px;color:var(--t3);}
+.lp-csel select{
+  background:var(--bg3);color:var(--t1);
+  border:1px solid var(--brd2);border-radius:6px;
+  padding:4px 26px 4px 10px;font-size:12px;
+  cursor:pointer;outline:none;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300c8ff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 4px center;background-size:14px;
+  transition:border-color .3s;
+}
+.lp-csel select:hover{border-color:var(--acc);}
+
+/* ======================= TABS ======================= */
+.lp-tabs{
+  position:relative;z-index:2;
+  display:flex;gap:0;padding:0 8px;
+  background:rgba(0,0,0,.35);
+  border-bottom:1px solid var(--brd);
+  overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;
+}
+.lp-tabs::-webkit-scrollbar{display:none;}
+.lp-tabs::after{
+  content:'';position:absolute;bottom:0;
+  left:var(--ind-l,0px);width:var(--ind-w,50px);
+  height:2px;background:var(--acc);
+  box-shadow:0 0 8px var(--acc),0 0 16px rgba(0,200,255,.2);
+  transition:left .35s cubic-bezier(.4,0,.2,1),width .35s cubic-bezier(.4,0,.2,1);
+  border-radius:1px;
+}
+.lp-tab{
+  flex-shrink:0;padding:10px 14px;font-size:12px;
+  color:var(--t3);cursor:pointer;
+  border-bottom:2px solid transparent;
+  transition:color .3s;white-space:nowrap;font-weight:500;
+  position:relative;
+}
+.lp-tab:hover{color:var(--t2);}
+.lp-tab.active{color:var(--acc);text-shadow:0 0 8px rgba(0,200,255,.4);}
+
+/* ======================= CONTENT ======================= */
+.lp-content{position:relative;z-index:2;padding:14px;min-height:420px;}
+.lp-pg{display:none;animation:lpFadeIn .35s ease;}
+.lp-pg.active{display:block;}
+@keyframes lpFadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ======================= CARDS ======================= */
+.lp-card{
+  position:relative;
+  background:var(--glass);
+  border:1px solid var(--brd);border-radius:10px;
+  padding:14px;margin-bottom:10px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  transition:border-color .3s,box-shadow .3s;
+  overflow:hidden;
+}
+.lp-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--acc3),var(--pur2),transparent);
+}
+.lp-card:hover{border-color:rgba(0,200,255,.15);}
+.lp-card-t{
+  font-size:13px;font-weight:700;color:var(--acc);
+  margin-bottom:10px;padding-bottom:8px;
+  border-bottom:1px solid var(--brd);
+  display:flex;align-items:center;gap:6px;
+  letter-spacing:.5px;
+}
+.lp-card-t i{font-size:12px;opacity:.6;}
+
+/* ======================= BARS ======================= */
+.lp-bar-w{width:100%;height:14px;background:rgba(0,0,0,.45);border-radius:7px;overflow:hidden;position:relative;margin:3px 0;}
+.lp-bar{height:100%;border-radius:7px;transition:width .6s cubic-bezier(.4,0,.2,1);position:relative;overflow:hidden;}
+.lp-bar::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);animation:lpShim 2.5s infinite;}
+@keyframes lpShim{to{left:100%;}}
+.lp-bar-hp{background:linear-gradient(90deg,var(--hp),#ff7082);}
+.lp-bar-exp{background:linear-gradient(90deg,#7c5ce6,var(--exp));}
+.lp-bar-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);z-index:1;}
+
+/* ======================= STATS ======================= */
+.lp-stat{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px;border-bottom:1px solid rgba(255,255,255,.02);}
+.lp-stat-n{color:var(--t2);}
+.lp-stat-v{font-weight:700;font-variant-numeric:tabular-nums;}
+.lp-stat-b{color:var(--grn);font-size:11px;margin-left:3px;font-weight:600;}
+
+/* ======================= RANK BADGE ======================= */
+.lp-rank{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 12px;border-radius:16px;font-size:12px;font-weight:700;
+  background:linear-gradient(135deg,var(--pur2),var(--acc3));
+  border:1px solid rgba(124,92,230,.25);
+  color:#c4b5fd;letter-spacing:.5px;
+  animation:lpRankPulse 3.5s ease-in-out infinite;
+}
+@keyframes lpRankPulse{0%,100%{box-shadow:0 0 6px rgba(124,92,230,.15);}50%{box-shadow:0 0 14px rgba(124,92,230,.35);}}
+
+/* ======================= OVERVIEW LAYOUT ======================= */
+.lp-ov{display:flex;gap:12px;flex-wrap:wrap;}
+.lp-ov-l{flex:1;min-width:200px;}
+.lp-ov-r{flex:1.2;min-width:240px;}
+.lp-radar-w{display:flex;align-items:center;justify-content:center;padding:6px;}
+.lp-radar{width:100%;max-width:240px;aspect-ratio:1;}
+
+/* ======================= CULTIVATION ======================= */
+.lp-cult-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;}
+.lp-cult-c{
+  background:var(--glass2);border:1px solid var(--brd);border-radius:8px;
+  padding:12px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;
+}
+.lp-cult-c::before{content:'';position:absolute;inset:-2px;background:conic-gradient(from 0deg,var(--acc),transparent,var(--pur),transparent,var(--acc));border-radius:inherit;z-index:-1;opacity:0;transition:opacity .4s;animation:lpRot 6s linear infinite;}
+@keyframes lpRot{to{transform:rotate(360deg);}}
+.lp-cult-c:hover::before{opacity:.15;}
+.lp-cult-c:hover{border-color:var(--brd2);transform:translateY(-1px);}
+.lp-cult-c.sel{border-color:var(--acc);box-shadow:var(--glow);}
+.lp-cult-c.dis{opacity:.35;pointer-events:none;}
+.lp-cult-n{font-weight:700;font-size:13px;margin-bottom:4px;}
+.lp-cult-d{font-size:11px;color:var(--t2);margin-bottom:6px;line-height:1.35;}
+.lp-cult-rw{font-size:10px;color:var(--t3);}
+.lp-cult-rw span{display:inline-block;padding:1px 5px;margin:1px;background:var(--acc3);border-radius:3px;color:var(--t2);}
+.lp-cult-rk{display:inline-block;padding:2px 7px;margin-top:3px;border-radius:3px;font-size:10px;font-weight:700;}
+.lp-rk0{background:var(--grn2);color:var(--grn);}
+.lp-rk1{background:var(--org2);color:var(--org);}
+.lp-rk2{background:var(--red2);color:var(--red);}
+.lp-rk3{background:rgba(255,45,85,.2);color:#ff6b8a;}
+
+.lp-cult-res{background:rgba(0,200,255,.02);border:1px solid var(--brd);border-radius:8px;padding:12px;margin-top:10px;animation:lpUp .4s ease;}
+@keyframes lpUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.lp-cult-res-t{font-size:12px;font-weight:700;color:var(--acc);margin-bottom:6px;}
+.lp-rwl{font-size:11px;padding:2px 0;display:flex;align-items:center;gap:5px;}
+.lp-rwl i{width:12px;text-align:center;font-size:10px;}
+.lp-rw-pos{color:var(--grn);}
+.lp-rw-neg{color:var(--red);}
+.lp-rw-spc{color:var(--gold);}
+
+/* ======================= BUTTONS ======================= */
+.lp-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  padding:7px 18px;border:none;border-radius:6px;
+  font-size:12px;font-weight:700;cursor:pointer;
+  transition:all .25s;color:#fff;position:relative;overflow:hidden;
+  letter-spacing:.3px;
+}
+.lp-btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.15);transform:translate(-50%,-50%);transition:width .4s,height .4s;}
+.lp-btn:active::after{width:180px;height:180px;}
+.lp-btn-p{background:linear-gradient(135deg,var(--acc2),var(--acc));box-shadow:0 2px 8px rgba(0,200,255,.25);}
+.lp-btn-p:hover{box-shadow:0 4px 14px rgba(0,200,255,.4);transform:translateY(-1px);}
+.lp-btn-d{background:linear-gradient(135deg,#b8222e,var(--red));}
+.lp-btn-d:hover{box-shadow:0 4px 14px rgba(255,45,85,.35);transform:translateY(-1px);}
+.lp-btn-g{background:linear-gradient(135deg,#b8880e,var(--gold));color:#0a0e1a;}
+.lp-btn-g:hover{box-shadow:0 4px 14px rgba(240,192,64,.35);transform:translateY(-1px);}
+.lp-btn-v{background:linear-gradient(135deg,#5b21b6,var(--pur));}
+.lp-btn-v:hover{box-shadow:0 4px 14px rgba(124,92,230,.35);transform:translateY(-1px);}
+.lp-btn-sm{padding:4px 10px;font-size:11px;border-radius:5px;}
+.lp-btn:disabled{opacity:.35;pointer-events:none;}
+.lp-btn-full{width:100%;}
+
+/* ======================= INVENTORY ======================= */
+.lp-subtabs{display:flex;gap:3px;margin-bottom:10px;flex-wrap:wrap;}
+.lp-stab{
+  padding:5px 12px;font-size:11px;
+  background:rgba(0,0,0,.25);border:1px solid var(--brd);
+  border-radius:5px;cursor:pointer;color:var(--t3);
+  transition:all .3s;font-weight:500;
+}
+.lp-stab.active{background:var(--acc3);border-color:var(--acc);color:var(--acc);}
+.lp-stab:hover{color:var(--t2);}
+
+.lp-eq-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px;}
+.lp-eq-slot{
+  background:var(--glass2);border:1px solid var(--brd);border-radius:8px;
+  padding:10px;text-align:center;font-size:11px;
+  min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  cursor:pointer;transition:all .3s;
+}
+.lp-eq-slot:hover{border-color:var(--brd2);}
+.lp-eq-slot.filled{border-color:rgba(124,92,230,.25);background:rgba(124,92,230,.03);}
+.lp-eq-slbl{color:var(--t3);font-size:10px;}
+.lp-eq-sn{font-weight:700;font-size:11px;}
+
+.lp-inv-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:6px;}
+.lp-inv-i{
+  background:var(--glass2);border:1px solid var(--brd);border-radius:7px;
+  padding:9px;cursor:pointer;transition:all .3s;position:relative;
+  animation:lpGridIn .3s ease backwards;
+}
+@keyframes lpGridIn{from{opacity:0;transform:scale(.95);}}
+.lp-inv-i:hover{border-color:var(--brd2);transform:translateY(-2px);}
+.lp-inv-i.sel{border-color:var(--acc);box-shadow:var(--glow);}
+.lp-inv-in{font-size:11px;font-weight:700;margin-bottom:3px;word-break:break-all;line-height:1.3;}
+.lp-inv-ic{position:absolute;top:5px;right:7px;font-size:10px;color:var(--t3);background:rgba(0,0,0,.35);padding:0 5px;border-radius:8px;}
+.lp-inv-id{font-size:10px;color:var(--t3);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* Rarity name colors */
+.lp-r-common .lp-inv-in,.lp-r-common .lp-eq-sn,.lp-r-common .lp-shop-in{color:var(--t2);}
+.lp-r-uncommon .lp-inv-in,.lp-r-uncommon .lp-eq-sn,.lp-r-uncommon .lp-shop-in{color:var(--grn);}
+.lp-r-rare .lp-inv-in,.lp-r-rare .lp-eq-sn,.lp-r-rare .lp-shop-in{color:var(--acc);}
+.lp-r-epic .lp-inv-in,.lp-r-epic .lp-eq-sn,.lp-r-epic .lp-shop-in{color:var(--pur);}
+.lp-r-legendary .lp-inv-in,.lp-r-legendary .lp-eq-sn,.lp-r-legendary .lp-shop-in{color:var(--org);text-shadow:0 0 6px rgba(255,140,0,.3);}
+.lp-r-mythic .lp-inv-in,.lp-r-mythic .lp-eq-sn,.lp-r-mythic .lp-shop-in{color:var(--red);text-shadow:0 0 6px rgba(255,45,85,.3);animation:lpMythicGlow 2s ease-in-out infinite;}
+@keyframes lpMythicGlow{0%,100%{text-shadow:0 0 4px rgba(255,45,85,.2);}50%{text-shadow:0 0 10px rgba(255,45,85,.5);}}
+
+/* Legendary/mythic border glow for inv items */
+.lp-r-legendary{border-color:rgba(255,140,0,.2) !important;}
+.lp-r-legendary:hover{box-shadow:0 0 10px rgba(255,140,0,.2) !important;}
+.lp-r-mythic{border-color:rgba(255,45,85,.2) !important;animation:lpMythicBorder 3s ease-in-out infinite;}
+@keyframes lpMythicBorder{0%,100%{box-shadow:0 0 4px rgba(255,45,85,.1);}50%{box-shadow:0 0 12px rgba(255,45,85,.25);}}
+
+/* ======================= DETAIL PANEL ======================= */
+.lp-detail{background:var(--glass2);border:1px solid var(--brd2);border-radius:8px;padding:14px;margin-top:10px;animation:lpUp .3s ease;}
+.lp-det-n{font-size:15px;font-weight:800;margin-bottom:4px;}
+.lp-det-tp{font-size:10px;color:var(--t3);margin-bottom:8px;}
+.lp-det-desc{font-size:11px;color:var(--t2);margin-bottom:8px;line-height:1.35;}
+.lp-det-st{margin-bottom:8px;}
+.lp-det-st span{display:inline-block;padding:2px 7px;margin:1px;background:var(--acc3);border-radius:3px;font-size:11px;color:var(--acc);}
+.lp-det-af{padding:5px 8px;margin:3px 0;background:var(--pur2);border-left:2px solid var(--pur);border-radius:0 5px 5px 0;font-size:11px;color:#c4b5fd;}
+.lp-det-act{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+
+/* ======================= SKILLS ======================= */
+.lp-sk-list{display:grid;gap:6px;}
+.lp-sk-item{
+  background:var(--glass2);border:1px solid var(--brd);border-radius:7px;
+  padding:10px;transition:all .3s;display:flex;gap:8px;align-items:flex-start;
+}
+.lp-sk-item:hover{border-color:var(--brd2);}
+.lp-sk-ico{
+  flex-shrink:0;width:36px;height:36px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  background:linear-gradient(135deg,var(--acc3),var(--pur2));border:1px solid var(--brd);
+  color:var(--acc);
+}
+.lp-sk-info{flex:1;min-width:0;}
+.lp-sk-n{font-size:12px;font-weight:700;margin-bottom:2px;}
+.lp-sk-meta{font-size:10px;color:var(--t3);display:flex;gap:6px;flex-wrap:wrap;}
+.lp-sk-eff{font-size:10px;color:var(--t2);margin-top:3px;padding:3px 6px;background:rgba(0,0,0,.2);border-radius:3px;}
+.lp-sk-tag{display:inline-block;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;}
+.lp-tag-s{background:var(--acc3);color:var(--acc);}
+.lp-tag-a{background:var(--red2);color:var(--red);}
+.lp-tag-sf{background:var(--grn2);color:var(--grn);}
+.lp-tag-al{background:var(--org2);color:var(--org);}
+
+/* ======================= SHOP ======================= */
+.lp-shop-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+.lp-sp-disp{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:16px;background:var(--acc3);border:1px solid var(--brd);font-size:12px;font-weight:700;color:var(--acc);}
+.lp-shop-search{
+  display:flex;align-items:center;gap:4px;
+  background:var(--bg3);border:1px solid var(--brd);border-radius:6px;
+  padding:3px 8px;
+}
+.lp-shop-search input{
+  background:transparent;border:none;outline:none;color:var(--t1);font-size:11px;width:100px;
+}
+.lp-shop-search i{color:var(--t3);font-size:11px;}
+.lp-shop-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;}
+.lp-shop-i{background:var(--glass2);border:1px solid var(--brd);border-radius:8px;padding:12px;transition:all .3s;}
+.lp-shop-i:hover{border-color:var(--brd2);transform:translateY(-1px);}
+.lp-shop-in{font-size:12px;font-weight:700;margin-bottom:3px;}
+.lp-shop-id{font-size:10px;color:var(--t3);margin-bottom:6px;line-height:1.25;min-height:24px;}
+.lp-shop-bt{display:flex;justify-content:space-between;align-items:center;}
+.lp-shop-pr{font-size:12px;font-weight:700;color:var(--gold);}
+
+/* ======================= GACHA ======================= */
+.lp-gacha{text-align:center;padding:16px;}
+.lp-gacha-pool{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:4px;margin-bottom:16px;}
+.lp-gacha-tier{padding:5px 8px;border-radius:5px;font-size:10px;background:rgba(0,0,0,.3);border:1px solid var(--brd);}
+.lp-gacha-tn{font-weight:700;margin-bottom:1px;}
+.lp-gacha-anim{width:100px;height:100px;margin:16px auto;border-radius:50%;position:relative;background:radial-gradient(circle,var(--pur2),transparent);}
+.lp-gacha-anim.spin{animation:lpGSpin 1.2s ease-out;}
+@keyframes lpGSpin{0%{transform:rotate(0) scale(1);}50%{transform:rotate(720deg) scale(1.15);box-shadow:0 0 35px rgba(124,92,230,.5);}100%{transform:rotate(1080deg) scale(1);}}
+.lp-gacha-anim.spin-leg{animation:lpGSpinLeg 1.5s ease-out;}
+@keyframes lpGSpinLeg{0%{transform:rotate(0) scale(1);}50%{transform:rotate(900deg) scale(1.25);box-shadow:0 0 50px rgba(255,140,0,.6);}100%{transform:rotate(1440deg) scale(1);}}
+.lp-gacha-anim.spin-myth{animation:lpGSpinMyth 1.8s ease-out;}
+@keyframes lpGSpinMyth{0%{transform:rotate(0) scale(1);}40%{transform:rotate(720deg) scale(1.2);box-shadow:0 0 40px rgba(255,45,85,.5);}70%{transform:rotate(1200deg) scale(1.35);box-shadow:0 0 60px rgba(255,45,85,.7);}100%{transform:rotate(1800deg) scale(1);}}
+.lp-gacha-anim i{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:40px;color:var(--pur);}
+.lp-gacha-res{margin-top:12px;padding:12px;border-radius:8px;background:var(--pur2);border:1px solid rgba(124,92,230,.2);animation:lpUp .4s;}
+.lp-gacha-rn{font-size:15px;font-weight:800;}
+
+/* ======================= FORGE ======================= */
+.lp-forge-area{display:grid;gap:10px;}
+.lp-forge-req{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.lp-forge-req select{
+  background:var(--bg3);color:var(--t1);border:1px solid var(--brd);border-radius:5px;
+  padding:4px 22px 4px 8px;font-size:11px;cursor:pointer;outline:none;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300c8ff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 2px center;background-size:13px;
+}
+.lp-forge-ta{
+  width:100%;min-height:160px;
+  background:var(--bg2);color:var(--t1);
+  border:1px solid var(--brd2);border-radius:6px;
+  padding:10px;font-size:11px;font-family:'Cascadia Code','Fira Code','Consolas',monospace;
+  resize:vertical;outline:none;
+  transition:border-color .3s;
+  line-height:1.45;
+}
+.lp-forge-ta:focus{border-color:var(--acc);}
+.lp-forge-ta::placeholder{color:var(--t3);}
+
+/* ======================= TOAST ======================= */
+.lp-toast{
+  position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:10000;
+  padding:8px 22px;border-radius:7px;font-size:12px;font-weight:700;
+  color:#fff;pointer-events:none;
+  animation:lpTIn .3s ease,lpTOut .3s ease 2.2s forwards;
+  box-shadow:0 4px 16px rgba(0,0,0,.3);
+}
+@keyframes lpTIn{from{opacity:0;transform:translateX(-50%) translateY(-15px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+@keyframes lpTOut{to{opacity:0;transform:translateX(-50%) translateY(-15px);}}
+.lp-toast-s{background:linear-gradient(135deg,#1b7a3d,var(--grn));}
+.lp-toast-e{background:linear-gradient(135deg,#8b1a2a,var(--red));}
+.lp-toast-i{background:linear-gradient(135deg,var(--acc2),var(--acc));}
+.lp-toast-g{background:linear-gradient(135deg,#8b6914,var(--gold));color:#0a0e1a;}
+
+/* ======================= LEVEL UP ======================= */
+.lp-lvup-ov{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.75);cursor:pointer;
+  animation:lpFadeIn .3s;
+}
+.lp-lvup-box{text-align:center;padding:36px;animation:lpLvUp 1.4s ease forwards;}
+@keyframes lpLvUp{0%{transform:scale(.5);opacity:0;}40%{transform:scale(1.08);opacity:1;}100%{transform:scale(1);opacity:1;}}
+.lp-lvup-t{font-size:26px;font-weight:800;background:linear-gradient(135deg,var(--acc),var(--pur),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;background-size:200% auto;animation:lpTxtShim 2s linear infinite;}
+@keyframes lpTxtShim{to{background-position:200% center;}}
+.lp-lvup-r{font-size:16px;color:var(--pur);margin-top:8px;}
+
+/* ======================= RESPONSIVE ======================= */
+@media(max-width:600px){
+  .lp-ov{flex-direction:column;}
+  .lp-cult-g{grid-template-columns:1fr 1fr;}
+  .lp-shop-g{grid-template-columns:1fr;}
+  .lp-inv-g{grid-template-columns:repeat(auto-fill,minmax(105px,1fr));}
+  .lp-tab{padding:8px 10px;font-size:11px;}
+  .lp-content{padding:10px 8px;}
+  .lp-gacha-pool{grid-template-columns:repeat(3,1fr);}
+}
+@media(max-width:380px){
+  .lp-cult-g{grid-template-columns:1fr;}
+  .lp-eq-slots{grid-template-columns:1fr;}
+}
+</style>
+
+<!-- =================== HTML STRUCTURE =================== -->
+<div class="lp">
+  <details class="lp-details" open>
+    <summary class="lp-summary">
+      <i class="fas fa-dungeon"></i>
+      <span>灵殿修炼系统</span>
+      <span class="lp-arrow"><i class="fas fa-chevron-down"></i></span>
+    </summary>
+    <div class="lp-main" id="lp-main">
+      <canvas class="lp-particles" id="lp-ptc"></canvas>
+      <div class="lp-floater lp-f1"></div>
+      <div class="lp-floater lp-f2"></div>
+      <div class="lp-floater lp-f3"></div>
+
+      <div class="lp-topbar">
+        <div class="lp-winfo">
+          <span><i class="far fa-calendar-alt"></i> <em id="lp-date">--</em></span>
+          <span><i class="far fa-clock"></i> <em id="lp-time">--</em></span>
+          <span><i class="fas fa-cloud-sun"></i> <em id="lp-weather">--</em></span>
+        </div>
+        <div class="lp-csel">
+          <span class="lp-csel-label">角色</span>
+          <select id="lp-csel"></select>
+        </div>
+      </div>
+
+      <div class="lp-tabs" id="lp-tabs">
+        <div class="lp-tab active" data-tab="overview">总览</div>
+        <div class="lp-tab" data-tab="cult">修炼</div>
+        <div class="lp-tab" data-tab="inv">背包</div>
+        <div class="lp-tab" data-tab="skills">技能</div>
+        <div class="lp-tab" data-tab="shop">商城</div>
+        <div class="lp-tab" data-tab="gacha">抽奖</div>
+        <div class="lp-tab" data-tab="forge">锻造</div>
+      </div>
+
+      <div class="lp-content">
+        <!-- 总览 -->
+        <div class="lp-pg active" id="lp-pg-overview">
+          <div class="lp-ov">
+            <div class="lp-ov-l">
+              <div class="lp-card">
+                <div class="lp-card-t"><i class="fas fa-chart-radar"></i> 属性雷达</div>
+                <div class="lp-radar-w"><canvas class="lp-radar" id="lp-radar" width="240" height="240"></canvas></div>
+              </div>
+            </div>
+            <div class="lp-ov-r">
+              <div class="lp-card">
+                <div class="lp-card-t"><i class="fas fa-id-badge"></i> 属性面板</div>
+                <div style="margin-bottom:8px;"><span class="lp-rank" id="lp-rank">--</span></div>
+                <div style="margin-bottom:6px;">
+                  <div class="lp-stat"><span class="lp-stat-n">HP</span><span class="lp-stat-v" id="lp-hp-t">--</span></div>
+                  <div class="lp-bar-w"><div class="lp-bar lp-bar-hp" id="lp-hp-bar" style="width:100%;"></div><div class="lp-bar-lbl" id="lp-hp-lbl">--</div></div>
+                </div>
+                <div style="margin-bottom:6px;">
+                  <div class="lp-stat"><span class="lp-stat-n">EXP</span><span class="lp-stat-v" id="lp-exp-t">--</span></div>
+                  <div class="lp-bar-w"><div class="lp-bar lp-bar-exp" id="lp-exp-bar" style="width:0%;"></div><div class="lp-bar-lbl" id="lp-exp-lbl">--</div></div>
+                </div>
+                <div class="lp-stat"><span class="lp-stat-n">灵点</span><span class="lp-stat-v" id="lp-sp" style="color:var(--gold);text-shadow:0 0 6px rgba(240,192,64,.3);">--</span></div>
+                <div class="lp-stat"><span class="lp-stat-n">ATK 攻击</span><span class="lp-stat-v" id="lp-atk">--</span></div>
+                <div class="lp-stat"><span class="lp-stat-n">DEF 防御</span><span class="lp-stat-v" id="lp-def">--</span></div>
+                <div class="lp-stat"><span class="lp-stat-n">SPI 灵力</span><span class="lp-stat-v" id="lp-spi">--</span></div>
+                <div class="lp-stat"><span class="lp-stat-n">SPD 速度</span><span class="lp-stat-v" id="lp-spd">--</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- 修炼 -->
+        <div class="lp-pg" id="lp-pg-cult">
+          <div class="lp-card">
+            <div class="lp-card-t"><i class="fas fa-om"></i> 每日修炼 <span id="lp-cult-st" style="margin-left:auto;font-size:10px;"></span></div>
+            <div class="lp-cult-g" id="lp-cult-g"></div>
+            <div style="text-align:center;margin-top:12px;">
+              <button class="lp-btn lp-btn-p" id="lp-cult-btn" disabled><i class="fas fa-fire-alt"></i> 开始修炼</button>
+            </div>
+            <div id="lp-cult-res" style="display:none;"></div>
+          </div>
+        </div>
+        <!-- 背包 -->
+        <div class="lp-pg" id="lp-pg-inv">
+          <div class="lp-card">
+            <div class="lp-card-t"><i class="fas fa-shield-halved"></i> 装备槽</div>
+            <div class="lp-eq-slots" id="lp-eq-slots"></div>
+          </div>
+          <div class="lp-card">
+            <div class="lp-card-t"><i class="fas fa-box-open"></i> 物品栏</div>
+            <div class="lp-subtabs" id="lp-inv-tabs">
+              <div class="lp-stab active" data-f="all">全部</div>
+              <div class="lp-stab" data-f="equipment">装备</div>
+              <div class="lp-stab" data-f="consumable">消耗品</div>
+              <div class="lp-stab" data-f="skillBook">技能书</div>
+            </div>
+            <div class="lp-inv-g" id="lp-inv-g"></div>
+          </div>
+          <div id="lp-item-det" style="display:none;"></div>
+        </div>
+        <!-- 技能 -->
+        <div class="lp-pg" id="lp-pg-skills">
+          <div class="lp-card">
+            <div class="lp-card-t"><i class="fas fa-hat-wizard"></i> 已学技能</div>
+            <div class="lp-sk-list" id="lp-learned"></div>
+          </div>
+          <div class="lp-card">
+            <div class="lp-card-t"><i class="fas fa-book-sparkles"></i> 可学技能 (需拥有技能书)</div>
+            <div class="lp-sk-list" id="lp-avail"></div>
+          </div>
+        </div>
+        <!-- 商城 -->
+        <div class="lp-pg" id="lp-pg-shop">
+          <div class="lp-shop-h">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+              <div class="lp-subtabs" id="lp-shop-tabs">
+                <div class="lp-stab active" data-f="consumable">消耗品</div>
+                <div class="lp-stab" data-f="equipment">装备</div>
+                <div class="lp-stab" data-f="skillBook">技能书</div>
+              </div>
+              <div class="lp-shop-search"><i class="fas fa-search"></i><input id="lp-shop-q" placeholder="搜索..." /></div>
+            </div>
+            <div class="lp-sp-disp"><i class="fas fa-gem"></i> <span id="lp-shop-sp">0</span></div>
+          </div>
+          <div class="lp-shop-g" id="lp-shop-g"></div>
+        </div>
+        <!-- 抽奖 -->
+        <div class="lp-pg" id="lp-pg-gacha">
+          <div class="lp-card">
+            <div class="lp-gacha">
+              <div class="lp-card-t" style="justify-content:center;"><i class="fas fa-dice-d20"></i> 灵殿秘匣</div>
+              <div class="lp-gacha-pool">
+                <div class="lp-gacha-tier"><div class="lp-gacha-tn" style="color:var(--t2);">普通 48%</div><div>基础消耗</div></div>
+                <div class="lp-gacha-tier"><div class="lp-gacha-tn" style="color:var(--grn);">精良 22%</div><div>中级物资</div></div>
+                <div class="lp-gacha-tier"><div class="lp-gacha-tn" style="color:var(--acc);">稀有 16%</div><div>高级装备</div></div>
+                <div class="lp-gacha-tier"><div class="lp-gacha-tn" style="color:var(--pur);">史诗 8%</div><div>顶级装备</div></div>
+                <div class="lp-gacha-tier"><div class="lp-gacha-tn" style="color:var(--org);">传奇 4%</div><div>稀世装备</div></div>
+                <div class="lp-gacha-tier"><div class="lp-gacha-tn" style="color:var(--red);">神器 2%</div><div>绝世至宝</div></div>
+              </div>
+              <div class="lp-gacha-anim" id="lp-gacha-anim"><i class="fas fa-cube"></i></div>
+              <div style="margin:10px 0;">
+                <span style="color:var(--t2);font-size:12px;">消耗: </span>
+                <span style="color:var(--gold);font-weight:700;">50 灵点</span>
+                <span style="color:var(--t3);margin-left:8px;font-size:11px;">今日: <em id="lp-gacha-lim">3</em>/3</span>
+                <span style="color:var(--t3);margin-left:8px;font-size:11px;">保底: <em id="lp-gacha-pity">0</em></span>
+              </div>
+              <button class="lp-btn lp-btn-g" id="lp-gacha-btn"><i class="fas fa-gift"></i> 开启秘匣</button>
+              <div id="lp-gacha-res" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- 锻造 -->
+        <div class="lp-pg" id="lp-pg-forge">
+          <div class="lp-card">
+            <div class="lp-card-t"><i class="fas fa-hammer"></i> AI 物品锻造</div>
+            <div class="lp-forge-area">
+              <div class="lp-forge-req">
+                <span style="font-size:11px;color:var(--t2);">类型:</span>
+                <select id="lp-forge-type">
+                  <option value="equipment">装备</option>
+                  <option value="consumable">消耗品</option>
+                  <option value="skill">技能</option>
+                </select>
+                <span style="font-size:11px;color:var(--t2);">品质:</span>
+                <select id="lp-forge-rarity">
+                  <option value="">随机</option>
+                  <option value="common">普通</option>
+                  <option value="uncommon">精良</option>
+                  <option value="rare">稀有</option>
+                  <option value="epic">史诗</option>
+                  <option value="legendary">传奇</option>
+                  <option value="mythic">神器</option>
+                </select>
+                <button class="lp-btn lp-btn-v lp-btn-sm" id="lp-forge-req-btn"><i class="fas fa-wand-magic-sparkles"></i> 请求AI生成</button>
+              </div>
+              <div style="font-size:11px;color:var(--t3);margin-top:4px;">复制AI回复中的YAML代码块内容,粘贴到下方文本框,点击导入。</div>
+              <textarea class="lp-forge-ta" id="lp-forge-ta" placeholder="在此粘贴AI输出的YAML内容..."></textarea>
+              <div style="display:flex;gap:6px;">
+                <button class="lp-btn lp-btn-p" id="lp-forge-import"><i class="fas fa-file-import"></i> 导入</button>
+                <button class="lp-btn lp-btn-sm" style="background:var(--bg3);" id="lp-forge-tpl"><i class="fas fa-file-code"></i> 填充模板</button>
+                <button class="lp-btn lp-btn-sm" style="background:var(--bg3);" id="lp-forge-clear"><i class="fas fa-eraser"></i> 清空</button>
+              </div>
+            </div>
+          </div>
+          <div class="lp-card">
+            <div class="lp-card-t"><i class="fas fa-list-check"></i> 已导入的自定义物品</div>
+            <div id="lp-forge-list" style="font-size:11px;color:var(--t2);">暂无</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </details>
+</div>
+
+<script>
+(function(){
+/* ========== CONFIG ========== */
+const WI='{思牵今夜肠应直，雨冷香魂吊书客}';
+const UID_C=79; /* 条目A UID */
+const UID_I=80; /* 条目B UID */
+const UID_M=81; /* 条目C UID */
+
+/* ========== ENV ========== */
+const HV=typeof getAllVariables==='function';
+const HS=typeof triggerSlash==='function';
+const HL=typeof _!=='undefined'&&typeof _.get==='function';
+const HY=typeof YAML!=='undefined'&&typeof YAML.parse==='function';
+if(!HL)window._={get:(o,p,d)=>d,clamp:(v,a,b)=>Math.max(a,Math.min(b,v))};
+
+/* ========== CONSTANTS ========== */
+const H_RANKS=['无','触源阶','共振阶','统御阶','同化阶'];
+const E_RANKS=['游离阶','汇聚阶','概念阶','源核阶'];
+const SUBS=['初期','中期','后期'];
+const SUB_M={'初期':1,'中期':1.15,'后期':1.35,'无':1};
+const R_BASE={
+'无':{HP:50,ATK:5,DEF:5,SPI:3,SPD:8},
+'触源阶':{HP:100,ATK:15,DEF:10,SPI:20,SPD:12},
+'共振阶':{HP:200,ATK:30,DEF:22,SPI:40,SPD:20},
+'统御阶':{HP:400,ATK:55,DEF:40,SPI:70,SPD:32},
+'同化阶':{HP:700,ATK:90,DEF:65,SPI:110,SPD:50},
+'游离阶':{HP:120,ATK:18,DEF:8,SPI:25,SPD:15},
+'汇聚阶':{HP:250,ATK:38,DEF:25,SPI:55,SPD:22},
+'概念阶':{HP:500,ATK:70,DEF:50,SPI:90,SPD:38},
+'源核阶':{HP:900,ATK:120,DEF:85,SPI:150,SPD:55}};
+const EXP_T={};
+['无-无',50,'触源阶-初期',100,'触源阶-中期',200,'触源阶-后期',400,
+'共振阶-初期',600,'共振阶-中期',900,'共振阶-后期',1300,
+'统御阶-初期',1800,'统御阶-中期',2500,'统御阶-后期',3500,
+'同化阶-初期',5000,'同化阶-中期',7000,'同化阶-后期',99999,
+'游离阶-初期',100,'游离阶-中期',200,'游离阶-后期',400,
+'汇聚阶-初期',600,'汇聚阶-中期',900,'汇聚阶-后期',1300,
+'概念阶-初期',1800,'概念阶-中期',2500,'概念阶-后期',3500,
+'源核阶-初期',5000,'源核阶-中期',7000,'源核阶-后期',99999
+].reduce((a,v,i,arr)=>{if(i%2===0)EXP_T[v]=arr[i+1];return a;},0);
+
+const CULT_T=[
+{id:'quiet',name:'静修',desc:'心如止水, 缓慢积蓄灵力',exp:20,sp:10,risk:0,drop:0,rl:'安全',rc:'lp-rk0'},
+{id:'hard',name:'苦修',desc:'压榨潜能, 承受适度反噬',exp:50,sp:25,risk:.1,drop:.05,rl:'10%反噬',rc:'lp-rk1'},
+{id:'risky',name:'险修',desc:'直面危险, 激发深层灵力',exp:100,sp:50,risk:.25,drop:.15,rl:'25%反噬',rc:'lp-rk2'},
+{id:'extreme',name:'极修',desc:'以命搏天, 突破极限枷锁',exp:200,sp:100,risk:.4,drop:.3,rl:'40%反噬',rc:'lp-rk3'}];
+
+/* ========== SKILL DB (20) ========== */
+const SKILL_DB={
+S001:{name:'烈焰斩',domain:'物质域',target:'single',baseMult:1.5,scaleStat:'ATK',cost:15,cd:0,learnExp:80,effects:[{type:'burn',chance:.3,value:8,duration:3}],desc:'凝聚灵力于刃端释放灼热斩击'},
+S002:{name:'冰棱穿刺',domain:'物质域',target:'single',baseMult:1.8,scaleStat:'ATK',cost:20,cd:0,learnExp:100,effects:[{type:'freeze',chance:.2,value:0,duration:1}],desc:'凝结霜气形成冰棱刺穿目标'},
+S003:{name:'雷光裂空',domain:'物质域',target:'aoe',baseMult:1.2,scaleStat:'ATK',cost:25,cd:1,learnExp:120,effects:[{type:'paralysis',chance:.15,value:50,duration:2}],desc:'引动雷电覆盖整片战场'},
+S004:{name:'暗影束缚',domain:'支配域',target:'single',baseMult:.5,scaleStat:'ATK',cost:15,cd:0,learnExp:70,effects:[{type:'bind',chance:.6,value:0,duration:1}],desc:'暗影化为锁链束缚目标行动'},
+S005:{name:'魅影迷心',domain:'情感域',target:'single',baseMult:0,scaleStat:'SPI',cost:30,cd:2,learnExp:150,effects:[{type:'charm',chance:.4,value:0,duration:1}],desc:'侵入目标精神使其反戈'},
+S006:{name:'灵能弹幕',domain:'物质域',target:'aoe',baseMult:1.0,scaleStat:'ATK',cost:18,cd:0,learnExp:60,effects:[],desc:'释放密集灵能弹幕进行范围打击'},
+S007:{name:'断魂一击',domain:'支配域',target:'single',baseMult:2.5,scaleStat:'ATK',cost:35,cd:3,learnExp:200,effects:[{type:'instakill',chance:.05,value:0,duration:0}],desc:'凝聚全力发动致命一击'},
+S008:{name:'净化之光',domain:'情感域',target:'single',baseMult:1.2,scaleStat:'SPI',cost:20,cd:0,learnExp:90,effects:[{type:'cleanse',chance:1,value:0,duration:0},{type:'purify',chance:1,value:15,duration:0}],desc:'释放净化灵光驱散污染'},
+S009:{name:'生命吸取',domain:'生存域',target:'single',baseMult:1.3,scaleStat:'ATK',cost:22,cd:0,learnExp:110,effects:[{type:'lifesteal',chance:1,value:.3,duration:0}],desc:'掠夺目标生命力为己用'},
+S010:{name:'毒雾弥漫',domain:'生存域',target:'aoe',baseMult:.8,scaleStat:'ATK',cost:28,cd:1,learnExp:130,effects:[{type:'poison',chance:.45,value:12,duration:3}],desc:'释放毒雾笼罩目标区域'},
+S011:{name:'铁壁防御',domain:'物质域',target:'self',baseMult:0,scaleStat:'DEF',cost:15,cd:0,learnExp:60,effects:[{type:'buff_def',chance:1,value:50,duration:3}],desc:'凝聚灵力强化全身防御'},
+S012:{name:'疾风步',domain:'生存域',target:'self',baseMult:0,scaleStat:'SPD',cost:15,cd:0,learnExp:60,effects:[{type:'buff_spd',chance:1,value:40,duration:3},{type:'dodge',chance:1,value:20,duration:3}],desc:'加速灵力流转提升闪避'},
+S013:{name:'灵力激涌',domain:'支配域',target:'self',baseMult:0,scaleStat:'ATK',cost:20,cd:0,learnExp:80,effects:[{type:'buff_atk',chance:1,value:35,duration:3}],desc:'短暂释放灵力封印强化攻击'},
+S014:{name:'治愈术',domain:'情感域',target:'ally',baseMult:1.5,scaleStat:'SPI',cost:18,cd:0,learnExp:70,effects:[{type:'heal',chance:1,value:0,duration:0}],desc:'输出灵力为同伴恢复生命'},
+S015:{name:'地裂天崩',domain:'物质域',target:'aoe',baseMult:2.0,scaleStat:'ATK',cost:40,cd:3,learnExp:250,effects:[{type:'stun',chance:.1,value:0,duration:1}],desc:'引发地表崩裂造成毁灭打击'},
+S016:{name:'星落万象',domain:'物质域',target:'aoe',baseMult:2.5,scaleStat:'ATK',cost:50,cd:4,learnExp:300,effects:[{type:'stun',chance:.15,value:0,duration:1}],desc:'召唤漫天星辰坠落覆盖战场'},
+S017:{name:'生命绽放',domain:'情感域',target:'ally',baseMult:1.0,scaleStat:'SPI',cost:35,cd:2,learnExp:200,effects:[{type:'heal',chance:1,value:0,duration:0},{type:'cleanse',chance:1,value:0,duration:0}],desc:'全体治愈并清除负面状态'},
+S018:{name:'虚空裂隙',domain:'支配域',target:'single',baseMult:3.0,scaleStat:'ATK',cost:45,cd:4,learnExp:280,effects:[{type:'armorPen',chance:1,value:50,duration:0}],desc:'撕裂空间造成无视防御打击'},
+S019:{name:'灵魂共鸣',domain:'情感域',target:'self',baseMult:0,scaleStat:'SPI',cost:25,cd:3,learnExp:180,effects:[{type:'buff_atk',chance:1,value:40,duration:2},{type:'buff_spi',chance:1,value:40,duration:2}],desc:'与灵魂深处产生共鸣'},
+S020:{name:'终末审判',domain:'支配域',target:'aoe',baseMult:2.0,scaleStat:'SPI',cost:60,cd:5,learnExp:350,effects:[{type:'instakill',chance:.08,value:0,duration:0},{type:'purify',chance:1,value:20,duration:0}],desc:'释放至高审判之力'}
+};
+
+/* ========== CONSUMABLE DB (30) ========== */
+const CONSUME_DB={
+C001:{name:'低阶恢复丹',battleUse:true,effect:{type:'hp_restore',value:50},desc:'恢复50HP',price:20,rarity:'common'},
+C002:{name:'中阶恢复丹',battleUse:true,effect:{type:'hp_restore',value:150},desc:'恢复150HP',price:50,rarity:'uncommon'},
+C003:{name:'高阶恢复丹',battleUse:true,effect:{type:'hp_restore',value:400},desc:'恢复400HP',price:120,rarity:'rare'},
+C004:{name:'极品恢复丹',battleUse:true,effect:{type:'hp_restore',value:800},desc:'恢复800HP',price:250,rarity:'epic'},
+C005:{name:'低阶回灵丹',battleUse:true,effect:{type:'sp_restore',value:30},desc:'恢复30灵力',price:25,rarity:'common'},
+C006:{name:'中阶回灵丹',battleUse:true,effect:{type:'sp_restore',value:80},desc:'恢复80灵力',price:60,rarity:'uncommon'},
+C007:{name:'高阶回灵丹',battleUse:true,effect:{type:'sp_restore',value:200},desc:'恢复200灵力',price:140,rarity:'rare'},
+C008:{name:'灵力涌泉丹',battleUse:true,effect:{type:'sp_restore',value:999},desc:'完全恢复灵力',price:300,rarity:'epic'},
+C009:{name:'解毒散',battleUse:true,effect:{type:'cure',target:'poison'},desc:'清除中毒',price:15,rarity:'common'},
+C010:{name:'解冻符',battleUse:true,effect:{type:'cure',target:'freeze'},desc:'清除冻结',price:15,rarity:'common'},
+C011:{name:'清心丹',battleUse:true,effect:{type:'cure',target:'charm'},desc:'清除魅惑',price:20,rarity:'common'},
+C012:{name:'净化符',battleUse:true,effect:{type:'cleanse_all'},desc:'清除全部负面状态',price:40,rarity:'uncommon'},
+C013:{name:'火雷符',battleUse:true,effect:{type:'fixed_damage',value:80},desc:'造成80固定伤害',price:35,rarity:'common'},
+C014:{name:'冰爆符',battleUse:true,effect:{type:'fixed_damage',value:120},desc:'造成120伤害+冻结',price:55,rarity:'uncommon'},
+C015:{name:'雷电珠',battleUse:true,effect:{type:'aoe_damage',value:200},desc:'全体200伤害',price:90,rarity:'rare'},
+C016:{name:'腐蚀瓶',battleUse:true,effect:{type:'apply_debuff',debuff:'poison',value:10,duration:3},desc:'施加中毒3回合',price:30,rarity:'common'},
+C017:{name:'经验丹(小)',battleUse:false,effect:{type:'exp_gain',value:50},desc:'获得50经验',price:30,rarity:'common'},
+C018:{name:'经验丹(中)',battleUse:false,effect:{type:'exp_gain',value:150},desc:'获得150经验',price:80,rarity:'uncommon'},
+C019:{name:'经验丹(大)',battleUse:false,effect:{type:'exp_gain',value:500},desc:'获得500经验',price:200,rarity:'rare'},
+C020:{name:'突破丹',battleUse:false,effect:{type:'exp_gain',value:1000},desc:'获得1000经验',price:450,rarity:'epic'},
+C021:{name:'强化丹(攻)',battleUse:false,effect:{type:'perm_stat',stat:'ATK',value:5},desc:'永久ATK+5',price:100,rarity:'uncommon'},
+C022:{name:'强化丹(防)',battleUse:false,effect:{type:'perm_stat',stat:'DEF',value:5},desc:'永久DEF+5',price:100,rarity:'uncommon'},
+C023:{name:'强化丹(灵)',battleUse:false,effect:{type:'perm_stat',stat:'SPI',value:5},desc:'永久SPI+5',price:100,rarity:'uncommon'},
+C024:{name:'强化丹(速)',battleUse:false,effect:{type:'perm_stat',stat:'SPD',value:5},desc:'永久SPD+5',price:100,rarity:'uncommon'},
+C025:{name:'强化丹(体)',battleUse:false,effect:{type:'perm_stat',stat:'HP',value:30},desc:'永久HP+30',price:100,rarity:'uncommon'},
+C026:{name:'狂怒药剂',battleUse:true,effect:{type:'temp_buff',stat:'ATK',value:30,duration:3},desc:'ATK+30% 3回合',price:45,rarity:'uncommon'},
+C027:{name:'铁壁药剂',battleUse:true,effect:{type:'temp_buff',stat:'DEF',value:30,duration:3},desc:'DEF+30% 3回合',price:45,rarity:'uncommon'},
+C028:{name:'灵动药剂',battleUse:true,effect:{type:'temp_buff',stat:'SPD',value:30,duration:3},desc:'SPD+30% 3回合',price:45,rarity:'uncommon'},
+C029:{name:'灵能增幅剂',battleUse:true,effect:{type:'temp_buff',stat:'SPI',value:30,duration:3},desc:'SPI+30% 3回合',price:45,rarity:'uncommon'},
+C030:{name:'圣水',battleUse:true,effect:{type:'purify',value:25},desc:'净化度+25',price:35,rarity:'uncommon'}
+};
+
+/* ========== EQUIPMENT DB (54) ========== */
+const EQUIP_DB={
+/* Weapons 18 */
+W001:{name:'铁剑',slot:'weapon',rarity:'common',stats:{ATK:8},affixes:[],desc:'标准制式铁剑',price:30},
+W002:{name:'灵纹长刀',slot:'weapon',rarity:'uncommon',stats:{ATK:15,SPI:5},affixes:[],desc:'刀身刻有灵力导引纹路',price:80},
+W003:{name:'玄冰匕首',slot:'weapon',rarity:'rare',stats:{ATK:12,SPD:5},affixes:[{type:'onHit',effect:'freeze',chance:.15,value:0,duration:1}],desc:'命中概率冻结',price:150},
+W004:{name:'烈焰战斧',slot:'weapon',rarity:'epic',stats:{ATK:20,SPD:-3},affixes:[{type:'onHit',effect:'burn',chance:.2,value:5,duration:2}],desc:'斧刃永燃不灭之焰',price:280},
+W005:{name:'星辉法杖',slot:'weapon',rarity:'epic',stats:{ATK:5,SPI:25},affixes:[{type:'passive',effect:'skillDmgUp',value:10}],desc:'技能伤害+10%',price:300},
+W006:{name:'钢制长矛',slot:'weapon',rarity:'common',stats:{ATK:10},affixes:[],desc:'精钢锻造的标准长矛',price:35},
+W007:{name:'银丝短弓',slot:'weapon',rarity:'uncommon',stats:{ATK:12,SPD:3},affixes:[],desc:'灵银丝线制弦的短弓',price:75},
+W008:{name:'暗影弯刀',slot:'weapon',rarity:'uncommon',stats:{ATK:14},affixes:[{type:'onHit',effect:'poison',chance:.1,value:3,duration:2}],desc:'淬毒的弯月形弯刀',price:90},
+W009:{name:'龙骨重锤',slot:'weapon',rarity:'rare',stats:{ATK:22,SPD:-4},affixes:[{type:'onHit',effect:'stun',chance:.08,value:0,duration:1}],desc:'龙骨锻造的重型战锤',price:180},
+W010:{name:'灵银细剑',slot:'weapon',rarity:'rare',stats:{ATK:16,SPD:6},affixes:[{type:'passive',effect:'critRate',value:5}],desc:'精致的灵银击剑用剑',price:170},
+W011:{name:'雷鸣双刃',slot:'weapon',rarity:'epic',stats:{ATK:18,SPD:4},affixes:[{type:'onHit',effect:'paralysis',chance:.12,value:50,duration:1}],desc:'双刃间迸发电弧',price:260},
+W012:{name:'虚空法典',slot:'weapon',rarity:'epic',stats:{ATK:3,SPI:30},affixes:[{type:'passive',effect:'skillCostDown',value:15}],desc:'技能消耗-15%',price:320},
+W013:{name:'碎星之枪',slot:'weapon',rarity:'legendary',stats:{ATK:30,SPI:10},affixes:[{type:'onHit',effect:'instakill',chance:.02,value:0,duration:0}],desc:'枪尖凝聚破碎星辰之力',price:600},
+W014:{name:'月华弓',slot:'weapon',rarity:'legendary',stats:{ATK:25,SPD:8},affixes:[{type:'passive',effect:'critDmg',value:25}],desc:'月光凝结而成的长弓',price:580},
+W015:{name:'噬魂镰',slot:'weapon',rarity:'legendary',stats:{ATK:28},affixes:[{type:'passive',effect:'lifesteal',value:15}],desc:'收割灵魂的暗黑镰刀',price:620},
+W016:{name:'天罡剑',slot:'weapon',rarity:'mythic',stats:{ATK:40,SPI:15},affixes:[{type:'passive',effect:'skillDmgUp',value:20},{type:'onHit',effect:'purify',chance:1,value:10,duration:0}],desc:'天罡正气凝结之剑',price:1200},
+W017:{name:'灵殿圣枪',slot:'weapon',rarity:'mythic',stats:{ATK:35,SPD:10},affixes:[{type:'passive',effect:'critRate',value:12},{type:'passive',effect:'critDmg',value:40}],desc:'灵殿至高武器',price:1300},
+W018:{name:'终焉之刃',slot:'weapon',rarity:'mythic',stats:{ATK:45},affixes:[{type:'onHit',effect:'instakill',chance:.05,value:0,duration:0},{type:'onHit',effect:'burn',chance:.3,value:15,duration:3}],desc:'据传为神力碎片所化',price:1500},
+/* Armor 18 */
+A001:{name:'皮甲',slot:'armor',rarity:'common',stats:{DEF:8,HP:20},affixes:[],desc:'基础皮革护甲',price:25},
+A002:{name:'灵纹铠',slot:'armor',rarity:'uncommon',stats:{DEF:15,HP:50},affixes:[],desc:'表面雕刻灵纹的铠甲',price:90},
+A003:{name:'幽影轻甲',slot:'armor',rarity:'rare',stats:{DEF:10,SPD:8},affixes:[{type:'passive',effect:'dodge',value:10}],desc:'闪避率+10%',price:160},
+A004:{name:'玄铁重甲',slot:'armor',rarity:'epic',stats:{DEF:25,HP:80,SPD:-5},affixes:[],desc:'玄铁锻造的重型护甲',price:260},
+A005:{name:'圣光法袍',slot:'armor',rarity:'epic',stats:{DEF:8,SPI:15,HP:30},affixes:[{type:'passive',effect:'regen',value:3}],desc:'每回合恢复3%HP',price:300},
+A006:{name:'棉布衣',slot:'armor',rarity:'common',stats:{DEF:5,HP:10},affixes:[],desc:'普通的棉布短衣',price:15},
+A007:{name:'锁子甲',slot:'armor',rarity:'common',stats:{DEF:10,HP:25},affixes:[],desc:'连环锁扣编织的铁甲',price:40},
+A008:{name:'兽皮护甲',slot:'armor',rarity:'uncommon',stats:{DEF:12,HP:40},affixes:[],desc:'以实体兽皮缝制',price:75},
+A009:{name:'灵织战衣',slot:'armor',rarity:'uncommon',stats:{DEF:14,SPI:6},affixes:[],desc:'掺入灵丝编织的战衣',price:95},
+A010:{name:'冰晶甲',slot:'armor',rarity:'rare',stats:{DEF:18,HP:60},affixes:[{type:'passive',effect:'reflect',value:8}],desc:'8%概率反弹伤害',price:180},
+A011:{name:'暗夜斗篷',slot:'armor',rarity:'rare',stats:{DEF:12,SPD:6},affixes:[{type:'passive',effect:'dodge',value:12}],desc:'闪避+12%',price:175},
+A012:{name:'龙鳞甲',slot:'armor',rarity:'epic',stats:{DEF:22,HP:100,SPD:-3},affixes:[],desc:'以龙鳞锻造的重甲',price:290},
+A013:{name:'灵能护盾袍',slot:'armor',rarity:'epic',stats:{DEF:15,SPI:18},affixes:[{type:'passive',effect:'spellShield',value:8}],desc:'8%抵消灵力攻击',price:310},
+A014:{name:'不灭铠',slot:'armor',rarity:'legendary',stats:{DEF:30,HP:150},affixes:[{type:'passive',effect:'regen',value:5}],desc:'传说中不会损坏的铠甲',price:650},
+A015:{name:'星辰锦衣',slot:'armor',rarity:'legendary',stats:{DEF:20,SPI:20,SPD:5},affixes:[{type:'passive',effect:'dodge',value:15}],desc:'轻盈灵动的星辰编织锦衣',price:680},
+A016:{name:'虚空之壁',slot:'armor',rarity:'legendary',stats:{DEF:28,HP:120},affixes:[{type:'passive',effect:'dmgReduce',value:10}],desc:'减伤10%',price:700},
+A017:{name:'天罡护甲',slot:'armor',rarity:'mythic',stats:{DEF:38,HP:200},affixes:[{type:'passive',effect:'regen',value:8},{type:'passive',effect:'dmgReduce',value:15}],desc:'天罡正气护体',price:1400},
+A018:{name:'永恒圣衣',slot:'armor',rarity:'mythic',stats:{DEF:35,SPI:25,HP:180},affixes:[{type:'passive',effect:'allResist',value:20}],desc:'灵殿始祖留下的圣衣',price:1500},
+/* Accessories 18 */
+R001:{name:'生命之戒',slot:'accessory',rarity:'common',stats:{HP:50},affixes:[],desc:'嵌有灵石的铜戒指',price:30},
+R002:{name:'力量护符',slot:'accessory',rarity:'uncommon',stats:{ATK:10},affixes:[],desc:'封印力量灵气的护符',price:70},
+R003:{name:'灵能项链',slot:'accessory',rarity:'rare',stats:{SPI:15},affixes:[],desc:'灵银锻造的项链',price:130},
+R004:{name:'疾风之靴',slot:'accessory',rarity:'rare',stats:{SPD:10},affixes:[],desc:'脚步轻盈如风',price:130},
+R005:{name:'暴击徽章',slot:'accessory',rarity:'epic',stats:{},affixes:[{type:'passive',effect:'critRate',value:15},{type:'passive',effect:'critDmg',value:30}],desc:'暴击率+15%, 暴击伤害+30%',price:320},
+R006:{name:'铜制手环',slot:'accessory',rarity:'common',stats:{DEF:5},affixes:[],desc:'普通的铜制手环',price:20},
+R007:{name:'思维头箍',slot:'accessory',rarity:'common',stats:{SPI:5},affixes:[],desc:'增强灵力感知的头箍',price:25},
+R008:{name:'敏捷指环',slot:'accessory',rarity:'uncommon',stats:{SPD:7},affixes:[],desc:'增强反应速度的指环',price:65},
+R009:{name:'铁壁护腕',slot:'accessory',rarity:'uncommon',stats:{DEF:8,HP:30},affixes:[],desc:'厚重的铁质护腕',price:75},
+R010:{name:'幽光耳坠',slot:'accessory',rarity:'rare',stats:{SPI:12,SPD:4},affixes:[],desc:'发出微光的灵能耳坠',price:140},
+R011:{name:'破甲利爪',slot:'accessory',rarity:'rare',stats:{ATK:12},affixes:[{type:'passive',effect:'armorPen',value:10}],desc:'穿透10%防御',price:150},
+R012:{name:'灵泉坠饰',slot:'accessory',rarity:'epic',stats:{SPI:20},affixes:[{type:'passive',effect:'spRegen',value:5}],desc:'每回合恢复5%灵力',price:290},
+R013:{name:'嗜血之心',slot:'accessory',rarity:'epic',stats:{ATK:15},affixes:[{type:'passive',effect:'lifesteal',value:10}],desc:'吸取10%伤害为HP',price:310},
+R014:{name:'命运骰子',slot:'accessory',rarity:'legendary',stats:{},affixes:[{type:'passive',effect:'critRate',value:20},{type:'passive',effect:'dodge',value:10}],desc:'命运女神的玩物',price:650},
+R015:{name:'不死鸟羽',slot:'accessory',rarity:'legendary',stats:{HP:100},affixes:[{type:'passive',effect:'revive',value:30}],desc:'战斗中复活一次, 30%HP',price:700},
+R016:{name:'深渊之眼',slot:'accessory',rarity:'legendary',stats:{SPI:25},affixes:[{type:'passive',effect:'instakillResist',value:100}],desc:'完全免疫即死',price:680},
+R017:{name:'创世纪核',slot:'accessory',rarity:'mythic',stats:{ATK:20,DEF:15,SPI:20,SPD:10},affixes:[],desc:'包含创世之力的核心',price:1600},
+R018:{name:'虚无之环',slot:'accessory',rarity:'mythic',stats:{},affixes:[{type:'passive',effect:'allStatUp',value:12},{type:'passive',effect:'dmgReduce',value:10},{type:'passive',effect:'dodge',value:10}],desc:'虚无之力凝结的指环',price:1800}
+};
+
+/* ========== SKILL BOOK DB (auto) ========== */
+const SKILLBOOK_DB={};
+Object.keys(SKILL_DB).forEach(sid=>{const s=SKILL_DB[sid];SKILLBOOK_DB['B_'+sid]={name:s.name+'技能书',category:'skillBook',skillId:sid,desc:'习得: '+s.name+' (需'+s.learnExp+'经验)',price:Math.round(s.learnExp*1.5),rarity:s.learnExp>200?'epic':s.learnExp>100?'rare':'uncommon'};});
+
+/* ========== GACHA POOL ========== */
+const GACHA_P=[
+{w:48,tier:'普通',items:['C001','C005','C009','C010','C013','C016','C017']},
+{w:22,tier:'精良',items:['C002','C006','C012','C014','C018','C021','C022','C023','C024','C025','W001','W006','A001','A006','A007','R001','R006','R007']},
+{w:16,tier:'稀有',items:['C003','C007','C019','W002','W003','W007','W008','W010','A002','A003','A008','A009','A010','A011','R002','R003','R004','R008','R009','R010','R011','B_S001','B_S004','B_S006','B_S011','B_S012','B_S014']},
+{w:8,tier:'史诗',items:['C004','C008','C020','W004','W005','W009','W011','W012','A004','A005','A012','A013','R005','R012','R013','B_S002','B_S003','B_S005','B_S007','B_S008','B_S009','B_S010','B_S013']},
+{w:4,tier:'传奇',items:['W013','W014','W015','A014','A015','A016','R014','R015','R016','B_S015','B_S016','B_S017','B_S018','B_S019']},
+{w:2,tier:'神器',items:['W016','W017','W018','A017','A018','R017','R018','B_S020']}
+];
+const CULT_DROP=['C001','C005','C017','W001','A001','A006','R001','R006'];
+const CULT_DROP_R=['C002','C006','C018','W002','W007','A002','A008','R002','R008','B_S006','B_S004'];
+
+/* ========== HELPERS ========== */
+function getItemData(id){
+  if(CONSUME_DB[id])return{...CONSUME_DB[id],id,type:'consumable'};
+  if(EQUIP_DB[id])return{...EQUIP_DB[id],id,type:'equipment'};
+  if(SKILLBOOK_DB[id])return{...SKILLBOOK_DB[id],id,type:'skillBook'};
+  return null;
+}
+const RC={'common':'var(--t2)','uncommon':'var(--grn)','rare':'var(--acc)','epic':'var(--pur)','legendary':'var(--org)','mythic':'var(--red)'};
+function rCls(r){return 'lp-r-'+(r||'common');}
+function toast(m,t='i'){const d=document.createElement('div');d.className='lp-toast lp-toast-'+t;d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2600);}
+function getRankTrack(r){return E_RANKS.includes(r)?E_RANKS:H_RANKS;}
+function getNextRS(r,s){
+  if(r==='无')return{rank:'触源阶',sub:'初期'};
+  const tk=getRankTrack(r),ri=tk.indexOf(r),si=SUBS.indexOf(s);
+  if(si<0)return{rank:tk[Math.min(ri+1,tk.length-1)],sub:'初期'};
+  if(si<2)return{rank:r,sub:SUBS[si+1]};
+  if(ri<tk.length-1)return{rank:tk[ri+1],sub:'初期'};
+  return null;
+}
+function calcBase(r,s){const b=R_BASE[r]||R_BASE['无'],m=SUB_M[s]||1;const o={};for(const k in b)o[k]=Math.round(b[k]*m);return o;}
+function recalcBonus(n){const m=getMeta(n);if(!m)return;const b={ATK:0,DEF:0,SPI:0,SPD:0,HP:0};for(const sl of['weapon','armor','accessory']){const eid=m.equipped[sl];const eq=EQUIP_DB[eid];if(eq){const st=eq.stats||{};for(const k in st)b[k]=(b[k]||0)+st[k];}}m.equipBonuses=b;}
+function checkDaily(n){const mv=HV?getAllVariables():{};const cd=_.get(mv,'stat_data.世界.日期','');const m=getMeta(n);if(!m)return;if(m.lastDate!==cd){m.dailyCultivation=false;m.dailyGacha=0;m.lastDate=cd;}}
+
+/* ========== STATE ========== */
+let S={cur:'主角',combat:null,items:null,meta:null,loaded:false,cultTier:null,invF:'all',shopF:'consumable',shopQ:''};
+function getCombat(n){if(!S.combat)return null;if(n==='主角')return S.combat['主角'];return S.combat['女性角色']?.[n]||S.combat['男性角色']?.[n]||null;}
+function getItems(n){if(!S.items)return null;if(n==='主角')return S.items['主角'];return S.items['女性角色']?.[n]||S.items['男性角色']?.[n]||null;}
+function getMeta(n){if(!S.meta)return null;if(n==='主角')return S.meta['主角'];return S.meta['女性角色']?.[n]||S.meta['男性角色']?.[n]||null;}
+
+async function loadData(){
+  try{if(!HS)throw new Error('triggerSlash unavailable');
+  const[a,b,c]=await Promise.all([
+    triggerSlash(`/getentryfield file="${WI}" field=content ${UID_C}`),
+    triggerSlash(`/getentryfield file="${WI}" field=content ${UID_I}`),
+    triggerSlash(`/getentryfield file="${WI}" field=content ${UID_M}`)]);
+  S.combat=JSON.parse(a||'{}');S.items=JSON.parse(b||'{}');S.meta=JSON.parse(c||'{}');S.loaded=true;
+  mergeCustom();
+  }catch(e){console.error('Load failed:',e);toast('数据加载失败','e');S.combat={};S.items={};S.meta={};}
+}
+function mergeCustom(){
+  const ci=S.meta.customItems||{};for(const[id,d]of Object.entries(ci)){
+    if(d.type==='equipment')EQUIP_DB[id]=d;
+    else if(d.type==='consumable')CONSUME_DB[id]=d;
+    else if(d.type==='skillBook')SKILLBOOK_DB[id]=d;}
+  const cs=S.meta.customSkills||{};for(const[id,sk]of Object.entries(cs)){
+    SKILL_DB[id]=sk;
+    SKILLBOOK_DB['B_'+id]={name:sk.name+'技能书',category:'skillBook',skillId:id,desc:'习得: '+sk.name,price:Math.round(sk.learnExp*1.5),rarity:sk.learnExp>200?'epic':'rare'};
+  }
+}
+async function saveC(){if(HS)await triggerSlash(`/setentryfield file="${WI}" uid=${UID_C} field=content ${JSON.stringify(S.combat)}`);}
+async function saveI(){if(HS)await triggerSlash(`/setentryfield file="${WI}" uid=${UID_I} field=content ${JSON.stringify(S.items)}`);}
+async function saveM(){if(HS)await triggerSlash(`/setentryfield file="${WI}" uid=${UID_M} field=content ${JSON.stringify(S.meta)}`);}
+
+function addItem(cn,id,ct){const inv=getItems(cn);if(!inv)return;const d=getItemData(id);if(!d)return;let cat=d.type==='equipment'?'equipment':d.type==='skillBook'?'skillBooks':'consumables';inv[cat][id]=(inv[cat][id]||0)+ct;}
+function removeItem(cn,id,ct){const inv=getItems(cn);if(!inv)return false;const d=getItemData(id);if(!d)return false;let cat=d.type==='equipment'?'equipment':d.type==='skillBook'?'skillBooks':'consumables';if((inv[cat][id]||0)<ct)return false;inv[cat][id]-=ct;if(inv[cat][id]<=0)delete inv[cat][id];return true;}
+function getInvList(cn,f){const inv=getItems(cn);if(!inv)return[];const list=[];const cats=f==='all'?['consumables','equipment','skillBooks']:[f==='consumable'?'consumables':f==='equipment'?'equipment':'skillBooks'];cats.forEach(cat=>{Object.entries(inv[cat]||{}).forEach(([id,ct])=>{if(ct>0){const d=getItemData(id);if(d)list.push({id,count:ct,data:d});}});});return list;}
+
+/* ========== RENDER: WORLD INFO ========== */
+function rWorld(){const mv=HV?getAllVariables():{};$('#lp-date').text(_.get(mv,'stat_data.世界.日期','--'));$('#lp-time').text(_.get(mv,'stat_data.世界.时间','--'));$('#lp-weather').text(_.get(mv,'stat_data.世界.天气','--'));}
+
+/* ========== RENDER: CHAR SELECT ========== */
+function rCharSel(){
+  const sel=$('#lp-csel').empty();const chars=['主角'];
+  if(S.combat?.['女性角色'])chars.push(...Object.keys(S.combat['女性角色']));
+  if(S.combat?.['男性角色'])chars.push(...Object.keys(S.combat['男性角色']));
+  chars.forEach(n=>{sel.append($('<option>').val(n).text(n).prop('selected',n===S.cur));});
+  sel.off('change').on('change',function(){S.cur=this.value;checkDaily(S.cur);renderAll();});
+}
+
+/* ========== RENDER: OVERVIEW ========== */
+function rOverview(){
+  const c=getCombat(S.cur),m=getMeta(S.cur);if(!c)return;
+  const eb=m?.equipBonuses||{};
+  $('#lp-rank').text((c.阶别==='无'?'无阶别':c.阶别)+(c.子阶&&c.子阶!=='无'?' / '+c.子阶:''));
+  const hp=c.maxHP>0?Math.round(c.HP/c.maxHP*100):0;
+  $('#lp-hp-bar').css('width',hp+'%');$('#lp-hp-lbl').text(c.HP+' / '+c.maxHP);
+  const ep=c.升级经验>0?Math.min(100,Math.round(c.经验/c.升级经验*100)):0;
+  $('#lp-exp-bar').css('width',ep+'%');$('#lp-exp-lbl').text(c.经验+' / '+c.升级经验);
+  $('#lp-sp').text(c.灵点||0);
+  function sv(id,base,bonus){$(id).html(base+(bonus?'<span class="lp-stat-b">(+'+bonus+')</span>':''));}
+  sv('#lp-atk',c.ATK,eb.ATK||0);sv('#lp-def',c.DEF,eb.DEF||0);sv('#lp-spi',c.SPI,eb.SPI||0);sv('#lp-spd',c.SPD,eb.SPD||0);
+  drawRadar({HP:c.maxHP+(eb.HP||0),ATK:c.ATK+(eb.ATK||0),DEF:c.DEF+(eb.DEF||0),SPI:c.SPI+(eb.SPI||0),SPD:c.SPD+(eb.SPD||0)});
+}
+function drawRadar(st){
+  const cv=document.getElementById('lp-radar');if(!cv)return;
+  const dpr=window.devicePixelRatio||1;const rect=cv.getBoundingClientRect();
+  cv.width=rect.width*dpr;cv.height=rect.height*dpr;
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+  const W=rect.width,H=rect.height,cx=W/2,cy=H/2,R=Math.min(cx,cy)-22;
+  const lbl=['HP','ATK','DEF','SPI','SPD'];
+  const mx={HP:1000,ATK:150,DEF:100,SPI:150,SPD:80};
+  ctx.clearRect(0,0,W,H);
+  for(let lv=1;lv<=5;lv++){ctx.beginPath();for(let i=0;i<5;i++){const a=Math.PI*2/5*i-Math.PI/2,r=R*(lv/5),x=cx+r*Math.cos(a),y=cy+r*Math.sin(a);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}ctx.closePath();ctx.strokeStyle=lv%2?'rgba(0,200,255,.06)':'rgba(0,200,255,.03)';ctx.lineWidth=1;ctx.stroke();}
+  for(let i=0;i<5;i++){const a=Math.PI*2/5*i-Math.PI/2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+R*Math.cos(a),cy+R*Math.sin(a));ctx.strokeStyle='rgba(0,200,255,.04)';ctx.stroke();}
+  ctx.beginPath();lbl.forEach((l,i)=>{const a=Math.PI*2/5*i-Math.PI/2,v=Math.min((st[l]||0)/mx[l],1),x=cx+R*v*Math.cos(a),y=cy+R*v*Math.sin(a);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.closePath();
+  const grd=ctx.createRadialGradient(cx,cy,0,cx,cy,R);grd.addColorStop(0,'rgba(0,200,255,.15)');grd.addColorStop(1,'rgba(124,92,230,.08)');ctx.fillStyle=grd;ctx.fill();
+  ctx.strokeStyle='rgba(0,200,255,.6)';ctx.lineWidth=1.5;ctx.stroke();
+  lbl.forEach((l,i)=>{const a=Math.PI*2/5*i-Math.PI/2,v=Math.min((st[l]||0)/mx[l],1),x=cx+R*v*Math.cos(a),y=cy+R*v*Math.sin(a);ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle='#00c8ff';ctx.fill();ctx.strokeStyle='rgba(0,200,255,.4)';ctx.lineWidth=4;ctx.stroke();ctx.lineWidth=1.5;});
+  ctx.font='10px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#7a8ba0';
+  lbl.forEach((l,i)=>{const a=Math.PI*2/5*i-Math.PI/2,x=cx+(R+16)*Math.cos(a),y=cy+(R+16)*Math.sin(a);ctx.fillText(l+':'+(st[l]||0),x,y);});
+}
+
+/* ========== RENDER: CULTIVATION ========== */
+function rCult(){
+  const m=getMeta(S.cur),c=getCombat(S.cur);if(!m||!c)return;checkDaily(S.cur);
+  const done=m.dailyCultivation;
+  $('#lp-cult-st').text(done?'[ 今日已修炼 ]':'[ 可修炼 ]').css('color',done?'var(--red)':'var(--grn)');
+  const g=$('#lp-cult-g').empty();
+  CULT_T.forEach((t,i)=>{
+    const d=$('<div>').addClass('lp-cult-c'+(done?' dis':'')+(S.cultTier===i?' sel':'')).html(`<div class="lp-cult-n">${t.name}</div><div class="lp-cult-d">${t.desc}</div><div class="lp-cult-rw"><span>EXP+${t.exp}</span><span>灵点+${t.sp}</span>${t.drop>0?`<span>掉落${Math.round(t.drop*100)}%</span>`:''}</div><div class="lp-cult-rk ${t.rc}">${t.rl}</div>`);
+    if(!done)d.on('click',()=>{S.cultTier=i;$('.lp-cult-c').removeClass('sel');d.addClass('sel');$('#lp-cult-btn').prop('disabled',false);});
+    g.append(d);
+  });
+  $('#lp-cult-btn').prop('disabled',done||S.cultTier===null);$('#lp-cult-res').hide();
+}
+async function doCult(){
+  const ti=S.cultTier;if(ti===null)return;const t=CULT_T[ti],c=getCombat(S.cur),m=getMeta(S.cur);if(!c||!m||m.dailyCultivation)return;
+  const rw=[];let eg=t.exp,sg=t.sp;
+  if(t.risk>0&&Math.random()<t.risk){const dmg=Math.round(c.maxHP*.15);c.HP=Math.max(1,c.HP-dmg);rw.push({t:`反噬 -${dmg} HP`,c:'lp-rw-neg',i:'fa-heart-crack'});}
+  c.经验+=eg;c.灵点+=sg;rw.push({t:`EXP +${eg}`,c:'lp-rw-pos',i:'fa-star'});rw.push({t:`灵点 +${sg}`,c:'lp-rw-pos',i:'fa-gem'});
+  if(t.drop>0&&Math.random()<t.drop){const pool=ti>=2?CULT_DROP_R:CULT_DROP;const did=pool[Math.floor(Math.random()*pool.length)];const dd=getItemData(did);if(dd){addItem(S.cur,did,1);rw.push({t:`获得 ${dd.name}`,c:'lp-rw-spc',i:'fa-gift'});}}
+  let lu=false;while(c.经验>=c.升级经验&&c.升级经验<99999){c.经验-=c.升级经验;const nx=getNextRS(c.阶别,c.子阶);if(nx){c.阶别=nx.rank;c.子阶=nx.sub;c.升级经验=EXP_T[nx.rank+'-'+nx.sub]||99999;const nb=calcBase(nx.rank,nx.sub);const pb=c.permBonus||{};c.ATK=nb.ATK+(pb.ATK||0);c.DEF=nb.DEF+(pb.DEF||0);c.SPI=nb.SPI+(pb.SPI||0);c.SPD=nb.SPD+(pb.SPD||0);c.maxHP=nb.HP+(pb.HP||0);c.HP=c.maxHP;rw.push({t:`晋升: ${nx.rank} / ${nx.sub}`,c:'lp-rw-spc',i:'fa-angle-double-up'});lu=true;}else{c.经验=c.升级经验;break;}}
+  m.dailyCultivation=true;S.cultTier=null;
+  await Promise.all([saveC(),saveI(),saveM()]);
+  $('#lp-cult-res').show().html(`<div class="lp-cult-res"><div class="lp-cult-res-t"><i class="fas fa-scroll"></i> ${t.name} - 结果</div>${rw.map(r=>`<div class="lp-rwl ${r.c}"><i class="fas ${r.i}"></i> ${r.t}</div>`).join('')}</div>`);
+  if(lu)showLvUp(c.阶别,c.子阶);renderAll();
+}
+function showLvUp(r,s){const ov=$('<div>').addClass('lp-lvup-ov').html(`<div class="lp-lvup-box"><div class="lp-lvup-t">突 破 成 功</div><div class="lp-lvup-r">${r} / ${s}</div></div>`).on('click',function(){$(this).remove();});$('body').append(ov);setTimeout(()=>ov.remove(),3500);}
+
+/* ========== RENDER: INVENTORY ========== */
+function rInv(){
+  const m=getMeta(S.cur);
+  const sl=$('#lp-eq-slots').empty();
+  ['weapon','armor','accessory'].forEach(slot=>{
+    const sn={weapon:'武器',armor:'护甲',accessory:'饰品'}[slot];
+    const eid=m?.equipped?.[slot],eq=eid?EQUIP_DB[eid]:null;
+    const d=$('<div>').addClass('lp-eq-slot'+(eq?' filled '+rCls(eq.rarity):'')).html(`<div class="lp-eq-slbl">${sn}</div><div class="lp-eq-sn">${eq?eq.name:'空'}</div>`);
+    if(eq)d.on('click',()=>showDet(eid,'eq',slot));
+    sl.append(d);
+  });
+  const list=getInvList(S.cur,S.invF),g=$('#lp-inv-g').empty();
+  if(!list.length){g.html('<div style="grid-column:1/-1;text-align:center;color:var(--t3);padding:16px;">暂无物品</div>');return;}
+  list.forEach((it,idx)=>{
+    const d=$('<div>').addClass('lp-inv-i '+rCls(it.data.rarity||'common')).css('animation-delay',idx*30+'ms').html(`<div class="lp-inv-in">${it.data.name}</div><div class="lp-inv-ic">x${it.count}</div><div class="lp-inv-id">${it.data.desc||''}</div>`);
+    d.on('click',()=>showDet(it.id,'inv'));g.append(d);
+  });
+}
+function showDet(id,src,slot){
+  const d=getItemData(id);if(!d)return;
+  let st='',af='',act='';
+  if(d.stats)st=Object.entries(d.stats).map(([k,v])=>`<span class="lp-det-st">${k}${v>0?'+':''}${v}</span>`).join('');
+  if(d.affixes?.length)af=d.affixes.map(a=>{if(a.type==='onHit')return`<div class="lp-det-af">命中 ${Math.round(a.chance*100)}% ${a.effect}${a.value?` ${a.value}/回合`:''}${a.duration?` ${a.duration}回合`:''}</div>`;if(a.type==='passive')return`<div class="lp-det-af">被动: ${a.effect} +${a.value}${['critRate','critDmg','dodge','regen','dmgReduce','lifesteal','spRegen','armorPen','spellShield','allResist','allStatUp','skillDmgUp','skillCostDown','instakillResist','reflect','revive'].includes(a.effect)?'%':''}</div>`;return'';}).join('');
+  if(src==='eq')act=`<button class="lp-btn lp-btn-d lp-btn-sm" onclick="window._lpUnequip('${slot}')">卸下</button>`;
+  else if(src==='inv'){
+    if(d.type==='equipment')act+=`<button class="lp-btn lp-btn-p lp-btn-sm" onclick="window._lpEquip('${id}')">装备</button>`;
+    if(d.type==='consumable'&&!d.battleUse)act+=`<button class="lp-btn lp-btn-v lp-btn-sm" onclick="window._lpUse('${id}')">使用</button>`;
+    if(d.type==='consumable'&&d.battleUse)act+=`<span style="font-size:10px;color:var(--t3);">战斗中使用</span>`;
+  }
+  act+=`<button class="lp-btn lp-btn-sm" style="background:var(--bg3);" onclick="$('#lp-item-det').hide()">关闭</button>`;
+  if(d.effect)act=`<div style="font-size:11px;color:var(--t2);margin-bottom:6px;">效果: ${fmtEff(d.effect)}</div>`+`<div class="lp-det-act">${act}</div>`;
+  else act=`<div class="lp-det-act">${act}</div>`;
+  $('#lp-item-det').show().html(`<div class="lp-detail"><div class="lp-det-n" style="color:${RC[d.rarity||'common']}">${d.name}</div><div class="lp-det-tp">${{equipment:'装备',consumable:'消耗品',skillBook:'技能书'}[d.type]||''}</div><div class="lp-det-desc">${d.desc}</div>${st?'<div class="lp-det-st">'+st+'</div>':''}${af}${act}</div>`);
+}
+function fmtEff(e){if(!e)return'';const m={'hp_restore':'恢复'+e.value+'HP','sp_restore':'恢复'+e.value+'灵力','exp_gain':'获得'+e.value+'经验','perm_stat':(e.stat||'')+'+'+e.value+'(永久)','fixed_damage':'造成'+e.value+'固定伤害','aoe_damage':'全体'+e.value+'伤害','purify':'净化+'+e.value,'cure':'清除'+(e.target||'状态'),'cleanse_all':'清除全部负面','temp_buff':(e.stat||'')+'+'+(e.value||0)+'% '+(e.duration||0)+'回合','apply_debuff':(e.debuff||'')+' '+(e.value||0)+'/回合 '+(e.duration||0)+'回合'};return m[e.type]||JSON.stringify(e);}
+
+window._lpEquip=async function(id){const eq=EQUIP_DB[id];if(!eq)return;const m=getMeta(S.cur);if(!m)return;const old=m.equipped[eq.slot];if(old)addItem(S.cur,old,1);if(!removeItem(S.cur,id,1)){toast('物品不足','e');return;}m.equipped[eq.slot]=id;recalcBonus(S.cur);await Promise.all([saveI(),saveM()]);toast('已装备 '+eq.name,'s');renderAll();};
+window._lpUnequip=async function(sl){const m=getMeta(S.cur);if(!m||!m.equipped[sl])return;addItem(S.cur,m.equipped[sl],1);m.equipped[sl]=null;recalcBonus(S.cur);await Promise.all([saveI(),saveM()]);toast('已卸下','s');renderAll();};
+window._lpUse=async function(id){const d=CONSUME_DB[id],c=getCombat(S.cur);if(!d||!c)return;if(!removeItem(S.cur,id,1)){toast('物品不足','e');return;}
+  const e=d.effect;let msg='';
+  if(e.type==='hp_restore'){c.HP=Math.min(c.maxHP,c.HP+e.value);msg='HP+'+e.value;}
+  else if(e.type==='sp_restore'){msg='灵力恢复';}
+  else if(e.type==='exp_gain'){c.经验+=e.value;msg='EXP+'+e.value;chkLv();}
+  else if(e.type==='perm_stat'){c.permBonus=c.permBonus||{};c.permBonus[e.stat]=(c.permBonus[e.stat]||0)+e.value;c[e.stat]=(c[e.stat]||0)+e.value;if(e.stat==='HP'){c.maxHP+=e.value;c.HP+=e.value;}msg=e.stat+'+'+e.value+'(永久)';}
+  else if(e.type==='purify'){msg='净化+'+e.value;}
+  await Promise.all([saveC(),saveI()]);toast(d.name+': '+msg,'s');renderAll();
+  function chkLv(){while(c.经验>=c.升级经验&&c.升级经验<99999){c.经验-=c.升级经验;const nx=getNextRS(c.阶别,c.子阶);if(nx){c.阶别=nx.rank;c.子阶=nx.sub;c.升级经验=EXP_T[nx.rank+'-'+nx.sub]||99999;const nb=calcBase(nx.rank,nx.sub);const pb=c.permBonus||{};c.ATK=nb.ATK+(pb.ATK||0);c.DEF=nb.DEF+(pb.DEF||0);c.SPI=nb.SPI+(pb.SPI||0);c.SPD=nb.SPD+(pb.SPD||0);c.maxHP=nb.HP+(pb.HP||0);c.HP=c.maxHP;showLvUp(nx.rank,nx.sub);}else{c.经验=c.升级经验;break;}}}
+};
+
+/* ========== RENDER: SKILLS ========== */
+function rSkills(){
+  const m=getMeta(S.cur),inv=getItems(S.cur);if(!m)return;
+  const le=$('#lp-learned').empty();
+  if(!m.learnedSkills?.length)le.html('<div style="text-align:center;color:var(--t3);padding:12px;">尚未学习技能</div>');
+  else m.learnedSkills.forEach(sid=>{const sk=SKILL_DB[sid];if(sk)le.append(mkSkill(sid,sk,false));});
+  const av=$('#lp-avail').empty();
+  const bids=Object.keys(inv?.skillBooks||{}).filter(b=>(inv.skillBooks[b]||0)>0);
+  const avs=bids.map(bid=>{const sb=SKILLBOOK_DB[bid];return sb?{bid,...sb}:null;}).filter(s=>s&&!m.learnedSkills?.includes(s.skillId));
+  if(!avs.length)av.html('<div style="text-align:center;color:var(--t3);padding:12px;">无可学技能 (需先获取技能书)</div>');
+  else avs.forEach(s=>{const sk=SKILL_DB[s.skillId];if(sk)av.append(mkSkill(s.skillId,sk,true,s.bid));});
+}
+function mkSkill(sid,sk,canLearn,bid){
+  const tt={'single':'lp-tag-s','aoe':'lp-tag-a','self':'lp-tag-sf','ally':'lp-tag-al'};
+  const tn={'single':'单体','aoe':'群攻','self':'自身','ally':'友方'};
+  let efH=sk.effects?.length?sk.effects.map(e=>`<div class="lp-sk-eff">${effDesc(e)}</div>`).join(''):'';
+  return $('<div>').addClass('lp-sk-item').html(`<div class="lp-sk-ico"><i class="fas fa-bolt"></i></div><div class="lp-sk-info"><div class="lp-sk-n">${sk.name}</div><div class="lp-sk-meta"><span class="lp-sk-tag ${tt[sk.target]||''}">${tn[sk.target]||sk.target}</span><span>${sk.domain}</span>${sk.baseMult>0?`<span>${sk.baseMult}x ${sk.scaleStat}</span>`:''}  <span>消耗:${sk.cost}</span>${sk.cd>0?`<span>CD:${sk.cd}</span>`:''}</div><div style="font-size:10px;color:var(--t3);margin-top:2px;">${sk.desc}</div>${efH}${canLearn?`<button class="lp-btn lp-btn-v lp-btn-sm" style="margin-top:5px;" onclick="window._lpLearn('${sid}','${bid}')">学习 (${sk.learnExp}经验)</button>`:''}</div>`);
+}
+function effDesc(e){const nm={burn:'灼烧',freeze:'冻结',paralysis:'麻痹',bind:'束缚',charm:'魅惑',instakill:'即死',poison:'中毒',stun:'眩晕',cleanse:'净化',purify:'净化(实体)',lifesteal:'吸血',buff_atk:'攻击增幅',buff_def:'防御增幅',buff_spd:'速度增幅',buff_spi:'灵力增幅',dodge:'闪避',heal:'治疗',armorPen:'穿甲'};const n=nm[e.type]||e.type;let p=[n];if(e.chance<1)p.push(Math.round(e.chance*100)+'%');if(e.value>0){if(e.type.startsWith('buff_')||e.type==='dodge')p.push('+'+e.value+'%');else if(e.type==='lifesteal')p.push(Math.round(e.value*100)+'%');else if(e.type==='purify')p.push(e.value+'净化');else if(e.type==='armorPen')p.push('无视'+e.value+'%防御');else p.push(e.value+'/回合');}if(e.duration>0)p.push(e.duration+'回合');return p.join(' | ');}
+
+window._lpLearn=async function(sid,bid){const c=getCombat(S.cur),m=getMeta(S.cur),sk=SKILL_DB[sid];if(!c||!m||!sk)return;if(c.经验<sk.learnExp){toast('经验不足','e');return;}if(!removeItem(S.cur,bid,1)){toast('技能书不足','e');return;}c.经验-=sk.learnExp;if(!m.learnedSkills)m.learnedSkills=[];m.learnedSkills.push(sid);await Promise.all([saveC(),saveI(),saveM()]);toast('学习成功: '+sk.name,'s');renderAll();};
+
+/* ========== RENDER: SHOP ========== */
+function rShop(){
+  const c=getCombat(S.cur);if(!c)return;$('#lp-shop-sp').text(c.灵点||0);
+  const g=$('#lp-shop-g').empty();let items=[];
+  if(S.shopF==='consumable')items=Object.entries(CONSUME_DB).map(([id,d])=>({id,...d,type:'consumable'}));
+  else if(S.shopF==='equipment')items=Object.entries(EQUIP_DB).map(([id,d])=>({id,...d,type:'equipment'}));
+  else items=Object.entries(SKILLBOOK_DB).map(([id,d])=>({id,...d,type:'skillBook'}));
+  if(S.shopQ){const q=S.shopQ.toLowerCase();items=items.filter(i=>i.name.toLowerCase().includes(q));}
+  items.sort((a,b)=>(a.price||0)-(b.price||0));
+  if(!items.length){g.html('<div style="grid-column:1/-1;text-align:center;color:var(--t3);padding:16px;">无匹配物品</div>');return;}
+  items.forEach(it=>{
+    const can=(c.灵点||0)>=it.price;
+    g.append($('<div>').addClass('lp-shop-i '+rCls(it.rarity||'common')).html(`<div class="lp-shop-in">${it.name}</div><div class="lp-shop-id">${it.desc||''}</div><div class="lp-shop-bt"><span class="lp-shop-pr"><i class="fas fa-gem" style="font-size:10px;"></i> ${it.price}</span><button class="lp-btn lp-btn-p lp-btn-sm${can?'':'" disabled'}" onclick="window._lpBuy('${it.id}',${it.price})">购买</button></div>`));
+  });
+}
+window._lpBuy=async function(id,pr){const c=getCombat(S.cur);if(!c||(c.灵点||0)<pr){toast('灵点不足','e');return;}c.灵点-=pr;addItem(S.cur,id,1);await Promise.all([saveC(),saveI()]);const d=getItemData(id);toast('购入 '+(d?d.name:id),'s');renderAll();};
+
+/* ========== RENDER: GACHA ========== */
+function rGacha(){const c=getCombat(S.cur),m=getMeta(S.cur);if(!c||!m)return;checkDaily(S.cur);const rem=3-(m.dailyGacha||0);$('#lp-gacha-lim').text(rem);$('#lp-gacha-pity').text(m.gachaPity||0);$('#lp-gacha-btn').prop('disabled',rem<=0||(c.灵点||0)<50);$('#lp-gacha-res').hide();}
+
+$('#lp-gacha-btn').on('click',async function(){
+  const c=getCombat(S.cur),m=getMeta(S.cur);if(!c||!m)return;
+  if((c.灵点||0)<50){toast('灵点不足','e');return;}if((m.dailyGacha||0)>=3){toast('今日次数已尽','e');return;}
+  c.灵点-=50;m.dailyGacha=(m.dailyGacha||0)+1;m.gachaPity=(m.gachaPity||0)+1;
+  const btn=this;btn.disabled=true;const anim=$('#lp-gacha-anim');
+  /* Determine tier with pity */
+  let pool,tierN='',tierC='var(--t2)',animCls='spin';
+  if(m.gachaPity>=50){pool=GACHA_P[5];tierN='神器';tierC='var(--red)';animCls='spin-myth';}
+  else if(m.gachaPity>=30){const r=Math.random()*100;if(r<15){pool=GACHA_P[5];tierN='神器';tierC='var(--red)';animCls='spin-myth';}else{pool=GACHA_P[4];tierN='传奇';tierC='var(--org)';animCls='spin-leg';}}
+  else{const r=Math.random()*100;let cum=0;for(const g of GACHA_P){cum+=g.w;if(r<cum){pool=g;tierN=g.tier;break;}}if(!pool){pool=GACHA_P[0];tierN='普通';}
+    if(tierN==='传奇'){tierC='var(--org)';animCls='spin-leg';}
+    else if(tierN==='神器'){tierC='var(--red)';animCls='spin-myth';}
+    else if(tierN==='史诗')tierC='var(--pur)';
+    else if(tierN==='稀有')tierC='var(--acc)';
+    else if(tierN==='精良')tierC='var(--grn)';
+  }
+  if(['传奇','神器'].includes(tierN))m.gachaPity=0;
+  anim.removeClass('spin spin-leg spin-myth').addClass(animCls);
+  const rid=pool.items[Math.floor(Math.random()*pool.items.length)];const rd=getItemData(rid);
+  const delay={'spin':1200,'spin-leg':1500,'spin-myth':1800}[animCls]||1200;
+  setTimeout(async()=>{
+    anim.removeClass(animCls);
+    if(rd){addItem(S.cur,rid,1);await Promise.all([saveC(),saveI(),saveM()]);
+    $('#lp-gacha-res').show().html(`<div class="lp-gacha-res" style="border-color:${tierC}"><div style="font-size:10px;color:var(--t3);margin-bottom:3px;">${tierN}</div><div class="lp-gacha-rn" style="color:${tierC}">${rd.name}</div><div style="font-size:11px;color:var(--t2);margin-top:3px;">${rd.desc}</div></div>`);
+    if(['传奇','神器'].includes(tierN))toast('稀有品质: '+tierN+'!','g');}
+    renderAll();
+  },delay);
+});
+
+/* ========== RENDER: FORGE ========== */
+function rForge(){
+  const ci=S.meta?.customItems||{},cs=S.meta?.customSkills||{};
+  const list=$('#lp-forge-list').empty();
+  const all=[...Object.entries(ci).map(([id,d])=>({id,name:d.name,type:d.type||'item'})),...Object.entries(cs).map(([id,d])=>({id,name:d.name,type:'skill'}))];
+  if(!all.length){list.text('暂无自定义物品');return;}
+  all.forEach(i=>list.append(`<div style="padding:3px 0;border-bottom:1px solid var(--brd);">[${i.type}] ${i.id} - ${i.name}</div>`));
+}
+$('#lp-forge-req-btn').on('click',function(){
+  if(!HS){toast('triggerSlash不可用','e');return;}
+  const type=$('#lp-forge-type').val(),rarity=$('#lp-forge-rarity').val();
+  let msg=`生成物品 类型:${type}`;if(rarity)msg+=` 品质:${rarity}`;
+  triggerSlash(`/send ${msg} | /trigger`);
+});
+$('#lp-forge-tpl').on('click',function(){
+  const type=$('#lp-forge-type').val();
+  let tpl='';
+  if(type==='equipment'){
+    tpl=[
+      'id: W_CUSTOM_001',
+      'type: equipment',
+      'name: 示例武器',
+      'rarity: rare',
+      'slot: weapon',
+      'stats:',
+      '  ATK: 20',
+      '  SPD: 3',
+      'affixes:',
+      '  - type: onHit',
+      '    effect: burn',
+      '    chance: 0.2',
+      '    value: 5',
+      '    duration: 2',
+      'desc: 示例武器描述文本',
+      'price: 200'
+    ].join('\n');
+  } else if(type==='consumable'){
+    tpl=[
+      'id: C_CUSTOM_001',
+      'type: consumable',
+      'name: 示例丹药',
+      'rarity: uncommon',
+      'battleUse: false',
+      'effect:',
+      '  type: exp_gain',
+      '  value: 100',
+      'desc: 获得100点经验值',
+      'price: 60'
+    ].join('\n');
+  } else {
+    tpl=[
+      'id: S_CUSTOM_001',
+      'type: skill',
+      'name: 示例技能',
+      'domain: 物质域',
+      'target: single',
+      'baseMult: 1.5',
+      'scaleStat: ATK',
+      'cost: 20',
+      'cd: 1',
+      'learnExp: 100',
+      'effects:',
+      '  - type: burn',
+      '    chance: 0.3',
+      '    value: 8',
+      '    duration: 3',
+      'desc: 示例技能描述文本'
+    ].join('\n');
+  }
+  $('#lp-forge-ta').val(tpl);
+});
+
+/* ========== FORGE: 清空 ========== */
+$('#lp-forge-clear').on('click',function(){
+  $('#lp-forge-ta').val('');
+});
+
+/* ========== FORGE: 导入 ========== */
+$('#lp-forge-import').on('click',async function(){
+  const raw=$('#lp-forge-ta').val().trim();
+  if(!raw){toast('内容为空','e');return;}
+
+  let parsed;
+  try{
+    /* 优先使用酒馆助手内置的YAML库 */
+    if(HY){
+      parsed=YAML.parse(raw);
+    } else {
+      /* 简易YAML解析回退方案 */
+      parsed=simpleYamlParse(raw);
+    }
+  }catch(e){
+    console.error('YAML parse error:',e);
+    toast('YAML解析失败, 请检查格式','e');
+    return;
+  }
+
+  if(!parsed||!parsed.id||!parsed.type){
+    toast('缺少必要字段: id, type','e');
+    return;
+  }
+
+  const id=parsed.id;
+  const type=parsed.type;
+
+  if(type==='equipment'){
+    /* 校验装备必要字段 */
+    if(!parsed.slot||!parsed.name){toast('装备缺少 slot 或 name','e');return;}
+    const entry={
+      name:parsed.name,
+      slot:parsed.slot,
+      rarity:parsed.rarity||'common',
+      stats:parsed.stats||{},
+      affixes:normalizeAffixes(parsed.affixes),
+      desc:parsed.desc||'',
+      price:parseInt(parsed.price)||100
+    };
+    EQUIP_DB[id]=entry;
+    if(!S.meta.customItems)S.meta.customItems={};
+    S.meta.customItems[id]={...entry,type:'equipment'};
+    addItem(S.cur,id,1);
+    await Promise.all([saveI(),saveM()]);
+    toast('装备导入成功: '+entry.name,'s');
+
+  } else if(type==='consumable'){
+    if(!parsed.name){toast('消耗品缺少 name','e');return;}
+    const entry={
+      name:parsed.name,
+      rarity:parsed.rarity||'common',
+      battleUse:parsed.battleUse===true||parsed.battleUse==='true',
+      effect:parsed.effect||{type:'hp_restore',value:50},
+      desc:parsed.desc||'',
+      price:parseInt(parsed.price)||50
+    };
+    CONSUME_DB[id]=entry;
+    if(!S.meta.customItems)S.meta.customItems={};
+    S.meta.customItems[id]={...entry,type:'consumable'};
+    addItem(S.cur,id,1);
+    await Promise.all([saveI(),saveM()]);
+    toast('消耗品导入成功: '+entry.name,'s');
+
+  } else if(type==='skill'){
+    if(!parsed.name){toast('技能缺少 name','e');return;}
+    const entry={
+      name:parsed.name,
+      domain:parsed.domain||'物质域',
+      target:parsed.target||'single',
+      baseMult:parseFloat(parsed.baseMult)||1.0,
+      scaleStat:parsed.scaleStat||'ATK',
+      cost:parseInt(parsed.cost)||20,
+      cd:parseInt(parsed.cd)||0,
+      learnExp:parseInt(parsed.learnExp)||100,
+      effects:normalizeEffects(parsed.effects),
+      desc:parsed.desc||''
+    };
+    SKILL_DB[id]=entry;
+    if(!S.meta.customSkills)S.meta.customSkills={};
+    S.meta.customSkills[id]=entry;
+    /* 同时生成对应的技能书并加入背包 */
+    const bookId='B_'+id;
+    SKILLBOOK_DB[bookId]={
+      name:entry.name+'技能书',
+      category:'skillBook',
+      skillId:id,
+      desc:'习得: '+entry.name+' (需'+entry.learnExp+'经验)',
+      price:Math.round(entry.learnExp*1.5),
+      rarity:entry.learnExp>200?'epic':'rare'
+    };
+    addItem(S.cur,bookId,1);
+    await Promise.all([saveI(),saveM()]);
+    toast('技能导入成功: '+entry.name+' (技能书已入库)','s');
+
+  } else {
+    toast('未知类型: '+type,'e');
+    return;
+  }
+
+  $('#lp-forge-ta').val('');
+  renderAll();
+});
+
+/* ========== FORGE: 辅助函数 ========== */
+function normalizeAffixes(arr){
+  if(!Array.isArray(arr))return[];
+  return arr.map(a=>({
+    type:a.type||'passive',
+    effect:a.effect||'critRate',
+    chance:parseFloat(a.chance)||1,
+    value:parseFloat(a.value)||0,
+    duration:parseInt(a.duration)||0
+  }));
+}
+
+function normalizeEffects(arr){
+  if(!Array.isArray(arr))return[];
+  return arr.map(e=>({
+    type:e.type||'burn',
+    chance:parseFloat(e.chance)||1,
+    value:parseFloat(e.value)||0,
+    duration:parseInt(e.duration)||0
+  }));
+}
+
+/* 简易YAML解析器 (当YAML库不可用时的回退) */
+function simpleYamlParse(str){
+  const lines=str.split('\n');
+  const result={};
+  const stack=[{obj:result,indent:-1}];
+  let currentArray=null;
+  let currentArrayKey=null;
+  let arrayItemIndent=-1;
+  let pendingArrayItem=null;
+
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i];
+    const trimmed=line.trim();
+    if(!trimmed||trimmed.startsWith('#'))continue;
+
+    const indent=line.search(/\S/);
+
+    /* 处理数组项 */
+    if(trimmed.startsWith('- ')){
+      const content=trimmed.substring(2).trim();
+
+      /* 检查是否为 key: value 格式的数组项 */
+      const kv=content.match(/^([^:]+):\s*(.*)$/);
+      if(kv){
+        /* 这是一个对象数组的开始 */
+        if(pendingArrayItem){
+          /* 保存上一个数组项 */
+          if(currentArrayKey&&result[currentArrayKey]){
+            result[currentArrayKey].push(pendingArrayItem);
+          }
+        }
+        pendingArrayItem={};
+        pendingArrayItem[kv[1].trim()]=parseYamlValue(kv[2].trim());
+        arrayItemIndent=indent;
+        continue;
+      } else {
+        /* 简单值数组 */
+        if(currentArrayKey){
+          if(!Array.isArray(result[currentArrayKey]))result[currentArrayKey]=[];
+          result[currentArrayKey].push(parseYamlValue(content));
+        }
+        continue;
+      }
+    }
+
+    /* 处理数组对象的后续行 */
+    if(pendingArrayItem && indent>arrayItemIndent){
+      const kv=trimmed.match(/^([^:]+):\s*(.*)$/);
+      if(kv){
+        pendingArrayItem[kv[1].trim()]=parseYamlValue(kv[2].trim());
+        continue;
+      }
+    }
+
+    /* 如果缩进回退, 保存当前数组项 */
+    if(pendingArrayItem && indent<=arrayItemIndent){
+      if(currentArrayKey){
+        if(!Array.isArray(result[currentArrayKey]))result[currentArrayKey]=[];
+        result[currentArrayKey].push(pendingArrayItem);
+      }
+      pendingArrayItem=null;
+    }
+
+    /* 普通键值对 */
+    const match=trimmed.match(/^([^:]+):\s*(.*)$/);
+    if(match){
+      const key=match[1].trim();
+      const val=match[2].trim();
+      if(!val){
+        /* 可能是对象或数组的父键 */
+        result[key]={};
+        currentArrayKey=key;
+        /* 查看下一行判断是否为数组 */
+        if(i+1<lines.length){
+          const nextTrimmed=lines[i+1].trim();
+          if(nextTrimmed.startsWith('- ')){
+            result[key]=[];
+          }
+        }
+      } else {
+        result[key]=parseYamlValue(val);
+        if(typeof result[key]!=='object')currentArrayKey=null;
+      }
+    }
+  }
+
+  /* 保存最后一个数组项 */
+  if(pendingArrayItem && currentArrayKey){
+    if(!Array.isArray(result[currentArrayKey]))result[currentArrayKey]=[];
+    result[currentArrayKey].push(pendingArrayItem);
+  }
+
+  return result;
+}
+
+function parseYamlValue(val){
+  if(val===''||val===null||val===undefined)return '';
+  if(val==='true')return true;
+  if(val==='false')return false;
+  if(val==='null')return null;
+  if(/^-?\d+$/.test(val))return parseInt(val);
+  if(/^-?\d+\.\d+$/.test(val))return parseFloat(val);
+  /* 去除可能的引号 */
+  if((val.startsWith('"')&&val.endsWith('"'))||(val.startsWith("'")&&val.endsWith("'")))
+    return val.slice(1,-1);
+  return val;
+}
+
+/* ========== TAB INDICATOR ========== */
+function updateTabIndicator(){
+  const tabs=document.getElementById('lp-tabs');
+  const active=tabs.querySelector('.lp-tab.active');
+  if(!active)return;
+  const tabsRect=tabs.getBoundingClientRect();
+  const activeRect=active.getBoundingClientRect();
+  tabs.style.setProperty('--ind-l',(activeRect.left-tabsRect.left+tabs.scrollLeft)+'px');
+  tabs.style.setProperty('--ind-w',activeRect.width+'px');
+}
+
+/* ========== TAB SWITCHING ========== */
+$('.lp-tab').on('click',function(){
+  const tab=$(this).data('tab');
+  $('.lp-tab').removeClass('active');
+  $(this).addClass('active');
+  $('.lp-pg').removeClass('active');
+  $('#lp-pg-'+tab).addClass('active');
+  S.selectedItem=null;
+  $('#lp-item-det').hide();
+  updateTabIndicator();
+  renderAll();
+});
+
+/* ========== INVENTORY SUBTABS ========== */
+$('#lp-inv-tabs').on('click','.lp-stab',function(){
+  $('#lp-inv-tabs .lp-stab').removeClass('active');
+  $(this).addClass('active');
+  S.invF=$(this).data('f');
+  $('#lp-item-det').hide();
+  rInv();
+});
+
+/* ========== SHOP SUBTABS ========== */
+$('#lp-shop-tabs').on('click','.lp-stab',function(){
+  $('#lp-shop-tabs .lp-stab').removeClass('active');
+  $(this).addClass('active');
+  S.shopF=$(this).data('f');
+  rShop();
+});
+
+/* ========== SHOP SEARCH ========== */
+$('#lp-shop-q').on('input',function(){
+  S.shopQ=$(this).val();
+  rShop();
+});
+
+/* ========== CULTIVATION BUTTON ========== */
+$('#lp-cult-btn').on('click',doCult);
+
+/* ========== PARTICLES ========== */
+function initPtc(){
+  const cv=document.getElementById('lp-ptc');
+  const main=document.getElementById('lp-main');
+  if(!cv||!main)return;
+  const ctx=cv.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+
+  function resize(){
+    cv.width=main.offsetWidth*dpr;
+    cv.height=main.offsetHeight*dpr;
+    cv.style.width=main.offsetWidth+'px';
+    cv.style.height=main.offsetHeight+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  resize();
+
+  const pts=Array.from({length:45},()=>({
+    x:Math.random()*main.offsetWidth,
+    y:Math.random()*main.offsetHeight,
+    vx:(Math.random()-0.5)*0.25,
+    vy:(Math.random()-0.5)*0.25,
+    sz:Math.random()*1.6+0.4,
+    al:Math.random()*0.25+0.05,
+    ph:Math.random()*Math.PI*2
+  }));
+
+  let raf;
+  function draw(){
+    const W=main.offsetWidth,H=main.offsetHeight;
+    ctx.clearRect(0,0,W,H);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.ph+=0.015;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      const a=p.al*(0.6+0.4*Math.sin(p.ph));
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,200,255,${a})`;
+      ctx.fill();
+    });
+    /* 连线 */
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<80){
+          ctx.beginPath();
+          ctx.moveTo(pts[i].x,pts[i].y);
+          ctx.lineTo(pts[j].x,pts[j].y);
+          ctx.strokeStyle=`rgba(0,200,255,${0.03*(1-dist/80)})`;
+          ctx.lineWidth=0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    raf=requestAnimationFrame(draw);
+  }
+  draw();
+
+  const ro=new ResizeObserver(()=>{
+    ctx.setTransform(1,0,0,1,0,0);
+    resize();
+  });
+  ro.observe(main);
+}
+
+/* ========== RENDER ALL ========== */
+function renderAll(){
+  rWorld();
+  rOverview();
+  rCult();
+  rInv();
+  rSkills();
+  rShop();
+  rGacha();
+  rForge();
+}
+
+/* ========== INIT ========== */
+async function init(){
+  await loadData();
+  rCharSel();
+  checkDaily(S.cur);
+  recalcBonus(S.cur);
+  renderAll();
+  initPtc();
+  /* 延迟更新tab指示器, 等DOM渲染完成 */
+  setTimeout(updateTabIndicator,100);
+  /* 窗口resize时更新雷达图和指示器 */
+  window.addEventListener('resize',()=>{
+    const c=getCombat(S.cur);
+    if(c){
+      const m=getMeta(S.cur);
+      const eb=m?.equipBonuses||{};
+      drawRadar({
+        HP:c.maxHP+(eb.HP||0),
+        ATK:c.ATK+(eb.ATK||0),
+        DEF:c.DEF+(eb.DEF||0),
+        SPI:c.SPI+(eb.SPI||0),
+        SPD:c.SPD+(eb.SPD||0)
+      });
+    }
+    updateTabIndicator();
+  });
+}
+
+init();
+
+})();
+</script>
+</body>
+</html>
