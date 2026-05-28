@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+<style>
+.bt *,.bt *::before,.bt *::after{box-sizing:border-box;margin:0;padding:0;}
+.bt{--bg0:#060a12;--bg1:#0b1022;--bg2:#101728;--bg3:#161e32;--bg4:#1c263e;--acc:#00c8ff;--acc2:#0098cc;--acc3:rgba(0,200,255,.1);--red:#ff2d55;--red2:rgba(255,45,85,.1);--red3:rgba(255,45,85,.25);--grn:#36d986;--grn2:rgba(54,217,134,.12);--gold:#f0c040;--org:#ff8c00;--pur:#7c5ce6;--t1:#cdd8e6;--t2:#8293a6;--t3:#546275;--brd:rgba(0,200,255,.08);--brd2:rgba(0,200,255,.2);--glass:rgba(11,16,34,.88);--glass2:rgba(16,23,40,.92);font-family:'Segoe UI','PingFang SC','Microsoft YaHei',system-ui,sans-serif;color:var(--t1);font-size:13px;line-height:1.5;width:100%;max-width:920px;margin:8px auto;}
+.bt ::-webkit-scrollbar{width:3px;}.bt ::-webkit-scrollbar-track{background:transparent;}.bt ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+.bt-det{border:1px solid var(--brd);border-radius:10px;overflow:hidden;background:var(--bg0);transition:border-color .4s;}
+.bt-det.bt-active{border-color:var(--red3);animation:btBP 3s ease-in-out infinite;}@keyframes btBP{0%,100%{border-color:rgba(255,45,85,.15);}50%{border-color:rgba(255,45,85,.35);}}
+.bt-det.bt-ended{border-color:rgba(240,192,64,.25);}
+.bt-sum{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;cursor:pointer;list-style:none;background:linear-gradient(180deg,rgba(0,200,255,.03),transparent);border-bottom:1px solid var(--brd);user-select:none;}.bt-sum::-webkit-details-marker{display:none;}
+.bt-stit{font-size:12px;font-weight:700;color:var(--acc);display:flex;align-items:center;gap:6px;white-space:nowrap;letter-spacing:.5px;margin-right:auto;}.bt-stit i{font-size:11px;opacity:.6;}
+.bt-stit.combat{color:var(--red);animation:btTP 2s ease-in-out infinite;}@keyframes btTP{0%,100%{text-shadow:none;}50%{text-shadow:0 0 8px rgba(255,45,85,.4);}}
+.bt-stit.victory{color:var(--gold);}
+.bt-arrow{transition:transform .3s;font-size:10px;color:var(--t3);margin-left:8px;}.bt-det[open] .bt-arrow{transform:rotate(180deg);}
+.bt-hpm{display:flex;gap:10px;flex-wrap:wrap;flex:1;min-width:0;}
+.bt-hpc{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px;white-space:nowrap;min-width:110px;flex:1;max-width:200px;}
+.bt-hpn{color:var(--t2);font-weight:600;width:44px;text-align:right;overflow:hidden;text-overflow:ellipsis;}
+.bt-hpbw{flex:1;height:10px;background:rgba(0,0,0,.4);border-radius:5px;overflow:hidden;}
+.bt-hpb{height:100%;border-radius:5px;transition:width .5s ease;position:relative;overflow:hidden;}
+.bt-hpb::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);animation:btSh 3s infinite;}@keyframes btSh{to{left:100%;}}
+.bt-hpb-a{background:linear-gradient(90deg,var(--grn),#5de89c);}.bt-hpb-am{background:linear-gradient(90deg,var(--org),#ffb347);}.bt-hpb-al{background:linear-gradient(90deg,var(--red),#ff7082);}.bt-hpb-e{background:linear-gradient(90deg,var(--red),#ff6b8a);}
+.bt-hpv{font-size:10px;color:var(--t3);font-variant-numeric:tabular-nums;width:60px;text-align:right;}
+.bt-main{padding:12px;position:relative;min-height:80px;animation:btFI .3s ease;}@keyframes btFI{from{opacity:0;}to{opacity:1;}}
+.bt-sec{margin-bottom:12px;}.bt-sect{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:5px;}.bt-sect i{font-size:10px;}
+.bt-u{background:var(--glass2);border:1px solid var(--brd);border-radius:7px;padding:8px 10px;margin-bottom:6px;transition:border-color .3s;}.bt-u:hover{border-color:rgba(0,200,255,.12);}.bt-u-e{border-color:rgba(255,45,85,.08);}.bt-u-e:hover{border-color:rgba(255,45,85,.2);}
+.bt-u-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}.bt-u-name{font-weight:700;font-size:12px;min-width:50px;}.bt-u-barw{flex:1;min-width:80px;}.bt-u-hpnum{font-size:10px;color:var(--t3);margin-top:2px;}
+.bt-u-stats{font-size:10px;color:var(--t3);display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}.bt-u-stats span{padding:1px 4px;background:rgba(0,0,0,.25);border-radius:3px;}
+.bt-stag{display:inline-block;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:600;margin:1px;}.bt-stag-b{background:var(--grn2);color:var(--grn);}.bt-stag-d{background:var(--red2);color:var(--red);}.bt-stag-n{background:var(--acc3);color:var(--acc);}
+.bt-spbw{height:6px;background:rgba(0,0,0,.3);border-radius:3px;overflow:hidden;margin-top:3px;}.bt-spb{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .5s;}
+.bt-log{background:rgba(0,0,0,.3);border:1px solid var(--brd);border-radius:6px;padding:8px 10px;max-height:140px;overflow-y:auto;font-size:11px;line-height:1.6;color:var(--t2);}.bt-log-e{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.02);}.bt-log-e::before{content:'> ';color:var(--t3);font-weight:700;}
+.bt-act{background:var(--glass);border:1px solid var(--brd2);border-radius:8px;padding:12px;}.bt-act-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);}.bt-act-row:last-of-type{border-bottom:none;}
+.bt-act-name{font-weight:700;font-size:12px;color:var(--acc);min-width:50px;}.bt-act-sel{background:var(--bg3);color:var(--t1);border:1px solid var(--brd);border-radius:5px;padding:4px 22px 4px 6px;font-size:11px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300c8ff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 2px center;background-size:13px;max-width:140px;}
+.bt-act-note{background:var(--bg2);border:1px solid var(--brd);border-radius:5px;padding:4px 8px;font-size:11px;color:var(--t1);outline:none;flex:1;min-width:100px;}.bt-act-note:focus{border-color:var(--acc);}.bt-act-note::placeholder{color:var(--t3);}
+.bt-act-info{font-size:10px;color:var(--t3);margin-top:2px;width:100%;}.bt-act-preview{font-size:10px;color:var(--org);background:rgba(255,140,0,.06);border:1px solid rgba(255,140,0,.1);border-radius:4px;padding:3px 6px;margin-top:2px;width:100%;}
+.bt-submit-row{display:flex;gap:8px;margin-top:10px;justify-content:flex-end;flex-wrap:wrap;}
+.bt-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 18px;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;color:#fff;transition:all .25s;position:relative;overflow:hidden;}
+.bt-btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.15);transform:translate(-50%,-50%);transition:width .4s,height .4s;}.bt-btn:active::after{width:180px;height:180px;}
+.bt-btn-p{background:linear-gradient(135deg,var(--acc2),var(--acc));}.bt-btn-p:hover{box-shadow:0 4px 14px rgba(0,200,255,.4);transform:translateY(-1px);}
+.bt-btn-r{background:linear-gradient(135deg,#b8222e,var(--red));}.bt-btn-r:hover{box-shadow:0 4px 14px rgba(255,45,85,.3);transform:translateY(-1px);}
+.bt-btn-g{background:linear-gradient(135deg,#b8880e,var(--gold));color:#0a0e1a;}.bt-btn-g:hover{box-shadow:0 4px 14px rgba(240,192,64,.3);transform:translateY(-1px);}
+.bt-btn:disabled{opacity:.35;pointer-events:none;}
+.bt-result{text-align:center;padding:12px;margin-bottom:10px;border-radius:8px;}.bt-result-v{background:rgba(240,192,64,.05);border:1px solid rgba(240,192,64,.15);}.bt-result-d{background:rgba(255,45,85,.05);border:1px solid rgba(255,45,85,.15);}.bt-result-text{font-size:18px;font-weight:800;letter-spacing:2px;}.bt-result-v .bt-result-text{color:var(--gold);text-shadow:0 0 12px rgba(240,192,64,.3);}.bt-result-d .bt-result-text{color:var(--red);text-shadow:0 0 12px rgba(255,45,85,.3);}
+.bt-loot{background:rgba(240,192,64,.04);border:1px solid rgba(240,192,64,.15);border-radius:8px;padding:12px;}.bt-loot-title{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:8px;}.bt-loot-list{display:flex;flex-wrap:wrap;gap:6px;}.bt-loot-item{padding:4px 10px;background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.1);border-radius:5px;font-size:11px;}.bt-loot-item i{color:var(--gold);margin-right:3px;font-size:10px;}
+.bt-toast{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:10000;padding:8px 22px;border-radius:7px;font-size:12px;font-weight:700;color:#fff;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.3);animation:btTIn .3s ease,btTOut .3s ease 2.2s forwards;}@keyframes btTIn{from{opacity:0;transform:translateX(-50%) translateY(-15px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}@keyframes btTOut{to{opacity:0;transform:translateX(-50%) translateY(-15px);}}.bt-toast-s{background:linear-gradient(135deg,#1b7a3d,var(--grn));}.bt-toast-e{background:linear-gradient(135deg,#8b1a2a,var(--red));}.bt-toast-g{background:linear-gradient(135deg,#8b6914,var(--gold));color:#0a0e1a;}
+@media(max-width:600px){.bt-hpc{min-width:90px;max-width:none;}.bt-act-sel{max-width:120px;}}
+</style>
+
+<textarea id="bt-raw" style="display:none;">$1</textarea>
+<div class="bt"><details class="bt-det" id="bt-det"><summary class="bt-sum"><div class="bt-stit" id="bt-title"><i class="fas fa-heart-pulse"></i> 角色状态</div><div class="bt-hpm" id="bt-hpm"></div><span class="bt-arrow"><i class="fas fa-chevron-down"></i></span></summary><div class="bt-main" id="bt-main"></div></details></div>
+
+<script>
+(function(){
+/* =================== CONFIG =================== */
+const WI='{思牵今夜肠应直，雨冷香魂吊书客}';
+const UID_C=79; /* 角色战斗数据 */
+const UID_I=80; /* 物品仓库 */
+const UID_M=81; /* 角色元数据 */
+
+const HS=typeof triggerSlash==='function';
+const HV=typeof getAllVariables==='function';
+const HL=typeof _!=='undefined'&&typeof _.get==='function';
+if(!HL)window._={get:(o,p,d)=>d};
+function toast(m,t='s'){const d=document.createElement('div');d.className='bt-toast bt-toast-'+t;d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),2600);}
+
+/* =================== STAT TABLE (精确阶别数值) =================== */
+const STAT_TABLE={
+'无-无':{HP:50,ATK:5,DEF:5,SPI:3,SPD:8},
+'触源阶-初期':{HP:100,ATK:14,DEF:10,SPI:18,SPD:11},'触源阶-中期':{HP:125,ATK:17,DEF:13,SPI:23,SPD:13},'触源阶-后期':{HP:155,ATK:21,DEF:16,SPI:28,SPD:16},
+'共振阶-初期':{HP:200,ATK:27,DEF:20,SPI:36,SPD:19},'共振阶-中期':{HP:250,ATK:33,DEF:25,SPI:44,SPD:23},'共振阶-后期':{HP:310,ATK:40,DEF:31,SPI:54,SPD:27},
+'统御阶-初期':{HP:400,ATK:50,DEF:38,SPI:66,SPD:32},'统御阶-中期':{HP:500,ATK:62,DEF:48,SPI:82,SPD:38},'统御阶-后期':{HP:630,ATK:76,DEF:59,SPI:100,SPD:45},
+'同化阶-初期':{HP:800,ATK:94,DEF:73,SPI:122,SPD:54},'同化阶-中期':{HP:1000,ATK:116,DEF:90,SPI:150,SPD:65},'同化阶-后期':{HP:1250,ATK:142,DEF:110,SPI:184,SPD:78},
+'游离阶-初期':{HP:110,ATK:16,DEF:8,SPI:22,SPD:14},'游离阶-中期':{HP:135,ATK:20,DEF:10,SPI:28,SPD:17},'游离阶-后期':{HP:165,ATK:25,DEF:13,SPI:34,SPD:20},
+'汇聚阶-初期':{HP:220,ATK:32,DEF:22,SPI:42,SPD:21},'汇聚阶-中期':{HP:275,ATK:40,DEF:28,SPI:52,SPD:25},'汇聚阶-后期':{HP:345,ATK:49,DEF:34,SPI:64,SPD:30},
+'概念阶-初期':{HP:450,ATK:62,DEF:44,SPI:80,SPD:36},'概念阶-中期':{HP:560,ATK:76,DEF:55,SPI:98,SPD:43},'概念阶-后期':{HP:700,ATK:93,DEF:68,SPI:120,SPD:51},
+'源核阶-初期':{HP:900,ATK:115,DEF:84,SPI:148,SPD:60},'源核阶-中期':{HP:1120,ATK:140,DEF:104,SPI:180,SPD:72},'源核阶-后期':{HP:1400,ATK:170,DEF:128,SPI:220,SPD:86}
+};
+
+const EXP_TABLE={};
+Object.keys(STAT_TABLE).forEach(k=>{
+  const vals={'无-无':50,'触源阶-初期':100,'触源阶-中期':200,'触源阶-后期':400,'共振阶-初期':600,'共振阶-中期':900,'共振阶-后期':1300,'统御阶-初期':1800,'统御阶-中期':2500,'统御阶-后期':3500,'同化阶-初期':5000,'同化阶-中期':7000,'同化阶-后期':99999,'游离阶-初期':100,'游离阶-中期':200,'游离阶-后期':400,'汇聚阶-初期':600,'汇聚阶-中期':900,'汇聚阶-后期':1300,'概念阶-初期':1800,'概念阶-中期':2500,'概念阶-后期':3500,'源核阶-初期':5000,'源核阶-中期':7000,'源核阶-后期':99999};
+  EXP_TABLE[k]=vals[k]||99999;
+});
+
+const H_RANKS=['无','触源阶','共振阶','统御阶','同化阶'];
+const E_RANKS=['游离阶','汇聚阶','概念阶','源核阶'];
+const SUBS=['初期','中期','后期'];
+
+/* =================== SKILL DB =================== */
+const SK={
+S001:{n:'烈焰斩',tg:'single',m:1.5,sc:'ATK',c:15,cd:0,fx:[{t:'burn',ch:.3,v:8,d:3}]},
+S002:{n:'冰棱穿刺',tg:'single',m:1.8,sc:'ATK',c:20,cd:0,fx:[{t:'freeze',ch:.2,d:1}]},
+S003:{n:'雷光裂空',tg:'aoe',m:1.2,sc:'ATK',c:25,cd:1,fx:[{t:'paralysis',ch:.15,v:50,d:2}]},
+S004:{n:'暗影束缚',tg:'single',m:.5,sc:'ATK',c:15,cd:0,fx:[{t:'bind',ch:.6,d:1}]},
+S005:{n:'魅影迷心',tg:'single',m:0,sc:'SPI',c:30,cd:2,fx:[{t:'charm',ch:.4,d:1}]},
+S006:{n:'灵能弹幕',tg:'aoe',m:1.0,sc:'ATK',c:18,cd:0,fx:[]},
+S007:{n:'断魂一击',tg:'single',m:2.5,sc:'ATK',c:35,cd:3,fx:[{t:'instakill',ch:.05}]},
+S008:{n:'净化之光',tg:'single',m:1.2,sc:'SPI',c:20,cd:0,fx:[{t:'cleanse',ch:1},{t:'purify',ch:1,v:15}]},
+S009:{n:'生命吸取',tg:'single',m:1.3,sc:'ATK',c:22,cd:0,fx:[{t:'lifesteal',ch:1,v:.3}]},
+S010:{n:'毒雾弥漫',tg:'aoe',m:.8,sc:'ATK',c:28,cd:1,fx:[{t:'poison',ch:.45,v:12,d:3}]},
+S011:{n:'铁壁防御',tg:'self',m:0,sc:'DEF',c:15,cd:0,fx:[{t:'buff_def',ch:1,v:50,d:3}]},
+S012:{n:'疾风步',tg:'self',m:0,sc:'SPD',c:15,cd:0,fx:[{t:'buff_spd',ch:1,v:40,d:3},{t:'dodge',ch:1,v:20,d:3}]},
+S013:{n:'灵力激涌',tg:'self',m:0,sc:'ATK',c:20,cd:0,fx:[{t:'buff_atk',ch:1,v:35,d:3}]},
+S014:{n:'治愈术',tg:'ally',m:1.5,sc:'SPI',c:18,cd:0,fx:[{t:'heal',ch:1}]},
+S015:{n:'地裂天崩',tg:'aoe',m:2.0,sc:'ATK',c:40,cd:3,fx:[{t:'stun',ch:.1,d:1}]},
+S016:{n:'星落万象',tg:'aoe',m:2.5,sc:'ATK',c:50,cd:4,fx:[{t:'stun',ch:.15,d:1}]},
+S017:{n:'生命绽放',tg:'ally',m:1.0,sc:'SPI',c:35,cd:2,fx:[{t:'heal',ch:1},{t:'cleanse',ch:1}]},
+S018:{n:'虚空裂隙',tg:'single',m:3.0,sc:'ATK',c:45,cd:4,fx:[{t:'armorPen',ch:1,v:50}]},
+S019:{n:'灵魂共鸣',tg:'self',m:0,sc:'SPI',c:25,cd:3,fx:[{t:'buff_atk',ch:1,v:40,d:2},{t:'buff_spi',ch:1,v:40,d:2}]},
+S020:{n:'终末审判',tg:'aoe',m:2.0,sc:'SPI',c:60,cd:5,fx:[{t:'instakill',ch:.08},{t:'purify',ch:1,v:20}]}
+};
+const BI={
+C001:{n:'低阶恢复丹',fx:{t:'hp',v:50}},C002:{n:'中阶恢复丹',fx:{t:'hp',v:150}},C003:{n:'高阶恢复丹',fx:{t:'hp',v:400}},C004:{n:'极品恢复丹',fx:{t:'hp',v:800}},
+C005:{n:'低阶回灵丹',fx:{t:'sp',v:30}},C006:{n:'中阶回灵丹',fx:{t:'sp',v:80}},C007:{n:'高阶回灵丹',fx:{t:'sp',v:200}},C008:{n:'灵力涌泉丹',fx:{t:'sp',v:9999}},
+C009:{n:'解毒散',fx:{t:'cure',v:'poison'}},C010:{n:'解冻符',fx:{t:'cure',v:'freeze'}},C011:{n:'清心丹',fx:{t:'cure',v:'charm'}},C012:{n:'净化符',fx:{t:'cleanse'}},
+C013:{n:'火雷符',fx:{t:'dmg',v:80}},C014:{n:'冰爆符',fx:{t:'dmg',v:120}},C015:{n:'雷电珠',fx:{t:'aoedmg',v:200}},C016:{n:'腐蚀瓶',fx:{t:'debuff',v:'poison',d:3,dv:10}},
+C026:{n:'狂怒药剂',fx:{t:'buff',stat:'ATK',v:30,d:3}},C027:{n:'铁壁药剂',fx:{t:'buff',stat:'DEF',v:30,d:3}},
+C028:{n:'灵动药剂',fx:{t:'buff',stat:'SPD',v:30,d:3}},C029:{n:'灵能增幅剂',fx:{t:'buff',stat:'SPI',v:30,d:3}},C030:{n:'圣水',fx:{t:'purify',v:25}}
+};
+const EFF_N={burn:'灼烧',freeze:'冻结',paralysis:'麻痹',bind:'束缚',charm:'魅惑',instakill:'即死',poison:'中毒',stun:'眩晕',cleanse:'净化',purify:'净化',lifesteal:'吸血',buff_atk:'攻击UP',buff_def:'防御UP',buff_spd:'速度UP',buff_spi:'灵力UP',dodge:'闪避UP',heal:'治疗',armorPen:'穿甲'};
+const TG_N={single:'单体',aoe:'群攻',self:'自身',ally:'友方'};
+const DEBUFFS=['burn','freeze','paralysis','bind','charm','poison','stun'];
+const BUFFS=['buff_atk','buff_def','buff_spd','buff_spi','dodge'];
+
+/* =================== 重平衡: 伤害公式 (stat^1.5) =================== */
+function ePow(s){return Math.pow(Math.max(1,s),1.5);}
+
+function calcDamage(atk,def,mult,armorPen){
+  const raw=ePow(atk)*Math.max(0.1,mult);
+  let eDef=def;
+  if(armorPen>0)eDef=Math.max(0,eDef*(1-armorPen/100));
+  /* DEF超过ATK 20+时几乎免疫 */
+  if(eDef-atk>=20)return Math.max(1,Math.floor(raw*0.03));
+  const dP=ePow(eDef);
+  const red=dP/(dP+raw);
+  return Math.max(1,Math.floor(raw*(1-red)));
+}
+
+function calcDodge(ownSPD,tgtSPD,baseDodge){
+  /* 每点SPD差=1.2%闪避, 上限60% */
+  return Math.min(0.60,Math.max(0,(baseDodge||0)/100+(ownSPD-tgtSPD)*0.012));
+}
+
+function calcSPCost(base,spi){return Math.max(1,Math.floor(base*50/(50+spi)));}
+function roll(p){return Math.random()<p;}
+
+/* =================== PARSE RAW =================== */
+function parseRaw(){
+  const raw=document.getElementById('bt-raw')?.value||'';
+  const D={state:'idle',turn:0,allies:[],enemies:[],log:[],result:'',loot:[]};
+  let m;
+  m=raw.match(/\[State\|(.*?)\]/);if(m)D.state=m[1].trim();
+  m=raw.match(/\[Turn\|(.*?)\]/);if(m)D.turn=+m[1]||0;
+  m=raw.match(/\[Allies\|([\s\S]*?)\]/);
+  if(m)m[1].split('|').forEach(s=>{s=s.trim();if(!s)return;const p=s.split(':');if(p.length>=3)D.allies.push({name:p[0].trim(),hp:+p[1]||0,maxHp:+p[2]||0,sp:+p[3]||0,maxSp:+p[4]||0,status:p.slice(5).join(':').trim()});});
+  m=raw.match(/\[Enemies\|([\s\S]*?)\]/);
+  if(m)m[1].split('|').forEach(s=>{s=s.trim();if(!s)return;const p=s.split(':');if(p.length>=5)D.enemies.push({name:p[0].trim(),hp:+p[1]||0,maxHp:+p[2]||0,rank:p[3]||'',atk:+p[4]||0,def:+p[5]||0,spi:+p[6]||0,spd:+p[7]||0,status:p.slice(8).join(':').trim()});});
+  m=raw.match(/\[Log\|([\s\S]*?)\]/);if(m)D.log=m[1].split('|').map(s=>s.trim()).filter(Boolean);
+  m=raw.match(/\[Result\|(.*?)\]/);if(m)D.result=m[1].trim();
+  m=raw.match(/\[Loot\|([\s\S]*?)\]/);if(m)D.loot=m[1].split('|').map(s=>s.trim()).filter(Boolean);
+  return D;
+}
+
+/* =================== WI LOAD & 角色key映射 =================== */
+let combatWI=null,itemsWI=null,metaWI=null;
+
+async function loadWI(){
+  try{if(!HS)return;
+  const[a,b,c]=await Promise.all([
+    triggerSlash(`/getentryfield file="${WI}" field=content ${UID_C}`),
+    triggerSlash(`/getentryfield file="${WI}" field=content ${UID_I}`),
+    triggerSlash(`/getentryfield file="${WI}" field=content ${UID_M}`)]);
+  combatWI=JSON.parse(a||'{}');itemsWI=JSON.parse(b||'{}');metaWI=JSON.parse(c||'{}');
+  const cs=metaWI?.customSkills||{};
+  for(const[id,sk] of Object.entries(cs)){SK[id]={n:sk.name,tg:sk.target,m:sk.baseMult||1,sc:sk.scaleStat||'ATK',c:sk.cost||20,cd:sk.cd||0,fx:sk.effects||[]};}
+  }catch(e){console.error('BT load:',e);combatWI={};itemsWI={};metaWI={};}
+}
+
+/* === 核心修复: 角色名 -> 数据key映射 === */
+function resolveKey(displayName){
+  /* 已知的女性/男性角色直接匹配 */
+  if(combatWI?.['女性角色']?.[displayName])return{k:displayName,g:'女性角色'};
+  if(combatWI?.['男性角色']?.[displayName])return{k:displayName,g:'男性角色'};
+  /* 其他所有名字视为主角(包括{{user}}的persona名/主角/任意名) */
+  return{k:'主角',g:null};
+}
+
+function getCombat(displayName){
+  const r=resolveKey(displayName);
+  if(r.g)return combatWI?.[r.g]?.[r.k]||null;
+  return combatWI?.[r.k]||null;
+}
+function getMeta(displayName){
+  const r=resolveKey(displayName);
+  if(r.g)return metaWI?.[r.g]?.[r.k]||null;
+  return metaWI?.[r.k]||null;
+}
+function getInv(displayName){
+  const r=resolveKey(displayName);
+  if(r.g)return itemsWI?.[r.g]?.[r.k]||null;
+  return itemsWI?.[r.k]||null;
+}
+
+function getAllyStats(name){
+  const c=getCombat(name);if(!c)return null;
+  const m=getMeta(name);
+  const eb=m?.equipBonuses||{};
+  return{name,ATK:c.ATK+(eb.ATK||0),DEF:c.DEF+(eb.DEF||0),SPI:c.SPI+(eb.SPI||0),SPD:c.SPD+(eb.SPD||0),maxHP:c.maxHP+(eb.HP||0),rank:c.阶别};
+}
+function getLearnedSk(n){const m=getMeta(n);if(!m?.learnedSkills)return[];return m.learnedSkills.filter(s=>SK[s]).map(s=>({id:s,...SK[s]}));}
+function getBattleItems(n){const inv=getInv(n);if(!inv)return[];const items=[];Object.entries(inv.consumables||{}).forEach(([id,ct])=>{if(ct>0&&BI[id])items.push({id,count:ct,...BI[id]});});return items;}
+function removeInvItem(n,id){const inv=getInv(n);if(!inv?.consumables)return;inv.consumables[id]=(inv.consumables[id]||1)-1;if(inv.consumables[id]<=0)delete inv.consumables[id];}
+
+/* =================== STATUS HELPERS =================== */
+function parseStat(str){if(!str)return[];return str.split(',').map(s=>s.trim()).filter(Boolean).map(s=>{const m=s.match(/^(.+?)\((\d+)\)$/);return m?{name:m[1],turns:+m[2]}:{name:s,turns:0};});}
+function statStr(arr){return arr.filter(s=>s.turns>0).map(s=>`${s.name}(${s.turns})`).join(',');}
+function hasDb(arr,n){return arr.some(s=>s.name.includes(n));}
+function baseDodge(arr){let d=0;arr.forEach(s=>{if(s.name.includes('闪避'))d+=20;});return d;}
+function buffMult(arr,stat){let m=0;const cn={ATK:'攻击',DEF:'防御',SPD:'速度',SPI:'灵力'};arr.forEach(s=>{if(s.name.includes(cn[stat]||''))m+=35;});return m/100;}
+
+/* =================== ALLY ACTION CALC =================== */
+function calcAllyAction(ally,act,data){
+  const st=getAllyStats(ally.name);
+  const R={actor:ally.name,type:act.type,log:[],hpC:{},spC:{},stC:{},consumed:null};
+  if(!st){R.log.push(`${ally.name}: 数据读取失败`);return R;}
+  const aS=parseStat(ally.status);
+  if(hasDb(aS,'冻结')||hasDb(aS,'眩晕')||hasDb(aS,'束缚')){R.log.push(`${ally.name}: 被控无法行动`);return R;}
+  if(hasDb(aS,'魅惑')){R.log.push(`${ally.name}: 魅惑中, 行动不稳定`);return R;}
+  const eATK=Math.round(st.ATK*(1+buffMult(aS,'ATK')));
+  const eSPI=Math.round(st.SPI*(1+buffMult(aS,'SPI')));
+  const eSPD=Math.round(st.SPD*(1+buffMult(aS,'SPD')));
+  const eDEF=Math.round(st.DEF*(1+buffMult(aS,'DEF')));
+
+  switch(act.type){
+  case 'attack':{
+    const tgt=findTgt(act.target,data.enemies);if(!tgt){R.log.push(`${ally.name}: 目标不存在`);break;}
+    const tS=parseStat(tgt.status);const dg=calcDodge(eSPD,tgt.spd,baseDodge(tS));
+    if(roll(dg)){R.log.push(`${ally.name} 普攻->${tgt.name}: 闪避(${Math.round(dg*100)}%)`);} else{
+      const dm=calcDamage(eATK,tgt.def,1.0,0);R.hpC[tgt.name]=-dm;R.log.push(`${ally.name} 普攻->${tgt.name}: ${dm}伤害`);
+    }break;}
+  case 'skill':{
+    const sk=SK[act.skillId];if(!sk){R.log.push(`${ally.name}: 技能不存在`);break;}
+    const cost=calcSPCost(sk.c,eSPI);if((ally.sp||0)<cost){R.log.push(`${ally.name}: 灵力不足(需${cost})`);break;}
+    R.spC[ally.name]=-cost;
+    const sS=sk.sc==='ATK'?eATK:sk.sc==='SPI'?eSPI:sk.sc==='DEF'?eDEF:eSPD;
+    const aP=sk.fx.find(f=>f.t==='armorPen');const aPV=aP?aP.v:0;
+    if(sk.tg==='self'){
+      sk.fx.forEach(f=>{if(BUFFS.includes(f.t)){if(!R.stC[ally.name])R.stC[ally.name]=[];R.stC[ally.name].push({name:EFF_N[f.t]||f.t,turns:f.d||3});R.log.push(`${ally.name} ${sk.n}: ${EFF_N[f.t]}(${f.d}回合)`);}});break;}
+    if(sk.tg==='ally'){
+      const aT=findTgt(act.target,data.allies)||ally;
+      sk.fx.forEach(f=>{
+        if(f.t==='heal'){const h=Math.floor(ePow(sS)*sk.m*0.5);R.hpC[aT.name]=(R.hpC[aT.name]||0)+h;R.log.push(`${ally.name} ${sk.n}->${aT.name}: 治疗${h}HP`);}
+        if(f.t==='cleanse'){if(!R.stC[aT.name])R.stC[aT.name]=[];R.stC[aT.name].push({name:'_cleanse',turns:0});R.log.push(`${ally.name} ${sk.n}->${aT.name}: 清除负面`);}
+      });break;}
+    const tL=sk.tg==='aoe'?data.enemies.filter(e=>e.hp>0):[findTgt(act.target,data.enemies)].filter(Boolean);
+    tL.forEach(tgt=>{
+      const tS=parseStat(tgt.status);const dg=calcDodge(eSPD,tgt.spd,baseDodge(tS));
+      if(roll(dg)){R.log.push(`${ally.name} ${sk.n}->${tgt.name}: 闪避`);return;}
+      const ik=sk.fx.find(f=>f.t==='instakill');
+      if(ik&&roll(ik.ch)){R.hpC[tgt.name]=-tgt.hp;R.log.push(`${ally.name} ${sk.n}->${tgt.name}: 即死!`);return;}
+      if(sk.m>0){const dm=calcDamage(sS,tgt.def,sk.m,aPV);R.hpC[tgt.name]=(R.hpC[tgt.name]||0)-dm;R.log.push(`${ally.name} ${sk.n}->${tgt.name}: ${dm}伤害`);
+        const ls=sk.fx.find(f=>f.t==='lifesteal');if(ls){const hl=Math.floor(dm*ls.v);R.hpC[ally.name]=(R.hpC[ally.name]||0)+hl;R.log.push(`${ally.name}: 吸血+${hl}HP`);}}
+      sk.fx.forEach(f=>{if(DEBUFFS.includes(f.t)&&roll(f.ch||0)){if(!R.stC[tgt.name])R.stC[tgt.name]=[];R.stC[tgt.name].push({name:EFF_N[f.t]||f.t,turns:f.d||1});R.log.push(`${tgt.name}: ${EFF_N[f.t]}(${f.d||1}回合)`);}
+        if(f.t==='purify')R.log.push(`${ally.name} ${sk.n}->${tgt.name}: 净化${f.v}`);});});break;}
+  case 'item':{
+    const bi=BI[act.itemId];if(!bi){R.log.push(`${ally.name}: 物品不存在`);break;}
+    R.consumed={name:ally.name,itemId:act.itemId,itemName:bi.n};const fx=bi.fx;
+    if(fx.t==='hp'){R.hpC[ally.name]=(R.hpC[ally.name]||0)+fx.v;R.log.push(`${ally.name} ${bi.n}: +${fx.v}HP`);}
+    else if(fx.t==='sp'){R.spC[ally.name]=(R.spC[ally.name]||0)+fx.v;R.log.push(`${ally.name} ${bi.n}: +灵力`);}
+    else if(fx.t==='dmg'){const tgt=findTgt(act.target,data.enemies)||data.enemies[0];if(tgt){R.hpC[tgt.name]=(R.hpC[tgt.name]||0)-fx.v;R.log.push(`${ally.name} ${bi.n}->${tgt.name}: ${fx.v}伤害`);}}
+    else if(fx.t==='aoedmg'){data.enemies.filter(e=>e.hp>0).forEach(e=>{R.hpC[e.name]=(R.hpC[e.name]||0)-fx.v;});R.log.push(`${ally.name} ${bi.n}: 全体${fx.v}伤害`);}
+    else if(fx.t==='cure'){if(!R.stC[ally.name])R.stC[ally.name]=[];R.stC[ally.name].push({name:'_cure_'+fx.v,turns:0});R.log.push(`${ally.name} ${bi.n}: 清除${fx.v}`);}
+    else if(fx.t==='cleanse'){if(!R.stC[ally.name])R.stC[ally.name]=[];R.stC[ally.name].push({name:'_cleanse',turns:0});R.log.push(`${ally.name} ${bi.n}: 清除全负面`);}
+    else if(fx.t==='buff'){if(!R.stC[ally.name])R.stC[ally.name]=[];const cn={ATK:'攻击UP',DEF:'防御UP',SPD:'速度UP',SPI:'灵力UP'};R.stC[ally.name].push({name:cn[fx.stat]||fx.stat+'UP',turns:fx.d||3});R.log.push(`${ally.name} ${bi.n}: ${cn[fx.stat]}(${fx.d}回合)`);}
+    else if(fx.t==='debuff'){const tgt=findTgt(act.target,data.enemies)||data.enemies[0];if(tgt){if(!R.stC[tgt.name])R.stC[tgt.name]=[];R.stC[tgt.name].push({name:EFF_N[fx.v]||fx.v,turns:fx.d||3});R.log.push(`${ally.name} ${bi.n}->${tgt.name}: ${EFF_N[fx.v]}(${fx.d}回合)`);}}
+    break;}
+  case 'defend':
+    R.log.push(`${ally.name}: 防御(减伤50%)`);if(!R.stC[ally.name])R.stC[ally.name]=[];R.stC[ally.name].push({name:'防御',turns:1});break;
+  case 'flee':R.log.push(`${ally.name}: 尝试撤退`);break;
+  }
+  return R;
+}
+
+/* =================== ENEMY AI =================== */
+function calcEnemyAI(data){
+  const rs=[];
+  data.enemies.filter(e=>e.hp>0).forEach(en=>{
+    const eS=parseStat(en.status);const r={actor:en.name,type:'attack',log:[],hpC:{},spC:{},stC:{}};
+    if(hasDb(eS,'冻结')||hasDb(eS,'眩晕')||hasDb(eS,'束缚')){r.log.push(`${en.name}: 被控`);rs.push(r);return;}
+    if(hasDb(eS,'魅惑')){
+      const others=data.enemies.filter(e=>e.hp>0&&e.name!==en.name);
+      if(others.length){const t=others[Math.floor(Math.random()*others.length)];const dm=calcDamage(en.atk,t.def,1.0,0);r.hpC[t.name]=-dm;r.log.push(`${en.name}(魅惑) 攻击友方${t.name}: ${dm}伤害`);}
+      else r.log.push(`${en.name}: 魅惑但无友方`);
+      rs.push(r);return;}
+    const alive=data.allies.filter(a=>a.hp>0);if(!alive.length)return;
+    alive.sort((a,b)=>a.hp-b.hp);const tgt=alive[0];
+    const tS=parseStat(tgt.status);
+    const eATK=Math.round(en.atk*(1+buffMult(eS,'ATK')));
+    const eSPD=Math.round(en.spd*(1+buffMult(eS,'SPD')));
+    const tgtStats=getAllyStats(tgt.name);
+    const tgtSPD=tgtStats?Math.round(tgtStats.SPD*(1+buffMult(tS,'SPD'))):10;
+    const tgtDEF=tgtStats?Math.round(tgtStats.DEF*(1+buffMult(tS,'DEF'))):10;
+    const dg=calcDodge(tgtSPD,eSPD,baseDodge(tS));
+    const defending=tS.some(s=>s.name==='防御');
+    if(roll(dg)){r.log.push(`${en.name} 攻击->${tgt.name}: 闪避(${Math.round(dg*100)}%)`);}
+    else{let dm=calcDamage(eATK,tgtDEF,1.2,0);if(defending)dm=Math.floor(dm*.5);r.hpC[tgt.name]=-dm;r.log.push(`${en.name} 攻击->${tgt.name}: ${dm}伤害${defending?' (防御减半)':''}`);}
+    rs.push(r);
+  });
+  return rs;
+}
+
+/* =================== DOT =================== */
+function calcDot(data){
+  const logs=[],hpC={};
+  [...data.allies,...data.enemies].forEach(u=>{
+    const arr=parseStat(u.status);
+    arr.forEach(s=>{
+      if(s.name.includes('灼烧')&&s.turns>0){hpC[u.name]=(hpC[u.name]||0)-8;logs.push(`${u.name}: 灼烧-8HP`);}
+      if(s.name.includes('中毒')&&s.turns>0){hpC[u.name]=(hpC[u.name]||0)-12;logs.push(`${u.name}: 中毒-12HP`);}
+    });
+  });
+  return{logs,hpC};
+}
+
+function findTgt(n,list){return list.find(u=>u.name===n&&u.hp>0)||list.find(u=>u.hp>0);}
+
+/* =================== FULL SETTLEMENT =================== */
+function buildSettlement(data,allyActs,note){
+  const eActs=calcEnemyAI(data);const dot=calcDot(data);const all=[...allyActs,...eActs];
+  const hpD={},spD={},stAdd={};
+  all.forEach(r=>{Object.entries(r.hpC||{}).forEach(([n,v])=>{hpD[n]=(hpD[n]||0)+v;});Object.entries(r.spC||{}).forEach(([n,v])=>{spD[n]=(spD[n]||0)+v;});Object.entries(r.stC||{}).forEach(([n,arr])=>{if(!stAdd[n])stAdd[n]=[];stAdd[n].push(...arr);});});
+  Object.entries(dot.hpC).forEach(([n,v])=>{hpD[n]=(hpD[n]||0)+v;});
+  const fHP={},fSP={},fSt={};
+  [...data.allies,...data.enemies].forEach(u=>{fHP[u.name]=Math.max(0,Math.min(u.maxHp,u.hp+(hpD[u.name]||0)));});
+  data.allies.forEach(a=>{fSP[a.name]=Math.max(0,Math.min(a.maxSp||999,a.sp+(spD[a.name]||0)));});
+  [...data.allies,...data.enemies].forEach(u=>{
+    let arr=parseStat(u.status).map(s=>({...s,turns:Math.max(0,s.turns-1)})).filter(s=>s.turns>0);
+    (stAdd[u.name]||[]).forEach(a=>{if(a.name==='_cleanse'){arr=arr.filter(s=>!DEBUFFS.some(d=>s.name.includes(EFF_N[d]||d)));return;}if(a.name.startsWith('_cure_')){const t=a.name.replace('_cure_','');arr=arr.filter(s=>!s.name.includes(EFF_N[t]||t));return;}arr.push(a);});
+    fSt[u.name]=statStr(arr);});
+  const allDead=data.allies.every(a=>(fHP[a.name]||0)<=0);const enemyDead=data.enemies.every(e=>(fHP[e.name]||0)<=0);const flee=allyActs.some(r=>r.type==='flee');
+
+  let msg=`[战斗结算 第${data.turn+1}回合]\n=== 己方行动 ===\n`;
+  allyActs.forEach(r=>r.log.forEach(l=>{msg+=l+'\n';}));
+  msg+=`\n=== 敌方行动(前端AI) ===\n`;eActs.forEach(r=>r.log.forEach(l=>{msg+=l+'\n';}));
+  if(dot.logs.length){msg+=`\n=== 持续伤害 ===\n`;dot.logs.forEach(l=>{msg+=l+'\n';});}
+  msg+=`\n=== 结算HP ===\n`;
+  data.allies.forEach(a=>{const n=fHP[a.name]||0,d=n-a.hp;msg+=`${a.name}: HP${a.hp}->${n}(${d>=0?'+':''}${d}) SP${a.sp||0}->${fSP[a.name]||0}${fSt[a.name]?' ['+fSt[a.name]+']':''}\n`;});
+  data.enemies.forEach(e=>{const n=fHP[e.name]||0,d=n-e.hp;msg+=`${e.name}: HP${e.hp}->${n}(${d>=0?'+':''}${d})${n<=0?' [击败]':''}${fSt[e.name]?' ['+fSt[e.name]+']':''}\n`;});
+  if(enemyDead){const lt=calcLoot(data.enemies);msg+=`\n=== 胜利 ===\n战利品: ${lt.text}\n请输出[State|ended][Result|victory]\n`;}
+  else if(allDead)msg+=`\n=== 失败 ===\n请输出[State|ended][Result|defeat]\n`;
+  else if(flee)msg+=`\n=== 撤退尝试 ===\n请根据局势判定\n`;
+  if(note)msg+=`\n附加: ${note}\n`;
+  msg+=`\n注: 数值为前端计算, 你可根据剧情合理微调(如用户描述中明确躲避则不扣血), 须在Log中说明`;
+  return{msg,fHP,fSP,fSt,enemyDead,allDead,consumed:allyActs.filter(r=>r.consumed).map(r=>r.consumed)};
+}
+
+/* =================== LOOT =================== */
+function calcLoot(enemies){
+  let pow=0;enemies.forEach(e=>{pow+=e.atk+e.def+e.spi+e.spd;});
+  const exp=Math.round(pow*2.5),sp=Math.round(pow*1.5),items=[];
+  const pool=pow<40?['C001','C005','C017']:pow<100?['C002','C006','C018','W001','A001']:pow<200?['C003','C019','W002','W007','A002','R002']:['C004','C020','W003','W010','A003','R003'];
+  for(let i=0;i<Math.min(3,Math.floor(Math.random()*2)+1);i++)items.push(pool[Math.floor(Math.random()*pool.length)]);
+  let text=`EXP+${exp}, 灵点+${sp}`;items.forEach(id=>{text+=`, ${BI[id]?BI[id].n:id}x1`;});
+  return{exp,sp,items,text};
+}
+
+/* =================== RENDER HELPERS =================== */
+function hpPct(h,m){return m>0?Math.max(0,Math.min(100,Math.round(h/m*100))):0;}
+function hpCls(p,e){if(e)return'bt-hpb-e';if(p>60)return'bt-hpb-a';if(p>30)return'bt-hpb-am';return'bt-hpb-al';}
+function rHp(h,m,e){const p=hpPct(h,m);return`<div class="bt-hpbw"><div class="bt-hpb ${hpCls(p,e)}" style="width:${p}%"></div></div>`;}
+function rSp(s,m){return`<div class="bt-spbw"><div class="bt-spb" style="width:${m>0?Math.round(s/m*100):0}%"></div></div>`;}
+function rTags(st){if(!st)return'';return st.split(',').map(s=>s.trim()).filter(Boolean).map(s=>{const isD=DEBUFFS.some(d=>s.includes(EFF_N[d]));return`<span class="bt-stag ${isD?'bt-stag-d':BUFFS.some(b=>s.includes(EFF_N[b]))?'bt-stag-b':'bt-stag-n'}">${s}</span>`;}).join('');}
+
+/* =================== MAIN RENDER =================== */
+function render(data){
+  const det=document.getElementById('bt-det'),titEl=document.getElementById('bt-title'),miniEl=document.getElementById('bt-hpm'),mainEl=document.getElementById('bt-main');
+  det.classList.remove('bt-active','bt-ended');titEl.classList.remove('combat','victory');
+  if(data.state==='active'){titEl.innerHTML=`<i class="fas fa-swords"></i> 战斗 R${data.turn}`;titEl.classList.add('combat');det.classList.add('bt-active');det.setAttribute('open','');}
+  else if(data.state==='ended'){const v=data.result==='victory';titEl.innerHTML=`<i class="fas fa-${v?'trophy':'skull-crossbones'}"></i> ${v?'胜利':'失败'}`;if(v)titEl.classList.add('victory');det.classList.add('bt-ended');det.setAttribute('open','');}
+  else titEl.innerHTML=`<i class="fas fa-heart-pulse"></i> 角色状态`;
+
+  miniEl.innerHTML='';data.allies.forEach(a=>{miniEl.innerHTML+=`<div class="bt-hpc"><span class="bt-hpn">${a.name}</span>${rHp(a.hp,a.maxHp,false)}<span class="bt-hpv">${a.hp}/${a.maxHp}</span></div>`;});
+
+  let h='';
+  if(data.state==='active'){
+    h+=`<div class="bt-sec"><div class="bt-sect"><i class="fas fa-shield-halved"></i> 己方</div>`;
+    data.allies.forEach(a=>{h+=`<div class="bt-u"><div class="bt-u-top"><span class="bt-u-name" style="color:var(--acc)">${a.name}</span><div class="bt-u-barw">${rHp(a.hp,a.maxHp,false)}<div class="bt-u-hpnum">HP ${a.hp}/${a.maxHp}</div>${rSp(a.sp||0,a.maxSp||100)}<div style="font-size:9px;color:var(--t3);">SP ${a.sp||0}/${a.maxSp||0}</div></div></div><div>${rTags(a.status)}</div></div>`;});
+    h+='</div>';
+    h+=`<div class="bt-sec"><div class="bt-sect"><i class="fas fa-crosshairs"></i> 敌方</div>`;
+    data.enemies.forEach(e=>{h+=`<div class="bt-u bt-u-e"><div class="bt-u-top"><span class="bt-u-name" style="color:var(--red)">${e.name}</span><div class="bt-u-barw">${rHp(e.hp,e.maxHp,true)}<div class="bt-u-hpnum">HP ${e.hp}/${e.maxHp}</div></div></div><div class="bt-u-stats"><span>${e.rank}</span><span>ATK${e.atk}</span><span>DEF${e.def}</span><span>SPI${e.spi}</span><span>SPD${e.spd}</span></div><div>${rTags(e.status)}</div></div>`;});
+    h+='</div>';
+    if(data.log.length){h+=`<div class="bt-sec"><div class="bt-sect"><i class="fas fa-book-open"></i> 日志</div><div class="bt-log" id="bt-log">${data.log.map(l=>`<div class="bt-log-e">${l}</div>`).join('')}</div></div>`;}
+    /* 行动 */
+    h+=`<div class="bt-sec"><div class="bt-sect"><i class="fas fa-gamepad"></i> 行动</div><div class="bt-act" id="bt-act">`;
+    data.allies.filter(a=>a.hp>0).forEach((a,i)=>{
+      const sks=getLearnedSk(a.name),its=getBattleItems(a.name);
+      h+=`<div class="bt-act-row" data-idx="${i}" data-char="${a.name}"><span class="bt-act-name">${a.name}</span>`;
+      h+=`<select class="bt-act-sel bt-type"><option value="auto">自动</option><option value="attack">普攻</option>${sks.length?'<option value="skill">技能</option>':''}${its.length?'<option value="item">物品</option>':''}<option value="defend">防御</option><option value="flee">撤退</option></select>`;
+      h+=`<select class="bt-act-sel bt-skill" style="display:none;">${sks.map(s=>`<option value="${s.id}">${s.n}(${TG_N[s.tg]})</option>`).join('')}</select>`;
+      h+=`<select class="bt-act-sel bt-item" style="display:none;">${its.map(it=>`<option value="${it.id}">${it.n} x${it.count}</option>`).join('')}</select>`;
+      h+=`<select class="bt-act-sel bt-tgt" style="display:none;">${data.enemies.filter(e=>e.hp>0).map(e=>`<option value="${e.name}">${e.name}</option>`).join('')}${data.allies.filter(al=>al.hp>0).map(al=>`<option value="${al.name}">${al.name}(友)</option>`).join('')}</select>`;
+      h+=`</div><div class="bt-act-info" id="bt-info-${i}"></div><div class="bt-act-preview" id="bt-prev-${i}" style="display:none;"></div>`;
+    });
+    h+=`<div class="bt-act-row"><span class="bt-act-name" style="color:var(--t3);">附注</span><input class="bt-act-note" id="bt-note" placeholder="附加战术描述..." /></div>`;
+    h+=`<div class="bt-submit-row"><button class="bt-btn bt-btn-r" id="bt-flee">全体撤退</button><button class="bt-btn bt-btn-p" id="bt-submit"><i class="fas fa-paper-plane"></i> 提交</button></div></div></div>`;
+  } else if(data.state==='ended'){
+    const v=data.result==='victory';
+    h+=`<div class="bt-result ${v?'bt-result-v':'bt-result-d'}"><div class="bt-result-text">${v?'VICTORY':'DEFEAT'}</div></div>`;
+    h+=`<div class="bt-sec"><div class="bt-sect"><i class="fas fa-users"></i> 状态</div>`;data.allies.forEach(a=>{h+=`<div class="bt-u"><span class="bt-u-name" style="color:var(--acc)">${a.name}</span><div class="bt-u-barw">${rHp(a.hp,a.maxHp,false)}<div class="bt-u-hpnum">${a.hp}/${a.maxHp}</div></div></div>`;});h+='</div>';
+    if(data.log.length)h+=`<div class="bt-sec"><div class="bt-sect"><i class="fas fa-book-open"></i> 日志</div><div class="bt-log">${data.log.map(l=>`<div class="bt-log-e">${l}</div>`).join('')}</div></div>`;
+    if(v){const lt=calcLoot(data.enemies.length?data.enemies:[{atk:10,def:10,spi:10,spd:10}]);
+    h+=`<div class="bt-sec"><div class="bt-loot"><div class="bt-loot-title"><i class="fas fa-gift"></i> 战利品</div><div class="bt-loot-list"><div class="bt-loot-item"><i class="fas fa-star"></i> EXP+${lt.exp}</div><div class="bt-loot-item"><i class="fas fa-gem"></i> 灵点+${lt.sp}</div>${lt.items.map(id=>`<div class="bt-loot-item"><i class="fas fa-cube"></i> ${BI[id]?BI[id].n:id}</div>`).join('')}</div><div style="margin-top:10px;text-align:center;"><button class="bt-btn bt-btn-g" id="bt-collect" data-exp="${lt.exp}" data-sp="${lt.sp}" data-items='${JSON.stringify(lt.items)}'><i class="fas fa-hand-holding-heart"></i> 收取战利品</button></div></div></div>`;}
+  } else {
+    h+=`<div class="bt-sec"><div class="bt-sect"><i class="fas fa-users"></i> 队伍</div>`;
+    data.allies.forEach(a=>{const c=getCombat(a.name);const st=c?`<div class="bt-u-stats"><span>ATK${c.ATK}</span><span>DEF${c.DEF}</span><span>SPI${c.SPI}</span><span>SPD${c.SPD}</span><span>${c.阶别||'无'}${c.子阶&&c.子阶!=='无'?'/'+c.子阶:''}</span></div>`:'<div class="bt-u-stats"><span style="color:var(--org);">数据未读取</span></div>';
+    h+=`<div class="bt-u"><div class="bt-u-top"><span class="bt-u-name" style="color:var(--acc)">${a.name}</span><div class="bt-u-barw">${rHp(a.hp,a.maxHp,false)}<div class="bt-u-hpnum">${a.hp}/${a.maxHp}</div></div></div>${st}</div>`;});
+    h+='</div><div style="text-align:center;padding:8px;font-size:11px;color:var(--t3);">非战斗状态</div>';
+  }
+  mainEl.innerHTML=h;
+  if(data.state==='active')bindEvents(data);
+  if(data.state==='ended')bindCollect();
+  const logEl=document.getElementById('bt-log');if(logEl)logEl.scrollTop=logEl.scrollHeight;
+}
+
+/* =================== BIND EVENTS =================== */
+function bindEvents(data){
+  document.querySelectorAll('.bt-type').forEach(sel=>{sel.addEventListener('change',function(){
+    const row=this.closest('.bt-act-row'),idx=row.dataset.idx;
+    const sk=row.querySelector('.bt-skill'),it=row.querySelector('.bt-item'),tg=row.querySelector('.bt-tgt');
+    const info=document.getElementById('bt-info-'+idx),prev=document.getElementById('bt-prev-'+idx);
+    sk.style.display='none';it.style.display='none';tg.style.display='none';info.textContent='';prev.style.display='none';
+    if(this.value==='skill'){sk.style.display='';tg.style.display='';updInfo(sk,info,row,data);}
+    else if(this.value==='item')it.style.display='';
+    else if(this.value==='attack'){tg.style.display='';showPrev(row,data,prev);}
+  });});
+  document.querySelectorAll('.bt-skill').forEach(sel=>{sel.addEventListener('change',function(){const r=this.closest('.bt-act-row');updInfo(this,document.getElementById('bt-info-'+r.dataset.idx),r,data);});});
+  document.querySelectorAll('.bt-tgt').forEach(sel=>{sel.addEventListener('change',function(){const r=this.closest('.bt-act-row');const p=document.getElementById('bt-prev-'+r.dataset.idx);if(r.querySelector('.bt-type').value==='attack')showPrev(r,data,p);});});
+
+  function updInfo(sel,el,row,data){const sid=sel.value,sk=SK[sid];if(!sk){el.textContent='';return;}const cn=row.dataset.char;const st=getAllyStats(cn);const aS=parseStat(data.allies.find(a=>a.name===cn)?.status||'');const eSPI=st?Math.round(st.SPI*(1+buffMult(aS,'SPI'))):0;const cost=calcSPCost(sk.c,eSPI);el.textContent=`${TG_N[sk.tg]} | ${sk.m}x${sk.sc} | 灵力:${cost}${sk.cd>0?' | CD:'+sk.cd:''}${sk.fx.length?' | '+sk.fx.map(f=>{let s=EFF_N[f.t]||f.t;if(f.ch<1)s+='('+Math.round(f.ch*100)+'%)';return s;}).join(','):''}`;}
+  function showPrev(row,data,prev){const cn=row.dataset.char,st=getAllyStats(cn);if(!st){prev.style.display='none';return;}const tn=row.querySelector('.bt-tgt')?.value;const tgt=data.enemies.find(e=>e.name===tn);if(!tgt){prev.style.display='none';return;}const dm=calcDamage(st.ATK,tgt.def,1.0,0);const dg=calcDodge(st.SPD,tgt.spd,baseDodge(parseStat(tgt.status)));prev.textContent=`预估: ${dm}伤害 | 闪避率: ${Math.round(dg*100)}%`;prev.style.display='';}
+
+  document.getElementById('bt-submit')?.addEventListener('click',async()=>{if(!HS){toast('triggerSlash不可用','e');return;}
+    const acts=[];document.querySelectorAll('.bt-act-row[data-char]').forEach(row=>{
+      const cn=row.dataset.char,ally=data.allies.find(a=>a.name===cn);if(!ally)return;
+      const tp=row.querySelector('.bt-type').value,act={type:tp};
+      if(tp==='auto'){act.type='attack';const fe=data.enemies.find(e=>e.hp>0);act.target=fe?fe.name:'';}
+      else if(tp==='skill'){act.skillId=row.querySelector('.bt-skill').value;act.target=row.querySelector('.bt-tgt').value;}
+      else if(tp==='item'){act.itemId=row.querySelector('.bt-item').value;act.target=row.querySelector('.bt-tgt')?.value||'';}
+      else if(tp==='attack'){act.target=row.querySelector('.bt-tgt').value;}
+      acts.push(calcAllyAction(ally,act,data));});
+    const note=document.getElementById('bt-note')?.value?.trim()||'';
+    const stl=buildSettlement(data,acts,note);
+    stl.consumed.forEach(ci=>removeInvItem(ci.name,ci.itemId));
+    if(stl.consumed.length)await triggerSlash(`/setentryfield file="${WI}" uid=${UID_I} field=content ${JSON.stringify(itemsWI)}`);
+    triggerSlash(`/send ${stl.msg} | /trigger`);
+  });
+  document.getElementById('bt-flee')?.addEventListener('click',()=>{if(HS)triggerSlash(`/send [战斗行动 第${data.turn+1}回合]\n全体撤退 | /trigger`);});
+}
+
+/* =================== COLLECT LOOT =================== */
+function bindCollect(){
+  const btn=document.getElementById('bt-collect');if(!btn)return;
+  btn.addEventListener('click',async function(){this.disabled=true;
+    const exp=+this.dataset.exp||0,sp=+this.dataset.sp||0;let items=[];try{items=JSON.parse(this.dataset.items||'[]');}catch(e){}
+    await loadWI();
+    const pc=combatWI?.['主角'];
+    if(pc){pc.经验=(pc.经验||0)+exp;pc.灵点=(pc.灵点||0)+sp;
+      /* 同步战斗后HP */
+      const parsed=parseRaw();parsed.allies.forEach(a=>{const c=getCombat(a.name);if(c)c.HP=a.hp;});
+      /* 升级 */
+      while(pc.经验>=pc.升级经验&&pc.升级经验<99999){
+        pc.经验-=pc.升级经验;let nr,ns;
+        if(pc.阶别==='无'){nr='触源阶';ns='初期';}
+        else{const si=SUBS.indexOf(pc.子阶);const tk=E_RANKS.includes(pc.阶别)?E_RANKS:H_RANKS;const ri=tk.indexOf(pc.阶别);
+          if(si<2){nr=pc.阶别;ns=SUBS[si+1];}else if(ri<tk.length-1){nr=tk[ri+1];ns='初期';}else break;}
+        pc.阶别=nr;pc.子阶=ns;pc.升级经验=EXP_TABLE[nr+'-'+ns]||99999;
+        /* 用STAT_TABLE更新基础属性 */
+        const nb=STAT_TABLE[nr+'-'+ns];if(nb){const pb=pc.permBonus||{};pc.ATK=nb.ATK+(pb.ATK||0);pc.DEF=nb.DEF+(pb.DEF||0);pc.SPI=nb.SPI+(pb.SPI||0);pc.SPD=nb.SPD+(pb.SPD||0);pc.maxHP=nb.HP+(pb.HP||0);pc.HP=pc.maxHP;}
+        toast('突破: '+nr+'/'+ns,'g');}}
+    const inv=getInv('主角');
+    if(inv){items.forEach(id=>{let cat='consumables';if(id.match(/^[WAR]/))cat='equipment';if(id.startsWith('B_'))cat='skillBooks';inv[cat]=inv[cat]||{};inv[cat][id]=(inv[cat][id]||0)+1;});}
+    try{if(HS){await triggerSlash(`/setentryfield file="${WI}" uid=${UID_C} field=content ${JSON.stringify(combatWI)}`);await triggerSlash(`/setentryfield file="${WI}" uid=${UID_I} field=content ${JSON.stringify(itemsWI)}`);}toast(`EXP+${exp} 灵点+${sp} 物品x${items.length}`,'g');document.getElementById('bt-det')?.removeAttribute('open');}
+    catch(e){console.error(e);toast('保存失败','e');}
+  });
+}
+
+/* =================== INIT =================== */
+async function init(){const data=parseRaw();await loadWI();render(data);}
+init();
+})();
+</script>
+</body>
+</html>
