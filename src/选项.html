@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>快速回复</title>
+</head>
+<body>
+<style>
+  /* ====== 主题变量定义 ====== */
+
+  /* 现代 */
+  .qr-panel[data-theme="modern"] {
+    --bg-card: rgba(245,247,250,0.97);
+    --bg-block: rgba(255,255,255,0.55);
+    --border: rgba(100,120,145,0.10);
+    --border-s: rgba(100,120,145,0.18);
+    --text: #1a2332;
+    --text-sub: #5a6a7a;
+    --text-dim: #94a3b8;
+    --accent: #3b82f6;
+    --accent-soft: rgba(59,130,246,0.08);
+    --glow: rgba(59,130,246,0.45);
+    --shadow: 0 4px 24px rgba(0,20,60,0.08);
+    --font: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    --particle-r: 59; --particle-g: 130; --particle-b: 246;
+  }
+
+  /* 古风 */
+  .qr-panel[data-theme="classic"] {
+    --bg-card: rgba(250,246,238,0.97);
+    --bg-block: rgba(255,252,245,0.55);
+    --border: rgba(120,80,55,0.10);
+    --border-s: rgba(120,80,55,0.18);
+    --text: #2a1f1a;
+    --text-sub: #7a6055;
+    --text-dim: #b09888;
+    --accent: #b5453a;
+    --accent-soft: rgba(181,69,58,0.08);
+    --glow: rgba(181,69,58,0.40);
+    --shadow: 0 4px 24px rgba(80,40,20,0.10);
+    --font: 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+    --particle-r: 181; --particle-g: 69; --particle-b: 58;
+  }
+
+  /* 西幻 */
+  .qr-panel[data-theme="fantasy"] {
+    --bg-card: rgba(22,26,42,0.97);
+    --bg-block: rgba(36,42,65,0.55);
+    --border: rgba(185,160,110,0.12);
+    --border-s: rgba(185,160,110,0.22);
+    --text: #d4c8a8;
+    --text-sub: #a09070;
+    --text-dim: #706048;
+    --accent: #d4a843;
+    --accent-soft: rgba(212,168,67,0.10);
+    --glow: rgba(212,168,67,0.50);
+    --shadow: 0 6px 30px rgba(0,0,0,0.35);
+    --font: 'Georgia', 'Times New Roman', 'Noto Serif SC', serif;
+    --particle-r: 212; --particle-g: 168; --particle-b: 67;
+  }
+
+  /* 修仙 */
+  .qr-panel[data-theme="xianxia"] {
+    --bg-card: rgba(16,10,28,0.97);
+    --bg-block: rgba(32,22,52,0.55);
+    --border: rgba(155,115,215,0.12);
+    --border-s: rgba(155,115,215,0.22);
+    --text: #d5cae5;
+    --text-sub: #a090c0;
+    --text-dim: #7060a0;
+    --accent: #b06ddc;
+    --accent-soft: rgba(176,109,220,0.10);
+    --glow: rgba(176,109,220,0.50);
+    --shadow: 0 6px 30px rgba(10,0,20,0.40);
+    --font: 'Kaiti SC', 'STKaiti', 'KaiTi', 'Noto Serif SC', serif;
+    --particle-r: 176; --particle-g: 109; --particle-b: 220;
+  }
+
+  /* 赛博朋克 */
+  .qr-panel[data-theme="cyberpunk"] {
+    --bg-card: rgba(8,8,16,0.97);
+    --bg-block: rgba(18,20,32,0.65);
+    --border: rgba(0,240,190,0.10);
+    --border-s: rgba(0,240,190,0.20);
+    --text: #c8ede0;
+    --text-sub: #60b898;
+    --text-dim: #306850;
+    --accent: #00f0be;
+    --accent-soft: rgba(0,240,190,0.08);
+    --glow: rgba(0,240,190,0.50);
+    --shadow: 0 4px 30px rgba(0,240,190,0.06);
+    --font: 'SF Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+    --particle-r: 0; --particle-g: 240; --particle-b: 190;
+  }
+
+  /* ====== 基础样式 ====== */
+  .qr-panel {
+    font-family: var(--font);
+    color: var(--text);
+    max-width: 520px;
+    margin: 12px auto 0;
+    border-radius: 14px;
+    border: 1px solid var(--border-s);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-card);
+    transition: background 0.5s, border-color 0.5s, box-shadow 0.5s, color 0.5s, font-family 0.3s;
+    animation: qr-card-enter 0.55s cubic-bezier(0.22,1,0.36,1) both;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 流光边框 */
+  .qr-panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--glow) 50%, transparent 100%);
+    background-size: 300% 100%;
+    animation: qr-shimmer 4s ease-in-out infinite;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* 粒子画布 */
+  .qr-panel canvas.qr-particles {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ====== 工具栏 ====== */
+  .qr-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, var(--bg-block) 0%, transparent 100%);
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    z-index: 1;
+    transition: background 0.5s, border-color 0.5s;
+  }
+  .qr-toolbar-left { display: flex; align-items: center; gap: 10px; }
+  .qr-toolbar-right { display: flex; align-items: center; gap: 5px; }
+
+  /* 标题 - 文字发光 */
+  .qr-title {
+    font-size: 1.06rem;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    color: var(--text);
+    text-shadow: 0 0 8px var(--glow), 0 0 16px var(--glow);
+    transition: color 0.5s, text-shadow 0.5s;
+  }
+
+  /* 胶囊按钮 */
+  .qr-badge {
+    font-size: 0.70rem;
+    font-weight: 550;
+    padding: 3px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    border: 1px solid var(--border);
+    color: var(--text-sub);
+    background: var(--bg-block);
+    cursor: pointer;
+    transition: background 0.5s, border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .qr-badge:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* 图标按钮 */
+  .qr-icon-btn {
+    width: 28px; height: 28px;
+    border: none; background: transparent;
+    border-radius: 6px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-sub);
+    transition: background 0.2s, color 0.2s;
+  }
+  .qr-icon-btn svg { width: 14px; height: 14px; }
+  .qr-icon-btn:hover { background: var(--accent-soft); color: var(--accent); }
+  .qr-icon-btn:active { transform: scale(0.88); }
+
+  /* 折叠箭头 */
+  .qr-chevron {
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+  }
+  .qr-chevron.qr-rotated { transform: rotate(-90deg); }
+
+  /* ====== 选项网格 ====== */
+  .qr-grid-wrap {
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+  .qr-options-grid {
+    padding: 14px 15px 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+  @media (max-width: 360px) {
+    .qr-options-grid { grid-template-columns: 1fr; }
+  }
+
+  /* 选项卡片 */
+  .qr-option-item {
+    background: var(--bg-block);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 13px;
+    cursor: pointer;
+    font-size: 0.94rem;
+    color: var(--text);
+    text-align: center;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.55;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s, color 0.5s, box-shadow 0.2s;
+    opacity: 0;
+    animation: qr-item-enter 0.4s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  .qr-option-item:hover {
+    background: var(--bg-card);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 0 12px var(--glow);
+  }
+  .qr-option-item:active { transform: scale(0.97); }
+
+  /* 点击波纹 */
+  .qr-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.18;
+    transform: scale(0);
+    animation: qr-ripple-expand 0.55s ease-out forwards;
+    pointer-events: none;
+  }
+
+  /* 错误信息 */
+  .qr-error {
+    font-size: 0.88rem;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border: 1px solid var(--border-s);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 14px 15px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* 隐藏数据层 */
+  .qr-data { display: none !important; }
+
+  /* ====== 动画关键帧 ====== */
+  @keyframes qr-card-enter {
+    from { opacity: 0; transform: translateY(10px) scale(0.99); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes qr-item-enter {
+    from { opacity: 0; transform: translateY(5px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes qr-shimmer {
+    0%, 100% { background-position: -100% 0; }
+    50% { background-position: 200% 0; }
+  }
+  @keyframes qr-ripple-expand {
+    to { transform: scale(2.5); opacity: 0; }
+  }
+  @keyframes qr-panel-out {
+    to { opacity: 0; transform: translateY(8px) scale(0.98); }
+  }
+
+  /* ====== 响应式与无障碍 ====== */
+  @media (max-width: 480px) {
+    .qr-panel { border-radius: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .qr-panel, .qr-panel *, .qr-panel *::before, .qr-panel *::after {
+      animation-duration: 1ms !important;
+      transition-duration: 1ms !important;
+    }
+  }
+</style>
+
+<!-- 面板根容器 -->
+<div class="qr-panel" data-theme="modern">
+
+  <!-- 粒子画布 -->
+  <canvas class="qr-particles"></canvas>
+
+  <!-- 工具栏 -->
+  <div class="qr-toolbar">
+    <div class="qr-toolbar-left">
+      <span class="qr-title">快速回复</span>
+      <button class="qr-badge qr-mode-btn">直接发送</button>
+    </div>
+    <div class="qr-toolbar-right">
+      <button class="qr-badge qr-theme-btn">现代</button>
+      <button class="qr-icon-btn qr-collapse-btn" title="折叠">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="6 9 12 15 18 9" class="qr-chevron"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 选项网格容器 -->
+  <div class="qr-grid-wrap">
+    <div class="qr-options-grid"></div>
+  </div>
+
+  <!-- 数据层：正则捕获的选项数据 -->
+  <div class="qr-data">$1</div>
+
+  <!-- 脚本 -->
+  <script>
+    (function() {
+      /* ====== 定位当前面板实例 ====== */
+      var panel = document.currentScript.closest('.qr-panel');
+      if (!panel) return;
+
+      var grid = panel.querySelector('.qr-options-grid');
+      var gridWrap = panel.querySelector('.qr-grid-wrap');
+      var modeBtn = panel.querySelector('.qr-mode-btn');
+      var themeBtn = panel.querySelector('.qr-theme-btn');
+      var chevron = panel.querySelector('.qr-chevron');
+      var toolbar = panel.querySelector('.qr-toolbar');
+      var collapseBtn = panel.querySelector('.qr-collapse-btn');
+      var canvas = panel.querySelector('.qr-particles');
+      var ctx = canvas ? canvas.getContext('2d') : null;
+
+      /* ====== 常量定义 ====== */
+      var THEME_KEY = 'qr-panel-theme';
+      var MODE_KEY = 'qr-panel-mode';
+      var MODES = ['send', 'setinput', 'append'];
+      var MODE_LABELS = { send: '直接发送', setinput: '仅输入', append: '追加输入' };
+      var THEMES = ['modern', 'classic', 'fantasy', 'xianxia', 'cyberpunk'];
+      var THEME_LABELS = { modern: '现代', classic: '古风', fantasy: '西幻', xianxia: '修仙', cyberpunk: '赛博' };
+
+      var currentMode = 'send';
+      var collapsed = false;
+      var particlesActive = true;
+      var particles = [];
+      var animFrameId = null;
+
+      /* ====== 主题系统 ====== */
+      function applyTheme(theme) {
+        if (THEMES.indexOf(theme) === -1) theme = 'modern';
+        panel.setAttribute('data-theme', theme);
+        themeBtn.textContent = THEME_LABELS[theme];
+        try { localStorage.setItem(THEME_KEY, theme); } catch(e) {}
+      }
+
+      function cycleTheme(e) {
+        e.stopPropagation();
+        var cur = panel.getAttribute('data-theme') || 'modern';
+        var idx = (THEMES.indexOf(cur) + 1) % THEMES.length;
+        applyTheme(THEMES[idx]);
+      }
+
+      /* ====== 模式系统 ====== */
+      function applyMode(mode) {
+        if (MODES.indexOf(mode) === -1) mode = 'send';
+        currentMode = mode;
+        modeBtn.textContent = MODE_LABELS[mode];
+        try { localStorage.setItem(MODE_KEY, mode); } catch(e) {}
+      }
+
+      function cycleMode(e) {
+        e.stopPropagation();
+        var idx = (MODES.indexOf(currentMode) + 1) % MODES.length;
+        applyMode(MODES[idx]);
+      }
+
+      /* ====== 折叠功能 ====== */
+      function toggleCollapse(e) {
+        if (e) e.stopPropagation();
+        collapsed = !collapsed;
+        if (collapsed) {
+          gridWrap.style.maxHeight = gridWrap.scrollHeight + 'px';
+          requestAnimationFrame(function() {
+            gridWrap.style.transition = 'max-height 0.32s cubic-bezier(0.55,0,1,0.45), opacity 0.25s ease';
+            gridWrap.style.maxHeight = '0';
+            gridWrap.style.opacity = '0';
+          });
+          chevron.classList.add('qr-rotated');
+        } else {
+          gridWrap.style.transition = 'max-height 0.42s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease';
+          gridWrap.style.maxHeight = gridWrap.scrollHeight + 'px';
+          gridWrap.style.opacity = '1';
+          chevron.classList.remove('qr-rotated');
+        }
+      }
+
+      /* ====== 波纹效果 ====== */
+      function createRipple(e, el) {
+        var rect = el.getBoundingClientRect();
+        var size = Math.max(rect.width, rect.height) * 1.4;
+        var ripple = document.createElement('span');
+        ripple.className = 'qr-ripple';
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        el.appendChild(ripple);
+        setTimeout(function() { ripple.remove(); }, 600);
+      }
+
+      /* ====== 面板消失（直接发送模式） ====== */
+      function fadeOutPanel() {
+        panel.style.animation = 'qr-panel-out 0.4s ease forwards';
+        setTimeout(function() { panel.style.display = 'none'; }, 420);
+      }
+
+      /* ====== 选项点击处理 ====== */
+      function handleOptionClick(e) {
+        var item = e.target.closest('.qr-option-item');
+        if (!item) return;
+        var text = item.textContent.trim();
+        if (!text) return;
+
+        createRipple(e, item);
+
+        if (typeof triggerSlash === 'function') {
+          if (currentMode === 'send') {
+            triggerSlash('/send ' + text + '|/trigger');
+          } else if (currentMode === 'setinput') {
+            triggerSlash('/setinput ' + text);
+          } else {
+            var cur = '';
+            try { cur = window.parent.$ ? window.parent.$('#send_textarea').val() || '' : ''; } catch(ex) {}
+            triggerSlash('/setinput ' + (cur ? cur + '\n' + text : text));
+          }
+        }
+
+        if (currentMode === 'send') {
+          item.style.borderColor = 'var(--accent)';
+          item.style.boxShadow = '0 0 16px var(--glow)';
+          setTimeout(fadeOutPanel, 350);
+        }
+      }
+
+      /* ====== 粒子系统 ====== */
+      function resizeCanvas() {
+        if (!canvas) return;
+        canvas.width = panel.offsetWidth;
+        canvas.height = panel.offsetHeight;
+      }
+
+      function initParticles() {
+        if (!ctx) return;
+        resizeCanvas();
+        particles = [];
+        var count = Math.min(22, Math.max(12, Math.floor(panel.offsetWidth / 25)));
+        for (var i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 1.8 + 0.4,
+            vx: (Math.random() - 0.5) * 0.25,
+            vy: (Math.random() - 0.5) * 0.25,
+            phase: Math.random() * Math.PI * 2
+          });
+        }
+      }
+
+      function drawParticles() {
+        if (!ctx || !particlesActive) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        var style = getComputedStyle(panel);
+        var r = parseInt(style.getPropertyValue('--particle-r')) || 100;
+        var g = parseInt(style.getPropertyValue('--particle-g')) || 100;
+        var b = parseInt(style.getPropertyValue('--particle-b')) || 200;
+
+        for (var i = 0; i < particles.length; i++) {
+          var p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.phase += 0.015;
+
+          if (p.x < -5) p.x = canvas.width + 5;
+          if (p.x > canvas.width + 5) p.x = -5;
+          if (p.y < -5) p.y = canvas.height + 5;
+          if (p.y > canvas.height + 5) p.y = -5;
+
+          var alpha = 0.15 + 0.2 * Math.sin(p.phase);
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+          ctx.fill();
+        }
+
+        animFrameId = requestAnimationFrame(drawParticles);
+      }
+
+      /* 可见性控制：不可见时停止粒子渲染 */
+      function setupVisibilityObserver() {
+        if (!('IntersectionObserver' in window)) return;
+        var obs = new IntersectionObserver(function(entries) {
+          if (entries[0].isIntersecting) {
+            particlesActive = true;
+            drawParticles();
+          } else {
+            particlesActive = false;
+            if (animFrameId) cancelAnimationFrame(animFrameId);
+          }
+        }, { threshold: 0.05 });
+        obs.observe(panel);
+      }
+
+      /* ====== 渲染选项 ====== */
+      function renderOptions() {
+        try {
+          var dataEl = panel.querySelector('.qr-data');
+          var raw = dataEl ? dataEl.textContent.trim() : '';
+          var opts = raw.split('|').map(function(s) { return s.trim(); }).filter(Boolean);
+
+          if (opts.length === 0) {
+            grid.innerHTML = '<div class="qr-error">暂无可用选项</div>';
+            return;
+          }
+
+          grid.innerHTML = '';
+          opts.forEach(function(opt, i) {
+            var el = document.createElement('div');
+            el.className = 'qr-option-item';
+            el.textContent = opt;
+            el.style.animationDelay = (i * 0.05) + 's';
+            if (opt.length > 18) el.style.fontSize = '0.88rem';
+            grid.appendChild(el);
+          });
+
+          /* 奇数个选项时，最后一个占满整行 */
+          if (opts.length > 1 && opts.length % 2 !== 0) {
+            grid.lastElementChild.style.gridColumn = '1 / -1';
+          }
+        } catch (err) {
+          grid.innerHTML = '<div class="qr-error">加载失败: ' + err.message + '</div>';
+        }
+      }
+
+      /* ====== 事件绑定 ====== */
+      themeBtn.addEventListener('click', cycleTheme);
+      modeBtn.addEventListener('click', cycleMode);
+      collapseBtn.addEventListener('click', toggleCollapse);
+      toolbar.addEventListener('click', function(e) {
+        if (e.target === toolbar || e.target.classList.contains('qr-title')) {
+          toggleCollapse();
+        }
+      });
+      grid.addEventListener('click', handleOptionClick);
+
+      /* ====== 初始化 ====== */
+      var savedTheme, savedMode;
+      try { savedTheme = localStorage.getItem(THEME_KEY); } catch(e) {}
+      try { savedMode = localStorage.getItem(MODE_KEY); } catch(e) {}
+      applyTheme(savedTheme || 'modern');
+      applyMode(savedMode || 'send');
+      renderOptions();
+
+      /* 粒子初始化（延迟确保容器尺寸就绪） */
+      setTimeout(function() {
+        initParticles();
+        drawParticles();
+        setupVisibilityObserver();
+      }, 100);
+
+      window.addEventListener('resize', function() {
+        resizeCanvas();
+        initParticles();
+      });
+    })();
+  </script>
+</div>
+
+</body>
+</html>
