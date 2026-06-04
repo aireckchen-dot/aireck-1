@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<style>
+/* ═══════════════ 根变量 ═══════════════ */
+#xp{
+  --bg:#080d18;--card:rgba(10,20,35,.94);
+  --bdr:rgba(46,196,178,.08);--bdr-h:rgba(46,196,178,.28);
+  --cy:#2ec4b0;--cy-g:rgba(46,196,178,.5);--cy-l:rgba(46,196,178,.12);
+  --rd:#c44536;--rd-g:rgba(196,69,54,.5);--rd-l:rgba(196,69,54,.12);
+  --gd:#c9a96e;--gd-g:rgba(201,169,110,.45);
+  --tx:#a8bcd0;--tx-d:rgba(168,188,208,.32);--tx-b:#d8e4f0;
+  font-family:-apple-system,"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;
+  background:var(--bg);border-radius:14px;max-width:860px;margin:14px auto;
+  overflow:hidden;color:var(--tx);position:relative;font-size:14px;line-height:1.55;
+  border:1px solid transparent;
+  background-clip:padding-box;
+}
+/* 外框流光 */
+#xp::before{content:"";position:absolute;inset:-1px;border-radius:15px;padding:1px;
+  background:linear-gradient(135deg,var(--cy-l),transparent 40%,transparent 60%,var(--rd-l));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;z-index:2}
+
+/* ═══ 粒子 ═══ */
+#xp .xp-ptc{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+#xp .xp-pt{position:absolute;border-radius:50%;opacity:0;animation:xpDft linear infinite}
+#xp .xp-pt-cy{background:radial-gradient(circle,var(--cy) 0%,transparent 70%)}
+#xp .xp-pt-rd{background:radial-gradient(circle,var(--rd) 0%,transparent 70%)}
+@keyframes xpDft{0%{transform:translateY(0) scale(1);opacity:0}8%{opacity:.45}85%{opacity:.06}100%{transform:translateY(-150px) scale(.15);opacity:0}}
+
+/* ═══ 折叠头 ═══ */
+#xp .xp-det{position:relative;z-index:1}
+#xp .xp-sum{cursor:pointer;list-style:none;padding:18px 20px 14px;text-align:center;user-select:none}
+#xp .xp-sum::-webkit-details-marker{display:none}
+#xp .xp-deco{height:1px;background:linear-gradient(90deg,transparent 5%,var(--cy) 50%,transparent 95%);opacity:.25;margin:0 12%}
+#xp .xp-ttl{font-size:17px;letter-spacing:.7em;color:var(--gd);margin:10px 0 8px;animation:xpGlw 3.5s ease-in-out infinite alternate}
+@keyframes xpGlw{from{text-shadow:0 0 4px var(--gd-g)}to{text-shadow:0 0 20px var(--gd-g),0 0 40px rgba(201,169,110,.12)}}
+#xp .xp-wbar{display:flex;justify-content:center;flex-wrap:wrap;gap:14px 22px;font-size:12.5px;color:var(--tx-d);margin-top:4px}
+#xp .xp-wi{display:inline-flex;align-items:center;gap:5px;transition:color .3s}
+#xp .xp-wi:hover{color:var(--tx)}
+#xp .xp-wi i{color:var(--cy);opacity:.55;font-size:11px}
+
+/* ═══ 主体 ═══ */
+#xp .xp-bd{padding:0 14px 16px}
+
+/* ═══ 导航栏 ═══ */
+#xp .xp-nav{display:flex;border-bottom:1px solid var(--bdr);margin-bottom:14px;position:relative}
+#xp .xp-ni{flex:1;text-align:center;padding:10px 0;cursor:pointer;color:var(--tx-d);transition:color .3s;font-size:13px;letter-spacing:.25em;position:relative}
+#xp .xp-ni:hover{color:var(--tx)}
+#xp .xp-ni.act{color:var(--cy)}
+#xp .xp-ni.act::after{content:"";position:absolute;bottom:-1px;left:18%;right:18%;height:2px;background:var(--cy);box-shadow:0 0 10px var(--cy-g);border-radius:1px;animation:xpLnIn .3s ease}
+@keyframes xpLnIn{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+#xp .xp-ni-s{flex:0 0 48px;letter-spacing:0}
+
+/* ═══ Tab 面板 ═══ */
+#xp .xp-tp{display:none}
+#xp .xp-tp.act{display:block;animation:xpFdIn .35s ease}
+@keyframes xpFdIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══ 主角条 ═══ */
+#xp .xp-hero{display:flex;align-items:stretch;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+#xp .xp-hc{flex:1;min-width:0;background:var(--card);border:1px solid var(--bdr);border-radius:10px;padding:11px 13px;transition:border-color .3s}
+#xp .xp-hc:hover{border-color:var(--bdr-h)}
+#xp .xp-hst{font-size:11.5px;color:var(--gd);margin:0 0 7px;font-weight:500;letter-spacing:.12em;display:flex;align-items:center;gap:5px}
+#xp .xp-hst i{opacity:.6;font-size:10px}
+#xp .xp-htg{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:6px}
+#xp .xp-htgi{padding:2px 9px;border-radius:4px;font-size:11px}
+#xp .xp-htgi-r{background:var(--rd-l);border:1px solid rgba(196,69,54,.2);color:var(--rd)}
+#xp .xp-htgi-c{background:var(--cy-l);border:1px solid rgba(46,196,178,.2);color:var(--cy)}
+#xp .xp-hcg{display:flex;flex-wrap:wrap;gap:5px}
+#xp .xp-hci{display:flex;flex-direction:column;gap:1px;padding:4px 8px;background:rgba(255,255,255,.02);border-radius:4px}
+#xp .xp-hck{font-size:9.5px;color:var(--tx-d);letter-spacing:.06em}
+#xp .xp-hcv{font-size:12px;color:var(--tx)}
+#xp .xp-hits{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+#xp .xp-hitg{background:rgba(201,169,110,.06);border:1px solid rgba(201,169,110,.15);color:var(--gd);padding:1px 8px;border-radius:3px;font-size:11px}
+
+/* ═══ 卡片网格 ═══ */
+#xp .xp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(max-width:640px){#xp .xp-grid{grid-template-columns:1fr}}
+
+/* ═══ 角色卡片 ═══ */
+#xp .xp-cc{background:var(--card);border:1px solid var(--bdr);border-radius:10px;overflow:hidden;transition:transform .3s cubic-bezier(.22,1,.36,1),border-color .3s,box-shadow .3s;opacity:0;animation:xpSUp .5s ease forwards}
+@keyframes xpSUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+#xp .xp-cc:hover{transform:translateY(-4px);border-color:var(--bdr-h);box-shadow:0 8px 28px rgba(46,196,178,.07)}
+#xp .xp-cc.xp-aw{opacity:.42;filter:grayscale(.3)}
+#xp .xp-cc.xp-aw:hover{opacity:.7;filter:grayscale(.1)}
+
+/* ═══ 立绘区域 ═══ */
+#xp .xp-pa{position:relative;aspect-ratio:3/4;cursor:pointer;overflow:hidden;background:#060b14}
+/* 流光边框 */
+#xp .xp-pa::before{content:"";position:absolute;inset:0;z-index:10;pointer-events:none;border-radius:0;
+  border:1.5px solid transparent;
+  background:linear-gradient(var(--card),var(--card)) padding-box,
+    conic-gradient(from var(--xp-angle,0deg),transparent 20%,var(--cy) 36%,var(--rd) 50%,var(--gd) 64%,transparent 80%) border-box;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  animation:xpBdrSpin 4.5s linear infinite;opacity:.55;transition:opacity .35s}
+#xp .xp-cc:hover .xp-pa::before{opacity:.9}
+@property --xp-angle{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes xpBdrSpin{to{--xp-angle:360deg}}
+/* 翻转容器 */
+#xp .xp-fw{width:100%;height:100%;perspective:1200px;position:relative;z-index:1}
+#xp .xp-fc{width:100%;height:100%;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,0,.2,1)}
+#xp .xp-fc.xp-fp{transform:rotateY(180deg)}
+#xp .xp-ff{position:absolute;inset:0;backface-visibility:hidden;overflow:hidden}
+#xp .xp-fb{transform:rotateY(180deg)}
+/* 模糊底层 */
+#xp .xp-ibl{position:absolute;inset:-28px;background-size:cover;background-position:center;filter:blur(24px) brightness(.3) saturate(.6);z-index:0}
+/* 主图 */
+#xp .xp-pim{position:relative;width:100%;height:100%;object-fit:contain;z-index:1;transition:transform .45s ease}
+#xp .xp-pa:hover .xp-pim{transform:scale(1.03)}
+/* 无图占位 */
+#xp .xp-noi{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.04);font-size:52px}
+/* 阶段标签 */
+#xp .xp-ptg{position:absolute;top:8px;left:8px;background:rgba(10,20,35,.65);border:1px solid rgba(46,196,178,.22);color:var(--cy);padding:2px 10px;border-radius:4px;font-size:10.5px;z-index:12;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);letter-spacing:.1em}
+/* 翻转按钮 */
+#xp .xp-fbt{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:1px solid rgba(255,255,255,.15);background:rgba(10,20,35,.6);color:rgba(255,255,255,.65);cursor:pointer;z-index:12;display:flex;align-items:center;justify-content:center;font-size:11px;transition:transform .35s,background .2s,color .2s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#xp .xp-fbt:hover{background:rgba(46,196,178,.2);color:#fff;transform:rotate(180deg)}
+#xp .xp-fbt:active{transform:rotate(180deg) scale(.88)}
+/* 在场指示灯 */
+#xp .xp-pdt{position:absolute;bottom:8px;right:8px;width:7px;height:7px;border-radius:50%;z-index:12}
+#xp .xp-on{background:#27ae60;box-shadow:0 0 7px rgba(39,174,96,.55)}
+#xp .xp-off{background:rgba(255,255,255,.12)}
+
+/* ═══ 卡片信息栏 ═══ */
+#xp .xp-ci{padding:10px 12px 11px}
+#xp .xp-ch{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+#xp .xp-cn{font-size:14.5px;font-weight:600;color:var(--tx-b);transition:text-shadow .3s}
+#xp .xp-cc:hover .xp-cn{text-shadow:0 0 12px var(--cy-g)}
+#xp .xp-rt{font-size:10.5px;padding:1px 7px;border-radius:3px;background:var(--rd-l);border:1px solid rgba(196,69,54,.2);color:var(--rd);white-space:nowrap}
+/* 进度条 */
+#xp .xp-br{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+#xp .xp-bl{font-size:10.5px;color:var(--tx-d);width:26px;flex-shrink:0;letter-spacing:.05em}
+#xp .xp-bar{flex:1;height:4px;background:rgba(255,255,255,.04);border-radius:2px;overflow:hidden}
+#xp .xp-bf{height:100%;border-radius:2px;width:0;animation:xpFill 1.2s ease forwards}
+@keyframes xpFill{to{width:var(--w)}}
+#xp .xp-bf-r{background:linear-gradient(90deg,#5a1515,var(--rd));box-shadow:0 0 5px rgba(196,69,54,.3)}
+#xp .xp-bf-c{background:linear-gradient(90deg,#0f4a44,var(--cy));box-shadow:0 0 5px rgba(46,196,178,.3)}
+#xp .xp-bv{font-size:11.5px;width:22px;text-align:right;flex-shrink:0;font-weight:600}
+#xp .xp-bv-r{color:var(--rd);text-shadow:0 0 6px rgba(196,69,54,.3)}
+#xp .xp-bv-c{color:var(--cy);text-shadow:0 0 6px rgba(46,196,178,.3)}
+/* 内心独白缩略 */
+#xp .xp-th{font-size:11.5px;color:var(--tx-d);font-style:italic;margin-top:5px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+/* ═══ 详情页 ═══ */
+#xp .xp-dv{position:relative;min-height:500px;border-radius:10px;overflow:hidden;animation:xpFdIn .4s ease}
+#xp .xp-dbg{position:absolute;inset:0;background-size:cover;background-position:top center;filter:blur(8px) brightness(.16) saturate(.55);z-index:0;transition:background-image .5s ease}
+#xp .xp-din{position:relative;z-index:1;padding:16px}
+#xp .xp-din>*{opacity:0;animation:xpSUp .45s ease forwards}
+#xp .xp-dt{display:flex;justify-content:space-between;margin-bottom:16px}
+#xp .xp-btnx{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx);padding:6px 13px;border-radius:6px;cursor:pointer;font-size:12.5px;transition:background .2s,border-color .2s,transform .15s;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:inline-flex;align-items:center;gap:5px}
+#xp .xp-btnx:hover{background:rgba(255,255,255,.1);border-color:rgba(46,196,178,.25)}
+#xp .xp-btnx:active{transform:scale(.95)}
+/* 详情页标题 */
+#xp .xp-dn{text-align:center;font-size:22px;color:var(--tx-b);margin:0 0 8px;letter-spacing:.35em;animation:xpGlw 3.5s ease-in-out infinite alternate}
+#xp .xp-dtg{display:flex;justify-content:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+#xp .xp-tg{padding:3px 11px;border-radius:4px;font-size:11.5px}
+#xp .xp-tg-r{background:var(--rd-l);border:1px solid rgba(196,69,54,.2);color:var(--rd)}
+#xp .xp-tg-c{background:var(--cy-l);border:1px solid rgba(46,196,178,.2);color:var(--cy)}
+/* 圆环图表 */
+#xp .xp-chs{display:flex;justify-content:center;gap:28px;margin-bottom:20px}
+#xp .xp-chw{text-align:center}
+#xp .xp-svg{width:108px;height:108px}
+#xp .xp-cht{fill:none;stroke:rgba(255,255,255,.04);stroke-width:6}
+#xp .xp-cha{fill:none;stroke-width:6;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1)}
+#xp .xp-ar{stroke:var(--rd);filter:drop-shadow(0 0 5px var(--rd-g))}
+#xp .xp-ac{stroke:var(--cy);filter:drop-shadow(0 0 5px var(--cy-g))}
+#xp .xp-chn{text-anchor:middle;fill:var(--tx-b);font-size:22px;font-weight:700}
+#xp .xp-chl{text-anchor:middle;fill:var(--tx-d);font-size:10px}
+/* 玻璃卡 */
+#xp .xp-gc{background:rgba(255,255,255,.025);border:1px solid var(--bdr);border-radius:10px;padding:13px 14px;margin-bottom:11px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);transition:border-color .3s}
+#xp .xp-gc:hover{border-color:var(--bdr-h)}
+#xp .xp-st{font-size:12.5px;color:var(--gd);margin:0 0 9px;font-weight:500;letter-spacing:.15em;display:flex;align-items:center;gap:6px}
+#xp .xp-st i{opacity:.6;font-size:11px}
+/* 衣着格子 */
+#xp .xp-cg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+@media(max-width:480px){#xp .xp-cg{grid-template-columns:repeat(2,1fr)}}
+#xp .xp-cit{display:flex;flex-direction:column;gap:1px;padding:5px 7px;background:rgba(255,255,255,.02);border-radius:5px}
+#xp .xp-ck{font-size:10px;color:var(--tx-d);letter-spacing:.08em}
+#xp .xp-cv{font-size:12.5px;color:var(--tx)}
+/* 物品标签 */
+#xp .xp-its{display:flex;flex-wrap:wrap;gap:5px}
+#xp .xp-itg{background:rgba(201,169,110,.06);border:1px solid rgba(201,169,110,.15);color:var(--gd);padding:2px 9px;border-radius:4px;font-size:11.5px}
+/* 独白全文 */
+#xp .xp-tf{font-style:italic;font-size:13.5px;line-height:1.65;color:var(--tx);margin:0;white-space:pre-wrap}
+
+/* ═══ 江湖页·男性卡 ═══ */
+#xp .xp-mlc{margin-bottom:10px}
+#xp .xp-ey{text-align:center;color:var(--tx-d);padding:28px 10px;font-size:12.5px}
+
+/* ═══ 灵枢·设置面板 ═══ */
+#xp .xp-sr{margin-bottom:13px}
+#xp .xp-sr label{display:block;font-size:11.5px;color:var(--tx-d);margin-bottom:3px;letter-spacing:.05em}
+#xp .xp-sel,#xp .xp-inp{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--bdr);color:var(--tx);padding:7px 10px;border-radius:6px;font-size:12.5px;box-sizing:border-box;transition:border-color .2s,box-shadow .2s;font-family:inherit}
+#xp .xp-sel:focus,#xp .xp-inp:focus{outline:none;border-color:var(--cy);box-shadow:0 0 10px rgba(46,196,178,.15)}
+#xp .xp-sel option{background:#0c1522;color:var(--tx)}
+#xp .xp-pc{background:rgba(0,0,0,.18);border:1px solid var(--bdr);border-radius:8px;padding:10px;margin-bottom:9px;transition:border-color .3s}
+#xp .xp-pc:hover{border-color:var(--bdr-h)}
+#xp .xp-pr{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+#xp .xp-pr:last-child{margin-bottom:0}
+#xp .xp-ph{font-size:10.5px;color:var(--tx-d);white-space:nowrap}
+#xp .xp-bdl{background:none;border:none;color:var(--rd);cursor:pointer;font-size:12px;padding:3px;opacity:.35;transition:opacity .2s}
+#xp .xp-bdl:hover{opacity:1}
+#xp .xp-sa{display:flex;gap:9px;margin-top:14px}
+#xp .xp-btn{flex:1;padding:8px 12px;border:1px solid var(--bdr);border-radius:6px;cursor:pointer;font-size:12.5px;transition:all .2s;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+#xp .xp-btn:active{transform:scale(.95)}
+#xp .xp-btn-a{background:rgba(46,196,178,.05);color:var(--cy);border-color:rgba(46,196,178,.2)}
+#xp .xp-btn-a:hover{background:rgba(46,196,178,.12)}
+#xp .xp-btn-s{background:rgba(201,169,110,.05);color:var(--gd);border-color:rgba(201,169,110,.2)}
+#xp .xp-btn-s:hover{background:rgba(201,169,110,.12)}
+
+/* ═══ 底纹 ═══ */
+#xp .xp-foot{height:1px;background:linear-gradient(90deg,transparent 5%,rgba(196,69,54,.2) 30%,var(--cy) 50%,rgba(196,69,54,.2) 70%,transparent 95%);opacity:.2;margin:4px 10% 0}
+</style>
+
+<div id="xp">
+  <!-- 粒子层 -->
+  <div class="xp-ptc" id="xpPtc"></div>
+
+  <details class="xp-det" open>
+    <summary class="xp-sum">
+      <div class="xp-deco"></div>
+      <div class="xp-ttl">天 机 台</div>
+      <div class="xp-wbar" id="xpWbar"></div>
+      <div class="xp-deco"></div>
+    </summary>
+
+    <div class="xp-bd">
+      <!-- 导航 -->
+      <nav class="xp-nav">
+        <div class="xp-ni act" data-t="h">红颜</div>
+        <div class="xp-ni" data-t="j">江湖</div>
+        <div class="xp-ni xp-ni-s" data-t="l"><i class="fas fa-feather-alt"></i></div>
+      </nav>
+
+      <!-- Tab: 红颜（含主角概览） -->
+      <div class="xp-tp act" id="xpTH">
+        <!-- 主角概览 -->
+        <div class="xp-hero" id="xpHero"></div>
+        <!-- 女性角色网格 -->
+        <div class="xp-grid" id="xpFG"></div>
+        <!-- 详情页 -->
+        <div id="xpDV" style="display:none"></div>
+      </div>
+
+      <!-- Tab: 江湖（在场男性NPC） -->
+      <div class="xp-tp" id="xpTJ">
+        <div id="xpMG"></div>
+      </div>
+
+      <!-- Tab: 灵枢(立绘设置) -->
+      <div class="xp-tp" id="xpTL">
+        <div id="xpSet"></div>
+      </div>
+
+      <div class="xp-foot"></div>
+    </div>
+  </details>
+</div>
+
+<script>
+(function(){
+/* ═══ 配置 ═══ */
+const WI_FILE='{玲珑骰子安红豆，入骨相思知不知}'; /* <!-- 替换为你的世界书文件名 --> */
+const WI_UID=17;                       /* <!-- 替换为「角色立绘配置」条目的 UID --> */
+const C=2*Math.PI*45;
+
+/* ═══ 状态 ═══ */
+let V={},PD={},NS={},curDet=null;
+
+/* ═══ 环境检测 ═══ */
+const hasV=typeof getAllVariables==='function';
+const hasS=typeof triggerSlash==='function';
+const hasL=typeof _!=='undefined'&&typeof _.get==='function';
+if(hasV&&hasL)V=getAllVariables();
+if(!hasL)window._={get:(o,p,d)=>d,pickBy:(o,f)=>o,clamp:(v,a,b)=>v};
+
+const $=id=>document.getElementById(id);
+const $$=s=>document.querySelectorAll(s);
+function g(p,d){return _.get(V,'stat_data.'+p,d)}
+
+/* ═══ 天气图标 ═══ */
+function wIco(w){
+  if(!w)return'fa-cloud-sun';
+  if(w.includes('晴'))return'fa-sun';if(w.includes('雷'))return'fa-bolt';
+  if(w.includes('雨'))return'fa-cloud-showers-heavy';if(w.includes('雪'))return'fa-snowflake';
+  if(w.includes('风'))return'fa-wind';if(w.includes('雾')||w.includes('霾'))return'fa-smog';
+  if(w.includes('阴')||w.includes('多云'))return'fa-cloud';return'fa-cloud-sun';
+}
+
+/* ═══ 阶段计算 ═══ */
+function getPhase(name,fav){
+  const d=PD[name];if(!d||!d.phases||!d.phases.length)return null;
+  const s=[...d.phases].sort((a,b)=>(b.min||0)-(a.min||0));
+  for(const p of s)if(fav>=(p.min||0))return p;
+  return s[s.length-1];
+}
+
+/* ═══ 头部信息 ═══ */
+function renderHeader(){
+  const t=g('世界.当前时间','--'),w=g('世界.天气','--'),l=g('世界.当前地点','--');
+  $('xpWbar').innerHTML=
+    `<span class="xp-wi"><i class="fas fa-clock"></i>${t}</span>`+
+    `<span class="xp-wi"><i class="fas fa-map-marker-alt"></i>${l}</span>`+
+    `<span class="xp-wi"><i class="fas ${wIco(w)}"></i>${w}</span>`;
+}
+
+/* ═══ 主角概览 ═══ */
+function renderHero(){
+  const mc=g('主角',{}),mcC=mc.服饰||{},mcI=mc.物品||{},mcR=mc.当前境界||'',mcT=mc.当前修炼功法||'';
+  const hEl=$('xpHero');
+  /* 左侧：境界与功法 */
+  let leftHtml=
+    `<div class="xp-hc">`+
+      `<div class="xp-hst"><i class="fas fa-user"></i>主角</div>`+
+      `<div class="xp-htg">`+
+        (mcR?`<span class="xp-htgi xp-htgi-r">${mcR}</span>`:'')+
+        (mcT?`<span class="xp-htgi xp-htgi-c">${mcT}</span>`:'')+
+      `</div>`+
+      `<div class="xp-hcg">`+
+        Object.entries(mcC).map(([k,v])=>`<div class="xp-hci"><span class="xp-hck">${k}</span><span class="xp-hcv">${v}</span></div>`).join('')+
+      `</div>`+
+      (Object.keys(mcI).length?
+        `<div class="xp-hits">${Object.entries(mcI).map(([n,info])=>`<span class="xp-hitg">${n}${(info.数量||1)>1?' x'+info.数量:''}</span>`).join('')}</div>`:'')+
+    `</div>`;
+  hEl.innerHTML=leftHtml;
+}
+
+/* ═══ 女性角色卡片 ═══ */
+function renderFemale(){
+  const chs=g('女性角色',{});
+  const grid=$('xpFG');grid.innerHTML='';
+  let i=0;
+  for(const[nm,dt]of Object.entries(chs)){
+    const fv=dt.好感度||0,dc=dt.识破度||0,on=dt.是否在场,th=dt.内心活动||'',rl=dt.当前境界||'';
+    const ph=getPhase(nm,fv),nUrl=ph?ph.normal:'',sUrl=ph?ph.nsfw:'',pNm=ph?ph.name:'',hasS2=!!sUrl;
+    const c=document.createElement('div');
+    c.className='xp-cc'+(on?'':' xp-aw');
+    c.style.animationDelay=i*.09+'s';
+    c.innerHTML=
+      `<div class="xp-pa" data-ch="${nm}">`+
+        (nUrl?
+          `<div class="xp-fw"><div class="xp-fc" data-fl="${nm}">`+
+            `<div class="xp-ff"><div class="xp-ibl" style="background-image:url('${nUrl}')"></div><img class="xp-pim" src="${nUrl}" alt="${nm}"/></div>`+
+            (hasS2?`<div class="xp-ff xp-fb"><div class="xp-ibl" style="background-image:url('${sUrl}')"></div><img class="xp-pim" src="${sUrl}" alt="${nm}"/></div>`:'')+
+          `</div></div>`:
+          `<div class="xp-noi"><i class="fas fa-image"></i></div>`)+
+        (pNm?`<div class="xp-ptg">${pNm}</div>`:'')+
+        (hasS2?`<button class="xp-fbt" data-tg="${nm}"><i class="fas fa-sync-alt"></i></button>`:'')+
+        `<div class="xp-pdt ${on?'xp-on':'xp-off'}"></div>`+
+      `</div>`+
+      `<div class="xp-ci">`+
+        `<div class="xp-ch"><span class="xp-cn">${nm}</span>${rl?`<span class="xp-rt">${rl}</span>`:''}</div>`+
+        `<div class="xp-br"><span class="xp-bl">好感</span><div class="xp-bar"><div class="xp-bf xp-bf-r" style="--w:${fv}%"></div></div><span class="xp-bv xp-bv-r">${fv}</span></div>`+
+        `<div class="xp-br"><span class="xp-bl">识破</span><div class="xp-bar"><div class="xp-bf xp-bf-c" style="--w:${dc}%"></div></div><span class="xp-bv xp-bv-c">${dc}</span></div>`+
+        (th?`<div class="xp-th">"${th.length>36?th.substring(0,36)+'...':th}"</div>`:'')+
+      `</div>`;
+    grid.appendChild(c);i++;
+  }
+  /* 绑定 */
+  $$('#xpFG .xp-pa').forEach(el=>{
+    el.addEventListener('click',e=>{if(e.target.closest('.xp-fbt'))return;openDet(el.dataset.ch)})
+  });
+  $$('#xpFG .xp-fbt').forEach(b=>{
+    b.addEventListener('click',e=>{
+      e.stopPropagation();
+      const t=b.dataset.tg,fc=document.querySelector(`[data-fl="${t}"]`);
+      if(fc){fc.classList.toggle('xp-fp');NS[t]=!NS[t]}
+    })
+  });
+  if(!Object.keys(chs).length)grid.innerHTML='<div class="xp-ey">暂无红颜数据</div>';
+}
+
+/* ═══ 详情页 ═══ */
+function openDet(nm){
+  curDet=nm;
+  const dt=g('女性角色.'+nm,{});
+  const fv=dt.好感度||0,dc=dt.识破度||0;
+  const ph=getPhase(nm,fv),isN=NS[nm]||false;
+  const img=ph?(isN?(ph.nsfw||ph.normal):ph.normal):'';
+  const fO=C*(1-fv/100),dO=C*(1-dc/100);
+  const cl=dt.服饰||{},it=dt.物品||{},th=dt.内心活动||'',rl=dt.当前境界||'',tc=dt.当前修炼功法||'';
+
+  $('xpDV').style.display='block';
+  $('xpDV').innerHTML=
+    `<div class="xp-dv">`+
+      `<div class="xp-dbg" id="xpDbg" style="background-image:${img?`url('${img}')`:'none'}"></div>`+
+      `<div class="xp-din" id="xpDin">`+
+        `<div class="xp-dt">`+
+          `<button class="xp-btnx" id="xpBk"><i class="fas fa-arrow-left"></i>返回</button>`+
+          `<button class="xp-btnx" id="xpTg"><i class="fas fa-exchange-alt"></i>切换立绘</button>`+
+        `</div>`+
+        `<h2 class="xp-dn">${nm}</h2>`+
+        `<div class="xp-dtg">${rl?`<span class="xp-tg xp-tg-r">${rl}</span>`:''}${tc?`<span class="xp-tg xp-tg-c">${tc}</span>`:''}</div>`+
+        `<div class="xp-chs">`+
+          `<div class="xp-chw"><svg viewBox="0 0 120 120" class="xp-svg"><circle cx="60" cy="60" r="45" class="xp-cht"/><circle cx="60" cy="60" r="45" class="xp-cha xp-ar" style="stroke-dasharray:${C};stroke-dashoffset:${C}" data-to="${fO}"/><text x="60" y="56" class="xp-chn">${fv}</text><text x="60" y="72" class="xp-chl">好感度</text></svg></div>`+
+          `<div class="xp-chw"><svg viewBox="0 0 120 120" class="xp-svg"><circle cx="60" cy="60" r="45" class="xp-cht"/><circle cx="60" cy="60" r="45" class="xp-cha xp-ac" style="stroke-dasharray:${C};stroke-dashoffset:${C}" data-to="${dO}"/><text x="60" y="56" class="xp-chn">${dc}</text><text x="60" y="72" class="xp-chl">识破度</text></svg></div>`+
+        `</div>`+
+        `<div class="xp-gc"><div class="xp-st"><i class="fas fa-tshirt"></i>衣着</div><div class="xp-cg">${Object.entries(cl).map(([k,v])=>`<div class="xp-cit"><span class="xp-ck">${k}</span><span class="xp-cv">${v}</span></div>`).join('')}</div></div>`+
+        (Object.keys(it).length?`<div class="xp-gc"><div class="xp-st"><i class="fas fa-gem"></i>物品</div><div class="xp-its">${Object.entries(it).map(([n,info])=>`<span class="xp-itg">${n}${(info.数量||1)>1?' x'+info.数量:''}</span>`).join('')}</div></div>`:'')+
+        (th?`<div class="xp-gc"><div class="xp-st"><i class="fas fa-heart"></i>内心活动</div><p class="xp-tf">"${th}"</p></div>`:'')+
+      `</div>`+
+    `</div>`;
+
+  $('xpFG').style.display='none';
+  $('xpHero').style.display='none';
+
+  const kids=$('xpDin').children;
+  for(let i=0;i<kids.length;i++)kids[i].style.animationDelay=i*.06+'s';
+
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    $$('#xp .xp-cha').forEach(a=>{a.style.strokeDashoffset=a.dataset.to})
+  }));
+
+  $('xpBk').addEventListener('click',closeDet);
+  $('xpTg').addEventListener('click',()=>{
+    NS[nm]=!NS[nm];
+    const nImg=ph?(NS[nm]?(ph.nsfw||ph.normal):ph.normal):'';
+    $('xpDbg').style.backgroundImage=nImg?`url('${nImg}')`:'none';
+  });
+}
+
+function closeDet(){
+  curDet=null;
+  $('xpDV').style.display='none';
+  $('xpFG').style.display='';
+  $('xpHero').style.display='';
+}
+
+/* ═══ 江湖录：在场男性NPC ═══ */
+function renderMale(){
+  const ms=g('男性角色',{}),mg=$('xpMG');mg.innerHTML='';
+  let has=false;
+  for(const[nm,dt]of Object.entries(ms)){
+    if(!dt.是否在场)continue;has=true;
+    const fv=dt.好感度||0,th=dt.内心活动||'',rl=dt.当前境界||'',tc=dt.当前修炼功法||'';
+    const c=document.createElement('div');c.className='xp-gc xp-mlc';
+    c.innerHTML=
+      `<div class="xp-ch"><span class="xp-cn">${nm}</span>${rl?`<span class="xp-rt">${rl}</span>`:''}</div>`+
+      (tc?`<div style="margin-bottom:5px"><span class="xp-tg xp-tg-c" style="display:inline-block">${tc}</span></div>`:'')+
+      `<div class="xp-br"><span class="xp-bl">好感</span><div class="xp-bar"><div class="xp-bf xp-bf-r" style="--w:${fv}%"></div></div><span class="xp-bv xp-bv-r">${fv}</span></div>`+
+      (th?`<div class="xp-th" style="margin-top:4px">"${th.length>45?th.substring(0,45)+'...':th}"</div>`:'');
+    mg.appendChild(c);
+  }
+  if(!has)mg.innerHTML='<div class="xp-ey">四野无人</div>';
+}
+
+/* ═══ 灵枢设置面板 ═══ */
+function renderSet(){
+  const chs=g('女性角色',{});
+  const ns=Object.keys(chs);
+  if(!ns.length){$('xpSet').innerHTML='<div class="xp-ey">暂无女性角色，请先在 MVU 变量中添加</div>';return}
+  $('xpSet').innerHTML=
+    `<div class="xp-gc">`+
+      `<div class="xp-st"><i class="fas fa-feather-alt"></i>立绘管理</div>`+
+      `<div class="xp-sr"><label>选择角色</label><select class="xp-sel" id="xpCS">${ns.map(n=>`<option value="${n}">${n}</option>`).join('')}</select></div>`+
+      `<div id="xpPL"></div>`+
+      `<div class="xp-sa">`+
+        `<button class="xp-btn xp-btn-a" id="xpAP"><i class="fas fa-plus"></i>添加阶段</button>`+
+        `<button class="xp-btn xp-btn-s" id="xpSP"><i class="fas fa-save"></i>保存</button>`+
+      `</div>`+
+    `</div>`;
+  $('xpCS').addEventListener('change',renderPhases);
+  $('xpAP').addEventListener('click',addPhase);
+  $('xpSP').addEventListener('click',savePD);
+  renderPhases();
+}
+
+function renderPhases(){
+  const cn=$('xpCS').value;
+  const ps=(PD[cn]&&PD[cn].phases)||[];
+  $('xpPL').innerHTML=ps.map((p,i)=>
+    `<div class="xp-pc" data-i="${i}">`+
+      `<div class="xp-pr">`+
+        `<input class="xp-inp xp-pn" value="${p.name||''}" placeholder="阶段名（留空不显示）"/>`+
+        `<input class="xp-inp xp-pm" type="number" value="${p.min||0}" min="0" max="100" style="width:72px;flex-shrink:0"/>`+
+        `<span class="xp-ph">好感</span>`+
+        `<button class="xp-bdl" data-x="${i}"><i class="fas fa-trash-alt"></i></button>`+
+      `</div>`+
+      `<div class="xp-pr"><input class="xp-inp xp-pnr" value="${p.normal||''}" placeholder="正常立绘链接"/></div>`+
+      `<div class="xp-pr"><input class="xp-inp xp-pns" value="${p.nsfw||''}" placeholder="差分立绘链接"/></div>`+
+    `</div>`
+  ).join('');
+  $$('#xpSet .xp-bdl').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const cn2=$('xpCS').value,x=parseInt(b.dataset.x);
+      if(PD[cn2]&&PD[cn2].phases){PD[cn2].phases.splice(x,1);renderPhases()}
+    })
+  });
+}
+
+function addPhase(){
+  const cn=$('xpCS').value;
+  if(!PD[cn])PD[cn]={phases:[]};
+  if(!PD[cn].phases)PD[cn].phases=[];
+  PD[cn].phases.push({name:'',min:0,normal:'',nsfw:''});
+  renderPhases();
+}
+
+async function savePD(){
+  const cn=$('xpCS').value,ps=[];
+  $$('#xpSet .xp-pc').forEach(c=>{
+    ps.push({
+      name:c.querySelector('.xp-pn').value.trim(),
+      min:parseInt(c.querySelector('.xp-pm').value)||0,
+      normal:c.querySelector('.xp-pnr').value.trim(),
+      nsfw:c.querySelector('.xp-pns').value.trim()
+    })
+  });
+  PD[cn]={phases:ps};
+  if(hasS){
+    try{
+      const d=JSON.stringify(PD);
+      await triggerSlash(`/setentryfield file="${WI_FILE}" uid=${WI_UID} field=content ${d}`);
+      await triggerSlash('/echo severity=success 立绘配置已保存');
+      renderFemale();
+    }catch(e){console.error(e);if(hasS)triggerSlash('/echo severity=error 保存失败')}
+  }
+}
+
+/* ═══ Tab 切换 ═══ */
+function setupTabs(){
+  const map={h:'xpTH',j:'xpTJ',l:'xpTL'};
+  $$('#xp .xp-ni').forEach(t=>{
+    t.addEventListener('click',()=>{
+      $$('#xp .xp-ni').forEach(x=>x.classList.remove('act'));
+      $$('#xp .xp-tp').forEach(x=>x.classList.remove('act'));
+      t.classList.add('act');
+      const p=$(map[t.dataset.t]);if(p)p.classList.add('act');
+      if(curDet)closeDet();
+      if(t.dataset.t==='l')renderSet();
+    })
+  });
+}
+
+/* ═══ 粒子系统 ═══ */
+function mkPtc(){
+  const c=$('xpPtc');
+  for(let i=0;i<16;i++){
+    const p=document.createElement('div');
+    p.className='xp-pt '+(Math.random()>.3?'xp-pt-cy':'xp-pt-rd');
+    p.style.cssText=`left:${Math.random()*96}%;top:${20+Math.random()*70}%;width:${2+Math.random()*3.5}px;height:${2+Math.random()*3.5}px;animation-delay:${Math.random()*10}s;animation-duration:${7+Math.random()*9}s`;
+    c.appendChild(p);
+  }
+}
+
+/* ═══ 加载立绘数据 ═══ */
+async function loadPD(){
+  if(!hasS)return;
+  try{
+    const r=await triggerSlash(`/getentryfield file="${WI_FILE}" field=content ${WI_UID}`);
+    if(r&&r.trim()!=='null'&&r.trim()!==''&&r.trim()!=='{}')PD=JSON.parse(r);
+  }catch(e){console.error('Load portrait data failed:',e)}
+}
+
+/* ═══ 初始化 ═══ */
+async function init(){
+  renderHeader();
+  mkPtc();
+  await loadPD();
+  renderHero();
+  renderFemale();
+  renderMale();
+  setupTabs();
+}
+init();
+})();
+</script>
+</body>
+</html>
