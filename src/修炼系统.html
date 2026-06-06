@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>修炼面板</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<style>
+.cultivation-root {
+  --bg-primary: #0a0a1a;
+  --bg-secondary: #111128;
+  --bg-card: rgba(20, 20, 50, 0.85);
+  --bg-card-hover: rgba(30, 30, 70, 0.95);
+  --border-glow: rgba(180, 140, 255, 0.3);
+  --border-glow-hover: rgba(200, 160, 255, 0.6);
+  --text-primary: #e8e0f0;
+  --text-secondary: #a098b8;
+  --text-dim: #706888;
+  --accent-gold: #d4a574;
+  --accent-purple: #a855f7;
+  --accent-blue: #3b82f6;
+  --accent-cyan: #06b6d4;
+  --accent-green: #22c55e;
+  --accent-red: #ef4444;
+  --accent-orange: #f97316;
+  --glow-gold: 0 0 10px rgba(212,165,116,0.5), 0 0 20px rgba(212,165,116,0.3);
+  --glow-purple: 0 0 10px rgba(168,85,247,0.5), 0 0 20px rgba(168,85,247,0.3);
+  font-family: 'Noto Serif SC', 'Source Han Serif CN', 'SimSun', serif;
+  color: var(--text-primary);
+  max-width: 900px;
+  margin: 10px auto;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 0 40px rgba(168,85,247,0.15), inset 0 0 60px rgba(10,10,26,0.8);
+}
+.cultivation-root .dynamic-bg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: hidden;
+}
+.cultivation-root .bg-orb {
+  position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.15;
+  animation: orbFloat 20s infinite ease-in-out;
+}
+.cultivation-root .bg-orb:nth-child(1) { width: 300px; height: 300px; background: var(--accent-purple); top: -50px; left: -50px; animation-duration: 22s; }
+.cultivation-root .bg-orb:nth-child(2) { width: 250px; height: 250px; background: var(--accent-blue); bottom: -30px; right: -30px; animation-duration: 18s; animation-delay: -6s; }
+.cultivation-root .bg-orb:nth-child(3) { width: 200px; height: 200px; background: var(--accent-gold); top: 40%; left: 50%; animation-duration: 25s; animation-delay: -12s; }
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -20px) scale(1.1); }
+  50% { transform: translate(-20px, 30px) scale(0.9); }
+  75% { transform: translate(15px, 15px) scale(1.05); }
+}
+.cultivation-root .particle {
+  position: absolute; width: 2px; height: 2px; background: var(--accent-gold);
+  border-radius: 50%; opacity: 0; pointer-events: none;
+  animation: particleRise 8s infinite linear;
+}
+@keyframes particleRise {
+  0% { opacity: 0; transform: translateY(0) scale(0.5); }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.3; }
+  100% { opacity: 0; transform: translateY(-400px) scale(0); }
+}
+.cultivation-root .panel-content { position: relative; z-index: 1; padding: 20px; }
+.cultivation-root .panel-title {
+  text-align: center; font-size: 28px; font-weight: 700;
+  margin-bottom: 24px; position: relative;
+  background: linear-gradient(135deg, var(--accent-gold), #ffd700, var(--accent-gold));
+  background-size: 200% 200%;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  animation: shimmerText 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(212,165,116,0.4));
+}
+@keyframes shimmerText { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.cultivation-root .panel-title::after {
+  content: ''; display: block; width: 120px; height: 2px; margin: 10px auto 0;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  animation: lineGlow 2s ease-in-out infinite;
+}
+@keyframes lineGlow { 0%, 100% { opacity: 0.5; width: 80px; } 50% { opacity: 1; width: 160px; } }
+.cultivation-root .panel-details { margin: 0; border: none; }
+.cultivation-root .panel-summary {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 20px; cursor: pointer; list-style: none;
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+  border: 1px solid var(--border-glow); border-radius: 12px; font-size: 18px; font-weight: 600;
+  color: var(--accent-gold); text-shadow: 0 0 10px rgba(212,165,116,0.3); transition: all 0.3s ease;
+}
+.cultivation-root .panel-summary::-webkit-details-marker { display: none; }
+.cultivation-root .panel-summary:hover { border-color: var(--border-glow-hover); box-shadow: var(--glow-gold); }
+.cultivation-root .panel-summary .toggle-arrow { transition: transform 0.3s ease; font-size: 14px; }
+.cultivation-root .panel-details[open] .toggle-arrow { transform: rotate(180deg); }
+.cultivation-root .fold-settings-btn {
+  margin-left: auto; padding: 4px 10px; border: 1px solid rgba(168,85,247,0.3);
+  border-radius: 6px; background: rgba(168,85,247,0.1); color: var(--text-dim);
+  font-size: 13px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 4px;
+}
+.cultivation-root .fold-settings-btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); background: rgba(168,85,247,0.2); }
+.cultivation-root .fold-settings-btn.is-folded { color: var(--accent-cyan); border-color: rgba(6,182,212,0.4); background: rgba(6,182,212,0.1); }
+.cultivation-root .char-select-bar {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; justify-content: center; animation: fadeSlideIn 0.6s ease;
+}
+@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+.cultivation-root .char-btn {
+  padding: 8px 18px; border: 1px solid var(--border-glow); border-radius: 8px; background: var(--bg-card);
+  color: var(--text-secondary); cursor: pointer; font-size: 14px; font-family: inherit;
+  transition: all 0.3s ease; position: relative; overflow: hidden;
+}
+.cultivation-root .char-btn::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(168,85,247,0.15), transparent); transition: left 0.5s ease;
+}
+.cultivation-root .char-btn:hover::before { left: 100%; }
+.cultivation-root .char-btn:hover { border-color: var(--accent-purple); color: var(--text-primary); box-shadow: var(--glow-purple); }
+.cultivation-root .char-btn.active {
+  background: linear-gradient(135deg, rgba(168,85,247,0.25), rgba(59,130,246,0.15));
+  border-color: var(--accent-purple); color: var(--accent-gold); box-shadow: var(--glow-purple);
+}
+.cultivation-root .char-btn:active { transform: scale(0.95); }
+.cultivation-root .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+@media (max-width: 680px) { .cultivation-root .main-grid { grid-template-columns: 1fr; } }
+.cultivation-root .card {
+  background: var(--bg-card); border: 1px solid var(--border-glow); border-radius: 12px; padding: 16px;
+  position: relative; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease; overflow: hidden; animation: cardEnter 0.5s ease backwards;
+}
+@keyframes cardEnter { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.cultivation-root .card:hover { border-color: var(--border-glow-hover); box-shadow: 0 4px 20px rgba(168,85,247,0.1); }
+.cultivation-root .card-title {
+  font-size: 16px; font-weight: 600; margin-bottom: 14px; color: var(--accent-gold);
+  display: flex; align-items: center; gap: 8px; text-shadow: 0 0 8px rgba(212,165,116,0.3);
+}
+.cultivation-root .card-title i { font-size: 14px; }
+.cultivation-root .card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 12px;
+  background: linear-gradient(45deg, transparent 40%, rgba(168,85,247,0.1) 50%, transparent 60%);
+  background-size: 300% 300%; opacity: 0; animation: borderShimmer 4s ease-in-out infinite;
+  pointer-events: none; z-index: 0;
+}
+.cultivation-root .card:hover::before { opacity: 1; }
+@keyframes borderShimmer { 0% { background-position: 100% 100%; } 100% { background-position: 0% 0%; } }
+.cultivation-root .attr-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 0; border-bottom: 1px solid rgba(168,85,247,0.1); position: relative; z-index: 1;
+}
+.cultivation-root .attr-row:last-child { border-bottom: none; }
+.cultivation-root .attr-label { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); font-size: 14px; }
+.cultivation-root .attr-value { font-size: 16px; font-weight: 600; color: var(--text-primary); transition: all 0.3s ease; }
+.cultivation-root .attr-value.highlight { color: var(--accent-gold); text-shadow: 0 0 8px rgba(212,165,116,0.4); }
+.cultivation-root .tooltip-trigger { position: relative; cursor: help; color: var(--text-dim); font-size: 12px; }
+.cultivation-root .tooltip-bubble {
+  position: absolute; bottom: 130%; left: 50%; transform: translateX(-50%); background: var(--bg-secondary);
+  border: 1px solid var(--accent-purple); border-radius: 8px; padding: 8px 12px; font-size: 12px;
+  color: var(--text-primary); white-space: nowrap; opacity: 0; visibility: hidden; pointer-events: none;
+  transition: all 0.2s ease; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+.cultivation-root .tooltip-bubble::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--accent-purple); }
+.cultivation-root .tooltip-trigger:hover .tooltip-bubble { opacity: 1; visibility: visible; }
+.cultivation-root .radar-container { display: flex; justify-content: center; align-items: center; padding: 10px 0; position: relative; z-index: 1; }
+.cultivation-root .radar-container canvas { max-width: 100%; height: auto; }
+.cultivation-root .train-section { margin-bottom: 16px; animation: cardEnter 0.6s ease backwards; animation-delay: 0.2s; }
+.cultivation-root .train-tiers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+@media (max-width: 480px) { .cultivation-root .train-tiers { grid-template-columns: repeat(2, 1fr); } }
+.cultivation-root .tier-btn {
+  padding: 12px 8px; border: 1px solid var(--border-glow); border-radius: 10px; background: var(--bg-card);
+  cursor: pointer; text-align: center; transition: all 0.3s ease; font-family: inherit; color: var(--text-secondary);
+  position: relative; overflow: hidden;
+}
+.cultivation-root .tier-btn:hover { border-color: var(--accent-cyan); box-shadow: 0 0 12px rgba(6,182,212,0.2); transform: translateY(-2px); }
+.cultivation-root .tier-btn:active { transform: translateY(0) scale(0.97); }
+.cultivation-root .tier-btn.selected { border-color: var(--accent-cyan); background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.1)); color: var(--text-primary); }
+.cultivation-root .tier-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.cultivation-root .tier-exp { font-size: 12px; color: var(--accent-cyan); }
+.cultivation-root .train-btn {
+  width: 100%; padding: 14px; border: 1px solid var(--accent-gold); border-radius: 10px;
+  background: linear-gradient(135deg, rgba(212,165,116,0.15), rgba(255,215,0,0.08));
+  color: var(--accent-gold); font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer;
+  text-shadow: 0 0 10px rgba(212,165,116,0.4); transition: all 0.3s ease; position: relative; overflow: hidden;
+}
+.cultivation-root .train-btn:hover { box-shadow: var(--glow-gold); transform: translateY(-1px); }
+.cultivation-root .train-btn:active { transform: translateY(1px) scale(0.98); }
+.cultivation-root .train-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.cultivation-root .train-btn::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,215,0,0.2), transparent); animation: btnShimmer 3s ease-in-out infinite;
+}
+@keyframes btnShimmer { 0% { left: -60%; } 100% { left: 160%; } }
+.cultivation-root .gacha-section { margin-bottom: 16px; animation: cardEnter 0.6s ease backwards; animation-delay: 0.3s; }
+.cultivation-root .gacha-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 14px; color: var(--text-secondary); }
+.cultivation-root .gacha-btns { display: flex; gap: 10px; }
+.cultivation-root .gacha-btn {
+  flex: 1; padding: 12px; border: 1px solid var(--accent-purple); border-radius: 10px;
+  background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.05));
+  color: var(--accent-purple); font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.3s ease;
+}
+.cultivation-root .gacha-btn:hover { box-shadow: var(--glow-purple); transform: translateY(-2px); }
+.cultivation-root .gacha-btn:active { transform: translateY(0) scale(0.97); }
+.cultivation-root .gacha-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.cultivation-root .gacha-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+  z-index: 10000; display: none; align-items: center; justify-content: center;
+}
+.cultivation-root .gacha-overlay.show { display: flex; }
+.cultivation-root .gacha-result-card {
+  background: var(--bg-secondary); border-radius: 16px; padding: 30px; text-align: center;
+  max-width: 340px; width: 90%; animation: gachaReveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 2px solid var(--border-glow); box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+@keyframes gachaReveal { from { opacity: 0; transform: scale(0.5) rotateY(90deg); } to { opacity: 1; transform: scale(1) rotateY(0); } }
+.cultivation-root .gacha-result-card .item-quality { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.cultivation-root .gacha-result-card .item-name { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+.cultivation-root .gacha-result-card .item-type-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 12px; background: rgba(168,85,247,0.2); color: var(--accent-purple); }
+.cultivation-root .gacha-result-card .item-effect { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; white-space: pre-wrap; }
+.cultivation-root .gacha-close-btn { padding: 10px 30px; border: 1px solid var(--accent-gold); border-radius: 8px; background: transparent; color: var(--accent-gold); font-family: inherit; cursor: pointer; font-size: 14px; transition: all 0.3s ease; }
+.cultivation-root .gacha-close-btn:hover { background: rgba(212,165,116,0.15); box-shadow: var(--glow-gold); }
+.cultivation-root .tab-bar { display: flex; gap: 4px; margin-bottom: 14px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 3px; }
+.cultivation-root .tab-item { flex: 1; padding: 8px 6px; border: none; border-radius: 6px; background: transparent; color: var(--text-dim); font-family: inherit; font-size: 13px; cursor: pointer; transition: all 0.3s ease; text-align: center; }
+.cultivation-root .tab-item:hover { color: var(--text-secondary); }
+.cultivation-root .tab-item.active { background: rgba(168,85,247,0.2); color: var(--accent-purple); }
+.cultivation-root .inv-list { max-height: 320px; overflow-y: auto; position: relative; z-index: 1; scrollbar-width: thin; scrollbar-color: var(--accent-purple) transparent; }
+.cultivation-root .inv-list::-webkit-scrollbar { width: 4px; }
+.cultivation-root .inv-list::-webkit-scrollbar-track { background: transparent; }
+.cultivation-root .inv-list::-webkit-scrollbar-thumb { background: var(--accent-purple); border-radius: 4px; }
+.cultivation-root .inv-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid rgba(168,85,247,0.1);
+  border-radius: 8px; margin-bottom: 6px; background: rgba(0,0,0,0.2); transition: all 0.3s ease;
+  cursor: default; animation: itemSlideIn 0.3s ease backwards;
+}
+@keyframes itemSlideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+.cultivation-root .inv-item:hover { background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.25); transform: translateX(3px); }
+.cultivation-root .inv-item.selected { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4); box-shadow: inset 0 0 10px rgba(168,85,247,0.1); }
+.cultivation-root .inv-item .item-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.cultivation-root .inv-item .item-info { flex: 1; min-width: 0; }
+.cultivation-root .inv-item .item-info .item-name-line { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; flex-wrap: wrap; }
+.cultivation-root .inv-item .item-info .item-name { font-size: 14px; font-weight: 600; }
+.cultivation-root .inv-item .item-info .quality-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cultivation-root .inv-item .item-info .item-effect-text { font-size: 12px; color: var(--text-dim); white-space: pre-wrap; line-height: 1.4; }
+.cultivation-root .inv-item .item-actions { display: flex; gap: 4px; flex-shrink: 0; flex-wrap: wrap; }
+.cultivation-root .item-act-btn { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-family: inherit; cursor: pointer; transition: all 0.2s ease; border: 1px solid; background: transparent; }
+.cultivation-root .item-act-btn.equip-btn { border-color: var(--accent-green); color: var(--accent-green); }
+.cultivation-root .item-act-btn.equip-btn:hover { background: rgba(34,197,94,0.15); }
+.cultivation-root .item-act-btn.use-btn { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+.cultivation-root .item-act-btn.use-btn:hover { background: rgba(6,182,212,0.15); }
+.cultivation-root .item-act-btn.unequip-btn { border-color: var(--accent-orange); color: var(--accent-orange); }
+.cultivation-root .item-act-btn.unequip-btn:hover { background: rgba(249,115,22,0.15); }
+.cultivation-root .item-act-btn.discard-btn { border-color: var(--accent-red); color: var(--accent-red); }
+.cultivation-root .item-act-btn.discard-btn:hover { background: rgba(239,68,68,0.15); }
+.cultivation-root .item-act-btn.exchange-btn { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+.cultivation-root .item-act-btn.exchange-btn:hover { background: rgba(6,182,212,0.15); }
+.cultivation-root .item-act-btn:active { transform: scale(0.9); }
+.cultivation-root .equipped-section { animation: cardEnter 0.6s ease backwards; animation-delay: 0.4s; }
+.cultivation-root .equip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; position: relative; z-index: 1; }
+@media (max-width: 580px) { .cultivation-root .equip-grid { grid-template-columns: repeat(2, 1fr); } }
+.cultivation-root .equip-slot {
+  background: rgba(0,0,0,0.3); border: 1px dashed rgba(168,85,247,0.2); border-radius: 10px; padding: 12px;
+  text-align: center; transition: all 0.3s ease; min-height: 80px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.cultivation-root .equip-slot.filled { border-style: solid; border-color: var(--border-glow); }
+.cultivation-root .equip-slot:hover { border-color: var(--accent-purple); }
+.cultivation-root .equip-slot .slot-label { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; }
+.cultivation-root .equip-slot .slot-name { font-size: 14px; font-weight: 600; }
+.cultivation-root .equip-slot .slot-empty { font-size: 13px; color: var(--text-dim); }
+.cultivation-root .equipped-skills { margin-top: 12px; position: relative; z-index: 1; }
+.cultivation-root .skill-tag { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 20px; font-size: 13px; margin: 3px; border: 1px solid var(--border-glow); background: rgba(168,85,247,0.1); transition: all 0.3s ease; }
+.cultivation-root .skill-tag:hover { background: rgba(168,85,247,0.2); transform: translateY(-1px); }
+.cultivation-root .exp-bar-wrapper { margin: 14px 0; position: relative; z-index: 1; }
+.cultivation-root .exp-bar-bg { height: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; overflow: hidden; position: relative; border: 1px solid rgba(168,85,247,0.2); }
+.cultivation-root .exp-bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan)); transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; min-width: 0; }
+.cultivation-root .exp-bar-fill::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); animation: expShimmer 2s ease-in-out infinite; }
+@keyframes expShimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+.cultivation-root .exp-text { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--text-primary); text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+.cultivation-root .toast-container { position: fixed; top: 20px; right: 20px; z-index: 10001; display: flex; flex-direction: column; gap: 8px; }
+.cultivation-root .toast { padding: 12px 20px; border-radius: 8px; font-size: 14px; font-family: inherit; animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards; box-shadow: 0 4px 20px rgba(0,0,0,0.4); max-width: 300px; }
+@keyframes toastIn { from { opacity: 0; transform: translateX(50px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
+.cultivation-root .toast.success { background: linear-gradient(135deg, rgba(34,197,94,0.9), rgba(34,197,94,0.7)); color: #fff; }
+.cultivation-root .toast.error { background: linear-gradient(135deg, rgba(239,68,68,0.9), rgba(239,68,68,0.7)); color: #fff; }
+.cultivation-root .toast.info { background: linear-gradient(135deg, rgba(59,130,246,0.9), rgba(59,130,246,0.7)); color: #fff; }
+.cultivation-root .toast.warning { background: linear-gradient(135deg, rgba(249,115,22,0.9), rgba(249,115,22,0.7)); color: #fff; }
+.cultivation-root .empty-state { text-align: center; padding: 30px 10px; color: var(--text-dim); font-size: 14px; }
+.cultivation-root .special-skill-tag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 15px; font-size: 12px; background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(249,115,22,0.15)); border: 1px solid rgba(239,68,68,0.3); color: var(--accent-orange); margin: 2px; }
+.cultivation-root .gongfa-bonus { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; background: rgba(6,182,212,0.12); border: 1px solid rgba(6,182,212,0.3); color: var(--accent-cyan); font-size: 12px; }
+.cultivation-root .forge-section { animation: cardEnter 0.6s ease backwards; animation-delay: 0.35s; }
+.cultivation-root .forge-btns { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.cultivation-root .forge-btn { flex: 1; padding: 12px; border: 1px solid var(--accent-orange); border-radius: 10px; background: linear-gradient(135deg, rgba(249,115,22,0.15), rgba(249,115,22,0.05)); color: var(--accent-orange); font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.3s ease; min-width: 80px; }
+.cultivation-root .forge-btn:hover { box-shadow: 0 0 10px rgba(249,115,22,0.5), 0 0 20px rgba(249,115,22,0.3); transform: translateY(-2px); }
+.cultivation-root .forge-btn:active { transform: translateY(0) scale(0.97); }
+.cultivation-root .forge-import-area { margin-top: 10px; display: none; }
+.cultivation-root .forge-import-area.show { display: block; }
+.cultivation-root .forge-textarea { width: 100%; min-height: 100px; border: 1px solid var(--border-glow); border-radius: 8px; background: rgba(0,0,0,0.3); color: var(--text-primary); font-family: monospace; font-size: 13px; padding: 10px; resize: vertical; box-sizing: border-box; }
+.cultivation-root .forge-textarea:focus { outline: none; border-color: var(--accent-purple); }
+.cultivation-root .forge-import-btn { margin-top: 8px; padding: 8px 20px; border: 1px solid var(--accent-green); border-radius: 8px; background: transparent; color: var(--accent-green); font-family: inherit; font-size: 13px; cursor: pointer; transition: all 0.3s ease; }
+.cultivation-root .forge-import-btn:hover { background: rgba(34,197,94,0.15); }
+.cultivation-root .forge-recipe-hint { font-size: 12px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
+.cultivation-root .reset-banner { text-align: center; padding: 8px; margin-bottom: 12px; background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(6,182,212,0.1)); border: 1px solid rgba(34,197,94,0.3); border-radius: 8px; color: var(--accent-green); font-size: 13px; animation: fadeSlideIn 0.5s ease; }
+.cultivation-root .inv-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 8px 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(168,85,247,0.15); border-radius: 8px; flex-wrap: wrap; position: relative; z-index: 1; }
+.cultivation-root .inv-toolbar-label { font-size: 12px; color: var(--text-dim); display: flex; align-items: center; gap: 4px; cursor: pointer; user-select: none; }
+.cultivation-root .inv-toolbar-label input[type="checkbox"] { accent-color: var(--accent-purple); cursor: pointer; width: 14px; height: 14px; }
+.cultivation-root .inv-toolbar-spacer { flex: 1; }
+.cultivation-root .inv-toolbar-btn { padding: 5px 12px; border-radius: 6px; font-size: 12px; font-family: inherit; cursor: pointer; transition: all 0.2s ease; border: 1px solid; background: transparent; }
+.cultivation-root .inv-toolbar-btn.batch-discard { border-color: var(--accent-red); color: var(--accent-red); }
+.cultivation-root .inv-toolbar-btn.batch-discard:hover { background: rgba(239,68,68,0.15); }
+.cultivation-root .inv-toolbar-btn.batch-exchange { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+.cultivation-root .inv-toolbar-btn.batch-exchange:hover { background: rgba(6,182,212,0.15); }
+.cultivation-root .inv-toolbar-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.cultivation-root .inv-toolbar-btn:active { transform: scale(0.95); }
+.cultivation-root .inv-toolbar .selected-count { font-size: 11px; color: var(--accent-purple); min-width: 60px; }
+.cultivation-root .inv-item .item-checkbox { accent-color: var(--accent-purple); cursor: pointer; width: 15px; height: 15px; flex-shrink: 0; }
+.cultivation-root .exchange-value-tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px; background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.25); color: var(--accent-cyan); margin-left: 4px; }
+.cultivation-root .confirm-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 10002; display: none; align-items: center; justify-content: center; }
+.cultivation-root .confirm-overlay.show { display: flex; }
+.cultivation-root .confirm-card { background: var(--bg-secondary); border-radius: 14px; padding: 24px; text-align: center; max-width: 360px; width: 90%; border: 1px solid var(--border-glow); box-shadow: 0 10px 40px rgba(0,0,0,0.6); animation: gachaReveal 0.4s ease; }
+.cultivation-root .confirm-card .confirm-title { font-size: 16px; font-weight: 700; color: var(--accent-gold); margin-bottom: 12px; }
+.cultivation-root .confirm-card .confirm-msg { font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; line-height: 1.6; white-space: pre-wrap; text-align: left; }
+.cultivation-root .confirm-card .confirm-btns { display: flex; gap: 10px; justify-content: center; }
+.cultivation-root .confirm-card .confirm-btn { padding: 8px 24px; border-radius: 8px; font-family: inherit; font-size: 14px; cursor: pointer; transition: all 0.2s ease; border: 1px solid; }
+.cultivation-root .confirm-card .confirm-btn.yes { border-color: var(--accent-green); color: var(--accent-green); background: rgba(34,197,94,0.1); }
+.cultivation-root .confirm-card .confirm-btn.yes:hover { background: rgba(34,197,94,0.25); }
+.cultivation-root .confirm-card .confirm-btn.no { border-color: var(--text-dim); color: var(--text-dim); background: transparent; }
+.cultivation-root .confirm-card .confirm-btn.no:hover { background: rgba(255,255,255,0.05); }
+/* 角色管理 */
+.cultivation-root .char-manage-btn { padding: 6px 12px; border: 1px solid rgba(168,85,247,0.3); border-radius: 8px; background: rgba(168,85,247,0.08); color: var(--text-dim); cursor: pointer; font-size: 13px; font-family: inherit; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 4px; }
+.cultivation-root .char-manage-btn:hover { border-color: var(--accent-purple); color: var(--accent-purple); background: rgba(168,85,247,0.15); }
+.cultivation-root .manage-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); z-index: 10003; display: none; align-items: center; justify-content: center; }
+.cultivation-root .manage-overlay.show { display: flex; }
+.cultivation-root .manage-panel { background: var(--bg-secondary); border-radius: 16px; padding: 24px; max-width: 480px; width: 92%; border: 1px solid var(--border-glow); box-shadow: 0 15px 50px rgba(0,0,0,0.6); animation: gachaReveal 0.4s ease; max-height: 80vh; overflow-y: auto; }
+.cultivation-root .manage-panel h3 { font-size: 18px; font-weight: 700; color: var(--accent-gold); margin-bottom: 16px; text-align: center; }
+.cultivation-root .manage-char-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid rgba(168,85,247,0.15); border-radius: 8px; margin-bottom: 8px; background: rgba(0,0,0,0.2); transition: all 0.2s; }
+.cultivation-root .manage-char-item:hover { background: rgba(168,85,247,0.08); }
+.cultivation-root .manage-char-name { flex: 1; font-size: 14px; font-weight: 600; }
+.cultivation-root .manage-char-tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+.cultivation-root .manage-char-tag.blocked { background: rgba(239,68,68,0.15); color: var(--accent-red); border: 1px solid rgba(239,68,68,0.3); }
+.cultivation-root .manage-char-tag.protagonist { background: rgba(212,165,116,0.15); color: var(--accent-gold); border: 1px solid rgba(212,165,116,0.3); }
+.cultivation-root .manage-action-btn { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-family: inherit; cursor: pointer; border: 1px solid; background: transparent; transition: all 0.2s; }
+.cultivation-root .manage-action-btn.block-btn { border-color: var(--accent-orange); color: var(--accent-orange); }
+.cultivation-root .manage-action-btn.block-btn:hover { background: rgba(249,115,22,0.15); }
+.cultivation-root .manage-action-btn.unblock-btn { border-color: var(--accent-green); color: var(--accent-green); }
+.cultivation-root .manage-action-btn.unblock-btn:hover { background: rgba(34,197,94,0.15); }
+.cultivation-root .manage-action-btn.delete-btn { border-color: var(--accent-red); color: var(--accent-red); }
+.cultivation-root .manage-action-btn.delete-btn:hover { background: rgba(239,68,68,0.15); }
+.cultivation-root .manage-close-btn { display: block; margin: 16px auto 0; padding: 8px 30px; border: 1px solid var(--text-dim); border-radius: 8px; background: transparent; color: var(--text-dim); font-family: inherit; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+.cultivation-root .manage-close-btn:hover { border-color: var(--text-secondary); color: var(--text-secondary); }
+/* 自动修炼 */
+.cultivation-root .auto-train-card { animation: cardEnter 0.6s ease backwards; animation-delay: 0.22s; }
+.cultivation-root .auto-train-toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(168,85,247,0.1); }
+.cultivation-root .auto-train-toggle-row .toggle-label { font-size: 14px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+.cultivation-root .toggle-switch { position: relative; width: 44px; height: 24px; cursor: pointer; }
+.cultivation-root .toggle-switch input { opacity: 0; width: 0; height: 0; }
+.cultivation-root .toggle-slider { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.1); border-radius: 12px; border: 1px solid rgba(168,85,247,0.3); transition: all 0.3s; }
+.cultivation-root .toggle-slider::before { content: ''; position: absolute; left: 2px; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: var(--text-dim); transition: all 0.3s; }
+.cultivation-root .toggle-switch input:checked + .toggle-slider { background: rgba(168,85,247,0.3); border-color: var(--accent-purple); }
+.cultivation-root .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); background: var(--accent-purple); }
+.cultivation-root .auto-train-list { position: relative; z-index: 1; }
+.cultivation-root .auto-train-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid rgba(168,85,247,0.1); border-radius: 8px; margin-bottom: 6px; background: rgba(0,0,0,0.15); font-size: 13px; }
+.cultivation-root .auto-train-item .at-name { flex: 1; color: var(--text-secondary); font-weight: 600; }
+.cultivation-root .auto-train-item select { background: rgba(0,0,0,0.3); border: 1px solid var(--border-glow); border-radius: 6px; color: var(--text-primary); padding: 4px 8px; font-family: inherit; font-size: 12px; cursor: pointer; }
+.cultivation-root .auto-train-item select:focus { outline: none; border-color: var(--accent-purple); }
+/* 工坊弹窗 */
+.cultivation-root .workshop-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 10004; display: none; align-items: center; justify-content: center; }
+.cultivation-root .workshop-overlay.show { display: flex; }
+.cultivation-root .workshop-panel { background: var(--bg-secondary); border-radius: 16px; padding: 24px; max-width: 540px; width: 94%; border: 1px solid var(--accent-gold); box-shadow: 0 0 40px rgba(212,165,116,0.2), 0 15px 50px rgba(0,0,0,0.6); animation: gachaReveal 0.5s ease; max-height: 85vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--accent-gold) transparent; }
+.cultivation-root .workshop-panel::-webkit-scrollbar { width: 4px; }
+.cultivation-root .workshop-panel::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 4px; }
+.cultivation-root .workshop-panel h3 { font-size: 20px; font-weight: 700; color: var(--accent-gold); margin-bottom: 20px; text-align: center; text-shadow: 0 0 10px rgba(212,165,116,0.3); }
+.cultivation-root .ws-mode-bar { display: flex; gap: 4px; margin-bottom: 16px; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 3px; }
+.cultivation-root .ws-mode-btn { flex: 1; padding: 10px 8px; border: none; border-radius: 6px; background: transparent; color: var(--text-dim); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-align: center; }
+.cultivation-root .ws-mode-btn:hover { color: var(--text-secondary); }
+.cultivation-root .ws-mode-btn.active { background: linear-gradient(135deg, rgba(212,165,116,0.2), rgba(212,165,116,0.08)); color: var(--accent-gold); }
+.cultivation-root .ws-section { margin-bottom: 16px; padding: 14px; background: rgba(0,0,0,0.2); border: 1px solid rgba(168,85,247,0.15); border-radius: 10px; }
+.cultivation-root .ws-section-title { font-size: 13px; font-weight: 600; color: var(--accent-cyan); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.cultivation-root .ws-input { width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-glow); border-radius: 8px; color: var(--text-primary); font-family: inherit; font-size: 14px; box-sizing: border-box; }
+.cultivation-root .ws-input:focus { outline: none; border-color: var(--accent-purple); }
+.cultivation-root .ws-input-row { display: flex; gap: 8px; align-items: center; }
+.cultivation-root .ws-input-row .ws-input { flex: 1; }
+.cultivation-root .ws-rand-btn { padding: 8px 14px; border: 1px solid var(--accent-cyan); border-radius: 8px; background: transparent; color: var(--accent-cyan); font-family: inherit; font-size: 13px; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.cultivation-root .ws-rand-btn:hover { background: rgba(6,182,212,0.15); }
+.cultivation-root .ws-quality-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+@media (max-width: 480px) { .cultivation-root .ws-quality-grid { grid-template-columns: repeat(2, 1fr); } }
+.cultivation-root .ws-quality-btn { padding: 8px; border-radius: 8px; text-align: center; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid; background: transparent; transition: all 0.2s; }
+.cultivation-root .ws-quality-btn:hover { transform: scale(1.03); }
+.cultivation-root .ws-quality-btn.active { box-shadow: inset 0 0 15px rgba(255,255,255,0.1); }
+.cultivation-root .ws-slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.cultivation-root .ws-slider-row input[type="range"] { flex: 1; accent-color: var(--accent-purple); }
+.cultivation-root .ws-slider-val { font-size: 16px; font-weight: 700; color: var(--accent-gold); min-width: 40px; text-align: right; }
+.cultivation-root .ws-slider-label { font-size: 12px; color: var(--text-secondary); min-width: 50px; }
+.cultivation-root .ws-type-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+@media (max-width: 480px) { .cultivation-root .ws-type-grid { grid-template-columns: repeat(2, 1fr); } }
+.cultivation-root .ws-type-btn { padding: 10px 6px; border-radius: 8px; text-align: center; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border-glow); background: transparent; color: var(--text-secondary); transition: all 0.2s; }
+.cultivation-root .ws-type-btn:hover { border-color: var(--accent-purple); color: var(--text-primary); }
+.cultivation-root .ws-type-btn.active { border-color: var(--accent-purple); background: rgba(168,85,247,0.15); color: var(--accent-purple); }
+.cultivation-root .ws-passive-list { display: flex; flex-direction: column; gap: 8px; }
+.cultivation-root .ws-passive-item { padding: 10px; border: 1px solid rgba(168,85,247,0.2); border-radius: 8px; background: rgba(0,0,0,0.15); transition: all 0.2s; }
+.cultivation-root .ws-passive-item.active { border-color: var(--accent-purple); background: rgba(168,85,247,0.1); }
+.cultivation-root .ws-passive-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.cultivation-root .ws-passive-toggle input[type="checkbox"] { accent-color: var(--accent-purple); width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+.cultivation-root .ws-passive-info { flex: 1; }
+.cultivation-root .ws-passive-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.cultivation-root .ws-passive-desc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.cultivation-root .ws-passive-param { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(168,85,247,0.1); display: flex; align-items: center; gap: 8px; }
+.cultivation-root .ws-passive-param input[type="range"] { flex: 1; accent-color: var(--accent-cyan); }
+.cultivation-root .ws-passive-param .param-label { font-size: 11px; color: var(--text-dim); min-width: 50px; white-space: nowrap; }
+.cultivation-root .ws-passive-param .param-val { font-size: 13px; font-weight: 600; color: var(--accent-cyan); min-width: 30px; text-align: right; }
+.cultivation-root .ws-preview { padding: 14px; background: rgba(0,0,0,0.3); border: 1px solid var(--accent-gold); border-radius: 10px; margin-bottom: 16px; }
+.cultivation-root .ws-preview-title { font-size: 13px; color: var(--accent-gold); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.cultivation-root .ws-preview-content { font-size: 13px; color: var(--text-secondary); white-space: pre-wrap; line-height: 1.5; }
+.cultivation-root .ws-action-btns { display: flex; gap: 10px; justify-content: center; }
+.cultivation-root .ws-create-btn { padding: 12px 30px; border: 1px solid var(--accent-gold); border-radius: 10px; background: linear-gradient(135deg, rgba(212,165,116,0.2), rgba(255,215,0,0.1)); color: var(--accent-gold); font-size: 16px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.3s; }
+.cultivation-root .ws-create-btn:hover { box-shadow: var(--glow-gold); transform: translateY(-1px); }
+.cultivation-root .ws-cancel-btn { padding: 12px 24px; border: 1px solid var(--text-dim); border-radius: 10px; background: transparent; color: var(--text-dim); font-size: 14px; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+.cultivation-root .ws-cancel-btn:hover { border-color: var(--text-secondary); color: var(--text-secondary); }
+.cultivation-root .ws-hint { font-size: 11px; color: var(--text-dim); margin-top: 6px; line-height: 1.4; }
+</style>
+
+<div class="cultivation-root" id="cultivationRoot">
+  <div class="dynamic-bg"><div class="bg-orb"></div><div class="bg-orb"></div><div class="bg-orb"></div></div>
+  <div class="panel-content">
+    <details class="panel-details" id="mainPanelDetails">
+      <summary class="panel-summary">
+        <i class="fas fa-yin-yang"></i><span>修炼面板</span>
+        <span class="toggle-arrow"><i class="fas fa-chevron-down"></i></span>
+        <button class="fold-settings-btn" id="foldSettingsBtn" onclick="event.stopPropagation(); CultivationPanel.toggleDefaultFold();" title="切换默认折叠状态">
+          <i class="fas fa-gear"></i><span id="foldSettingsLabel">默认展开</span>
+        </button>
+      </summary>
+      <div style="padding-top:16px;">
+        <div class="panel-title">修炼面板</div>
+        <div id="resetBanner"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;">
+          <div class="char-select-bar" id="charSelectBar" style="margin-bottom:0;flex:1;min-width:0;"></div>
+          <button class="char-manage-btn" onclick="CultivationPanel.openCharManage()"><i class="fas fa-users-gear"></i> 管理</button>
+        </div>
+        <div class="main-grid">
+          <div>
+            <div class="card" style="animation-delay:0.1s">
+              <div class="card-title"><i class="fas fa-scroll"></i> 属性一览</div>
+              <div id="attrPanel"></div>
+              <div class="exp-bar-wrapper"><div class="exp-bar-bg"><div class="exp-bar-fill" id="expBarFill" style="width:0%"></div><div class="exp-text" id="expText">经验: 0</div></div></div>
+              <div id="specialSkills" style="margin-top:8px;"></div>
+            </div>
+            <div class="card" style="animation-delay:0.15s">
+              <div class="card-title"><i class="fas fa-chart-radar"></i> 六维属性</div>
+              <div class="radar-container"><canvas id="radarCanvas" width="260" height="260"></canvas></div>
+            </div>
+          </div>
+          <div>
+            <div class="card train-section" style="animation-delay:0.2s">
+              <div class="card-title"><i class="fas fa-fire"></i> 每日修炼</div>
+              <div id="gongfaBonus" style="margin-bottom:10px;"></div>
+              <div class="train-tiers" id="trainTiers"></div>
+              <button class="train-btn" id="trainBtn" onclick="CultivationPanel.doTrain()"><i class="fas fa-hand-sparkles"></i> 开始修炼</button>
+              <div style="text-align:center;margin-top:8px;font-size:12px;color:var(--text-dim);" id="trainStatus"></div>
+            </div>
+            <div class="card auto-train-card" style="animation-delay:0.22s">
+              <div class="card-title"><i class="fas fa-robot"></i> 托管修炼</div>
+              <div class="auto-train-toggle-row">
+                <span class="toggle-label"><i class="fas fa-wand-magic-sparkles"></i> 启用自动修炼</span>
+                <label class="toggle-switch"><input type="checkbox" id="autoTrainToggle" onchange="CultivationPanel.toggleAutoTrain(this.checked)"><span class="toggle-slider"></span></label>
+              </div>
+              <div style="font-size:11px;color:var(--text-dim);margin-bottom:10px;">启用后，每日重置时非主角角色将按设定档位自动修炼</div>
+              <div class="auto-train-list" id="autoTrainList"></div>
+            </div>
+            <div class="card gacha-section" style="animation-delay:0.3s">
+              <div class="card-title"><i class="fas fa-dice-d20"></i> 天机抽奖</div>
+              <div class="gacha-info"><span>免费次数: <strong id="gachaFreeCount">0</strong></span><span>单次消耗: <strong>50经验</strong></span></div>
+              <div class="gacha-btns">
+                <button class="gacha-btn" onclick="CultivationPanel.doGacha(1)"><i class="fas fa-star"></i> 抽取x1</button>
+                <button class="gacha-btn" onclick="CultivationPanel.doGacha(5)"><i class="fas fa-star-of-life"></i> 连抽x5</button>
+              </div>
+            </div>
+            <div class="card forge-section" style="animation-delay:0.35s">
+              <div class="card-title"><i class="fas fa-hammer"></i> 锻造 & 工坊</div>
+              <div class="forge-btns">
+                <button class="forge-btn" onclick="CultivationPanel.doForge()"><i class="fas fa-fire-flame-curved"></i> 请求锻造</button>
+                <button class="forge-btn" onclick="CultivationPanel.toggleImport()" style="border-color:var(--accent-cyan);color:var(--accent-cyan);background:linear-gradient(135deg, rgba(6,182,212,0.15), rgba(6,182,212,0.05));"><i class="fas fa-file-import"></i> 手动导入</button>
+                <button class="forge-btn" onclick="CultivationPanel.loadRecipes()" style="border-color:var(--accent-green);color:var(--accent-green);background:linear-gradient(135deg, rgba(34,197,94,0.15), rgba(34,197,94,0.05));"><i class="fas fa-book-bookmark"></i> 配方库</button>
+                <button class="forge-btn" onclick="CultivationPanel.openWorkshop()" style="border-color:var(--accent-gold);color:var(--accent-gold);background:linear-gradient(135deg, rgba(212,165,116,0.15), rgba(212,165,116,0.05));"><i class="fas fa-wand-sparkles"></i> 创意工坊</button>
+              </div>
+              <div class="forge-import-area" id="forgeImportArea">
+                <textarea class="forge-textarea" id="forgeImportInput" placeholder='粘贴物品JSON，格式如：&#10;{"id":"custom_01","类别":"武功","名称":"xxx","品质":"精品",...}&#10;支持单个对象或数组'></textarea>
+                <div style="display:flex;gap:8px;margin-top:8px;">
+                  <button class="forge-import-btn" onclick="CultivationPanel.importItems()"><i class="fas fa-check"></i> 确认导入</button>
+                  <button class="forge-import-btn" onclick="CultivationPanel.clearImport()" style="border-color:var(--accent-red);color:var(--accent-red);"><i class="fas fa-xmark"></i> 清空</button>
+                </div>
+                <div class="forge-recipe-hint">提示：也可从锻造配方库复制物品JSON进行导入。</div>
+              </div>
+              <div class="forge-import-area" id="forgeRecipeArea"><div id="recipeList" style="max-height:280px;overflow-y:auto;"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="animation-delay:0.4s">
+          <div class="card-title"><i class="fas fa-suitcase"></i> 储物袋</div>
+          <div class="tab-bar" id="invTabs"></div>
+          <div class="inv-toolbar" id="invToolbar">
+            <label class="inv-toolbar-label"><input type="checkbox" id="invSelectAll" onchange="CultivationPanel.toggleSelectAll(this.checked)"><span>全选</span></label>
+            <span class="selected-count" id="invSelectedCount">已选 0 件</span>
+            <span class="inv-toolbar-spacer"></span>
+            <button class="inv-toolbar-btn batch-exchange" onclick="CultivationPanel.batchExchange()" id="batchExchangeBtn" disabled><i class="fas fa-coins"></i> 批量兑换</button>
+            <button class="inv-toolbar-btn batch-discard" onclick="CultivationPanel.batchDiscard()" id="batchDiscardBtn" disabled><i class="fas fa-trash-can"></i> 批量丢弃</button>
+          </div>
+          <div class="inv-list" id="invList"></div>
+        </div>
+        <div class="card equipped-section" style="animation-delay:0.45s">
+          <div class="card-title"><i class="fas fa-shield-halved"></i> 已装备</div>
+          <div class="equip-grid" id="equipGrid"></div>
+          <div class="equipped-skills" id="equippedSkills"></div>
+        </div>
+      </div>
+    </details>
+  </div>
+  <div class="gacha-overlay" id="gachaOverlay"><div class="gacha-result-card" id="gachaResultCard"></div></div>
+  <div class="confirm-overlay" id="confirmOverlay"><div class="confirm-card" id="confirmCard"></div></div>
+  <div class="manage-overlay" id="charManageOverlay"><div class="manage-panel" id="charManagePanel"></div></div>
+  <div class="workshop-overlay" id="workshopOverlay"><div class="workshop-panel" id="workshopPanel"></div></div>
+  <div class="toast-container" id="toastContainer"></div>
+</div>
+
+<script>
+const WI_FILE = "{被酒莫惊春睡重，赌书消得泼茶香}";
+const ATTR_UID = "46";
+const INVENTORY_UID = "47";
+const SUMMARY_UID = "48";
+const FORGE_UID = "51";
+
+window.CultivationPanel = (function() {
+  const hasTS = typeof triggerSlash === 'function';
+  const hasVars = typeof getAllVariables === 'function';
+  const hasLodash = typeof _ !== 'undefined' && typeof _.get === 'function';
+
+  let allVars = {}, attrData = {}, invData = { "背包": [], "已装备": {} };
+  let currentChar = "主角", selectedTier = 0, currentInvTab = "全部";
+  let selectedItemIds = new Set();
+
+  const INV_TABS = ["全部", "武功", "功法", "装备", "丹药"];
+  const TRAIN_TIERS = [
+    { name: "粗浅修炼", exp: 30, icon: "fas fa-seedling" },
+    { name: "勤勉修炼", exp: 80, icon: "fas fa-dumbbell" },
+    { name: "苦心修炼", exp: 180, icon: "fas fa-bolt" },
+    { name: "闭关修炼", exp: 350, icon: "fas fa-mountain" }
+  ];
+  const QUALITIES = [
+    { name: "凡品", weight: 40, color: "#9e9e9e", mult: 1 },
+    { name: "良品", weight: 28, color: "#4caf50", mult: 1.5 },
+    { name: "精品", weight: 18, color: "#2196f3", mult: 2.2 },
+    { name: "极品", weight: 9, color: "#9c27b0", mult: 3.5 },
+    { name: "传说", weight: 4, color: "#ff9800", mult: 5.5 },
+    { name: "神话", weight: 1, color: "#f44336", mult: 9 }
+  ];
+  const EXCHANGE_EXP = { "凡品": 10, "良品": 25, "精品": 60, "极品": 120, "传说": 250, "神话": 500 };
+  const ATTRS = ["攻击力","防御力","内功","轻功","悟性"];
+  const PILL_TEMPLATES = [
+    { prefix: ["培元","壮骨","淬体","固本"], attr: "攻击力" },
+    { prefix: ["玄铁","龟息","金刚","厚土"], attr: "防御力" },
+    { prefix: ["凝神","聚灵","通脉","天元"], attr: "内功" },
+    { prefix: ["清风","踏雪","鸿影","灵犀"], attr: "轻功" },
+    { prefix: ["明心","启智","破障","悟道"], attr: "悟性" },
+    { prefix: ["回春","养气","补天","延寿"], attr: "内功" }
+  ];
+  const PILL_SUFFIXES = ["丹","散","膏","露","饮","丸","液","粉"];
+  const SKILL_EFFECT_GROUPS = {
+    "火焰": { cores: ["烈焰","焚天","赤火","炎阳","灼日","焰灵","天火"], effects: ["灼烧"] },
+    "寒冰": { cores: ["寒冰","冰魄","霜雪","凝霜","冻天","玄冰","极寒"], effects: ["冰冻"] },
+    "雷电": { cores: ["雷霆","紫电","天雷","奔雷","裂电","惊雷","震天"], effects: ["眩晕"] },
+    "毒蛊": { cores: ["蚀毒","幽蛊","毒龙","百毒","噬魂","蛇影","瘴气"], effects: ["中毒"] },
+    "风刃": { cores: ["狂风","碎空","裂风","破空","疾风","刃风","风暴"], effects: ["流血"] },
+    "大力": { cores: ["碎岩","裂天","崩山","灭世","天罡","覆地","苍穹"], effects: ["束缚","流血"] },
+    "暗影": { cores: ["暗影","幽冥","噬灵","夺魂","鬼影","冥爪","断魂"], effects: ["即死"] },
+    "柔水": { cores: ["流水","明月","太极","飞花","落叶","惊鸿","柔云"], effects: ["减益"] }
+  };
+  const SKILL_ATTACK_SUFFIX = ["掌","剑法","拳","指","腿法","爪功","刀法","枪法","鞭法"];
+  const SKILL_HEAL_CORES = ["慈航","净世","回春","妙手","济世","菩提","普度","甘露","仙露"];
+  const SKILL_HEAL_SUFFIX = ["术","法","掌","诀","功"];
+  const SKILL_BUFF_CORES = ["天罡","护体","金身","不动","铁壁","明王","真元","太虚"];
+  const SKILL_BUFF_SUFFIX = ["决","功","法","术","阵"];
+  const EFFECT_PARAMS = {
+    "灼烧": { paramName: "每回合伤害", base: 5, scale: 6 },
+    "冰冻": { paramName: "减速(%)", base: 15, scale: 15 },
+    "眩晕": { paramName: "持续回合", base: 1, scale: 2 },
+    "中毒": { paramName: "每回合伤害", base: 4, scale: 7 },
+    "流血": { paramName: "每回合伤害", base: 3, scale: 5 },
+    "束缚": { paramName: "持续回合", base: 1, scale: 2 },
+    "即死": { paramName: "触发概率(%)", base: 3, scale: 8 },
+    "减益": { paramName: "降低(%)", base: 8, scale: 12 },
+    "治疗": { paramName: "恢复量", base: 10, scale: 20 },
+    "增益": { paramName: "提升(%)", base: 8, scale: 15 },
+    "反弹": { paramName: "反弹比例(%)", base: 10, scale: 20 }
+  };
+  const WEAPON_NAMES = { prefixes: ["寒铁","玄钢","赤金","陨铁","精钢","白银","墨玉","星辰","龙骨","凤翎","冰晶","天雷"], types: ["剑","刀","枪","棍","鞭","戟","锤","斧","扇"] };
+  const ARMOR_NAMES = { prefixes: ["锦绣","流云","玄武","青龙","朱雀","白虎","星罗","天蚕","冰蚕","紫电"], types: ["衣","袍","甲","铠"] };
+  const ACCS_NAMES = { prefixes: ["明月","星辰","流光","灵犀","琉璃","翡翠","琥珀","珊瑚","暗影","幻梦"], types: ["环","链","佩","簪","带","冠","印","符"] };
+  const GONGFA_CORE = ["太虚","混元","九转","天罡","紫微","北斗","先天","鸿蒙","乾坤","万象","璇玑","玄天","无量","大衍","周天","阴阳","五行","造化"];
+  const GONGFA_SUFFIX = ["诀","经","功","术","法","典","篇","录","真解","秘要"];
+  const GONGFA_PASSIVES = [
+    {type:"回合攻击叠加", desc:"每回合攻击力叠加", paramName:"叠加值", isPercent:false, base:2, scale:4},
+    {type:"免伤", desc:"受到伤害时减免固定值", paramName:"减免值", isPercent:false, base:3, scale:6},
+    {type:"防御力提升", desc:"提高防御力", paramName:"提升(%)", isPercent:true, base:5, scale:10},
+    {type:"攻击力提升", desc:"提高攻击力", paramName:"提升(%)", isPercent:true, base:5, scale:10},
+    {type:"自动回血", desc:"每回合自动恢复生命", paramName:"恢复量", isPercent:false, base:3, scale:8},
+    {type:"叠加印记", desc:"攻击叠加印记满5层引爆造成额外伤害", paramName:"每层伤害", isPercent:false, base:4, scale:6},
+    {type:"反伤", desc:"受击时反弹部分伤害", paramName:"反伤(%)", isPercent:true, base:5, scale:12},
+    {type:"暴击率", desc:"提高暴击概率", paramName:"暴击率(%)", isPercent:true, base:3, scale:8},
+    {type:"行动点回复", desc:"每回合额外回复行动点", paramName:"回复量", isPercent:false, base:1, scale:2}
+  ];
+
+  /* ========== 工具函数 ========== */
+  function rand(n) { return Math.floor(Math.random() * n); }
+  function pick(arr) { return arr[rand(arr.length)]; }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function rollQuality() { let total = QUALITIES.reduce((s,q)=>s+q.weight,0), r = Math.random()*total; for (const q of QUALITIES) { r -= q.weight; if (r <= 0) return q; } return QUALITIES[0]; }
+  function getQualityColor(name) { const q = QUALITIES.find(q=>q.name===name); return q ? q.color : "#9e9e9e"; }
+  function getQualityMult(name) { const q = QUALITIES.find(q=>q.name===name); return q ? q.mult : 1; }
+
+  /* ========== 物品生成器（保持不变） ========== */
+  function generatePill(quality) { const tmpl=pick(PILL_TEMPLATES),name=pick(tmpl.prefix)+pick(PILL_SUFFIXES),isPercent=Math.random()>0.45,value=isPercent?Math.floor(quality.mult*(3+rand(8))):Math.floor(quality.mult*(2+rand(6))),effectStr=`${tmpl.attr}${isPercent?'+'+value+'%':'+'+value}`; return {id:uid(),类别:"丹药",名称:name,品质:quality.name,效果:effectStr,数量:1,_desc:`服用后${tmpl.attr}永久${isPercent?'提升'+value+'%':'增加'+value+'点'}`}; }
+  function generateSkill(quality) { const targetRoll=Math.random(); let targetType,name,effects=[]; if(targetRoll<0.5){targetType="单体攻击";const gk=pick(Object.keys(SKILL_EFFECT_GROUPS)),g=SKILL_EFFECT_GROUPS[gk];name=pick(g.cores)+pick(SKILL_ATTACK_SUFFIX);const ec=quality.mult>=3?(1+rand(2)):(Math.random()>0.4?1:0),ue=new Set();for(let i=0;i<ec;i++){const et=pick(g.effects);if(ue.has(et))continue;ue.add(et);const ep=EFFECT_PARAMS[et],val=Math.floor(quality.mult*(ep.base+rand(ep.scale))),prob=Math.min(100,Math.floor(30+quality.mult*10+rand(20)));effects.push({类型:et,描述:ep.paramName==="触发概率(%)"?`${prob}%概率直接击杀目标`:`命中后使目标${et}，${ep.paramName}:${val}`,[ep.paramName]:val,"概率(%)":prob});}}else if(targetRoll<0.7){targetType="群体攻击";const gk=pick(Object.keys(SKILL_EFFECT_GROUPS).filter(k=>k!=="暗影")),g=SKILL_EFFECT_GROUPS[gk];name=pick(g.cores)+pick(SKILL_ATTACK_SUFFIX);if(quality.mult>=2&&Math.random()>0.4){const et=pick(g.effects),ep=EFFECT_PARAMS[et],val=Math.floor(quality.mult*(ep.base+rand(ep.scale))*0.7);effects.push({类型:et,描述:`范围${et}，${ep.paramName}:${val}`,[ep.paramName]:val,"概率(%)":Math.min(80,Math.floor(20+quality.mult*8))});}}else if(targetRoll<0.85){targetType="队友治疗";name=pick(SKILL_HEAL_CORES)+pick(SKILL_HEAL_SUFFIX);const ep=EFFECT_PARAMS["治疗"],val=Math.floor(quality.mult*(ep.base+rand(ep.scale)));effects.push({类型:"治疗",描述:`以内力为队友恢复生命，恢复量:${val}`,恢复量:val,"概率(%)":100});}else{targetType="自身增益";name=pick(SKILL_BUFF_CORES)+pick(SKILL_BUFF_SUFFIX);if(Math.random()<0.6){const ep=EFFECT_PARAMS["增益"],val=Math.floor(quality.mult*(ep.base+rand(ep.scale)));effects.push({类型:"增益",描述:`提高自身攻击力${val}%`,"提升(%)":val,"概率(%)":100});}else{const ep=EFFECT_PARAMS["反弹"],val=Math.floor(quality.mult*(ep.base+rand(ep.scale)));effects.push({类型:"反弹",描述:`将受到伤害的${val}%反弹给攻击者`,"反弹比例(%)":val,"概率(%)":100});}} const range=targetType.includes("群体")?(2+rand(3)):(targetType==="队友治疗"?(2+rand(2)):(1+rand(2))),dmgMult=targetType==="队友治疗"?0:parseFloat((quality.mult*(0.8+Math.random()*0.8)).toFixed(1)),neigongReq=Math.floor(quality.mult*(5+rand(10))); return {id:uid(),类别:"武功",名称:name,品质:quality.name,类型:targetType,攻击范围:range,伤害倍率:dmgMult,效果:effects,内功需求:neigongReq}; }
+  function generateEquipment(quality) { const r=Math.random(); if(r<0.35){const name=pick(WEAPON_NAMES.prefixes)+pick(WEAPON_NAMES.types),atk=Math.floor(quality.mult*(3+rand(8))),extras={};if(Math.random()>0.5)extras["内功"]=Math.floor(quality.mult*(1+rand(4)));if(Math.random()>0.6)extras["悟性"]=Math.floor(quality.mult*(1+rand(3)));return{id:uid(),类别:"装备",名称:name,品质:quality.name,部位:"武器",属性加成:{"攻击力":atk,...extras}};}else if(r<0.7){const name=pick(ARMOR_NAMES.prefixes)+pick(ARMOR_NAMES.types),def=Math.floor(quality.mult*(3+rand(8))),extras={};if(Math.random()>0.5)extras["内功"]=Math.floor(quality.mult*(1+rand(3)));return{id:uid(),类别:"装备",名称:name,品质:quality.name,部位:"防具",属性加成:{"防御力":def,...extras}};}else{const name=pick(ACCS_NAMES.prefixes)+pick(ACCS_NAMES.types),attr=pick(ATTRS),val=Math.floor(quality.mult*(2+rand(5))),extras={};extras[attr]=val;if(Math.random()>0.5){const a2=pick(ATTRS.filter(a=>a!==attr));extras[a2]=Math.floor(quality.mult*(1+rand(3)));}return{id:uid(),类别:"装备",名称:name,品质:quality.name,部位:"饰品",属性加成:extras};} }
+  function generateGongfa(quality) { const name=pick(GONGFA_CORE)+pick(GONGFA_SUFFIX),expMult=parseFloat((1+quality.mult*0.3).toFixed(1)),pc=quality.mult>=3?2:1,passives=[],ut=new Set(); for(let i=0;i<pc;i++){let p;do{p=pick(GONGFA_PASSIVES);}while(ut.has(p.type));ut.add(p.type);const val=Math.floor(quality.mult*(p.base+rand(p.scale))),ds=p.isPercent?`${p.desc}${val}%`:`${p.desc}${val}`;passives.push({类型:p.type,描述:ds,[p.paramName]:val});}return{id:uid(),类别:"功法",名称:name,品质:quality.name,经验倍率:expMult,被动效果:passives}; }
+  function generateRandomItem() { const quality=rollQuality(),r=Math.random(); if(r<0.30)return generatePill(quality);if(r<0.55)return generateSkill(quality);if(r<0.80)return generateEquipment(quality);return generateGongfa(quality); }
+
+  function formatItemEffect(item) {
+    if(item["类别"]==="丹药")return item["_desc"]||item["效果"]||'';
+    else if(item["类别"]==="武功"){let text=`${item["类型"]} | 范围:${item["攻击范围"]}`;if(item["伤害倍率"]>0)text+=` | 倍率:${item["伤害倍率"]}x`;text+=` | 内功需求:${item["内功需求"]}`;if(item["效果"]&&item["效果"].length>0){text+='\n'+item["效果"].map(e=>{let d=`[${e["类型"]}] ${e["描述"]}`;if(e["概率(%)"]!==undefined&&e["概率(%)"]<100)d+=` (${e["概率(%)"]}%触发)`;return d;}).join('\n');}return text;}
+    else if(item["类别"]==="功法"){let text=`经验倍率 x${item["经验倍率"]}`;if(item["被动效果"]&&item["被动效果"].length>0){text+='\n'+item["被动效果"].map(p=>{let d=`[${p["类型"]}] ${p["描述"]}`;for(const k in p){if(k!=="类型"&&k!=="描述")d+=` | ${k}:${p[k]}`;}return d;}).join('\n');}return text;}
+    else if(item["类别"]==="装备"){const b=item["属性加成"]||{};return `${item["部位"]} | ${Object.entries(b).map(([k,v])=>k+' +'+v).join(' ')}`;}return '';
+  }
+
+  function showToast(msg,type){type=type||'info';const c=document.getElementById('toastContainer');if(!c)return;const t=document.createElement('div');t.className='toast '+type;t.textContent=msg;c.appendChild(t);setTimeout(()=>{if(t.parentNode)t.parentNode.removeChild(t);},3000);}
+  let confirmCallback=null;
+  function showConfirm(title,msg,onConfirm){const o=document.getElementById('confirmOverlay'),c=document.getElementById('confirmCard');if(!o||!c){if(onConfirm)onConfirm();return;}confirmCallback=onConfirm;c.innerHTML=`<div class="confirm-title">${title}</div><div class="confirm-msg">${msg}</div><div class="confirm-btns"><button class="confirm-btn no" onclick="CultivationPanel.closeConfirm(false)">取消</button><button class="confirm-btn yes" onclick="CultivationPanel.closeConfirm(true)">确认</button></div>`;o.classList.add('show');}
+  function closeConfirm(ok){const o=document.getElementById('confirmOverlay');if(o)o.classList.remove('show');if(ok&&confirmCallback)confirmCallback();confirmCallback=null;}
+
+  /* ========== 数据读写 ========== */
+  async function loadAttrData(){if(!hasTS){showToast("triggerSlash未找到","error");return;}try{const raw=await triggerSlash(`/getentryfield file="${WI_FILE}" field=content ${ATTR_UID}`);if(raw&&raw.trim()&&raw.trim()!=='null')attrData=JSON.parse(raw);}catch(e){console.error("加载属性失败:",e);showToast("属性数据加载失败","error");}}
+  async function loadInvData(){if(!hasTS)return;try{const raw=await triggerSlash(`/getentryfield file="${WI_FILE}" field=content ${INVENTORY_UID}`);if(raw&&raw.trim()&&raw.trim()!=='null')invData=JSON.parse(raw);}catch(e){console.error("加载物品失败:",e);showToast("物品仓库加载失败","error");}}
+  async function saveAttrData(){if(!hasTS)return;try{await triggerSlash(`/setentryfield file="${WI_FILE}" uid=${ATTR_UID} field=content ${JSON.stringify(attrData)}`);}catch(e){console.error("保存属性失败:",e);}}
+  async function saveInvData(){if(!hasTS)return;try{await triggerSlash(`/setentryfield file="${WI_FILE}" uid=${INVENTORY_UID} field=content ${JSON.stringify(invData)}`);}catch(e){console.error("保存物品失败:",e);}}
+  async function updateSummary(){if(!hasTS)return;try{const bagItems=invData["背包"]||[];let summary=`[角色战斗能力概要]\n`;for(const cName of Object.keys(attrData)){if(cName==="上次操作日期")continue;const ca=attrData[cName],ce=invData["已装备"]&&invData["已装备"][cName]?invData["已装备"][cName]:{};summary+=`\n--- ${cName} ---\n`;summary+=`攻:${ca["攻击力"]||0} 防:${ca["防御力"]||0} 内功:${ca["内功"]||0} 轻功:${ca["轻功"]||0} 悟性:${ca["悟性"]||0}\n`;if(ce["功法"]){const gf=bagItems.find(i=>i.id===ce["功法"]);if(gf)summary+=`功法:${gf["名称"]}(${gf["品质"]})\n`;}if(ce["武功"]&&ce["武功"].length>0){summary+=`武功:${ce["武功"].map(id=>{const s=bagItems.find(i=>i.id===id);return s?s["名称"]:"?";}).join(",")}\n`;}for(const part of["武器","防具","饰品"]){if(ce["装备"]&&ce["装备"][part]){const eq=bagItems.find(i=>i.id===ce["装备"][part]);if(eq)summary+=`${part}:${eq["名称"]}(${eq["品质"]})\n`;}}if(ca["特殊技能"]&&ca["特殊技能"].length>0)summary+=`特殊技能:${ca["特殊技能"].join(",")}\n`;}await triggerSlash(`/setentryfield file="${WI_FILE}" uid=${SUMMARY_UID} field=content ${summary}`);}catch(e){console.error("更新概要失败:",e);}}
+
+  /* ========== 每日重置 ========== */
+  function getCurrentDateStr(){if(hasVars&&hasLodash){try{allVars=getAllVariables();}catch(e){allVars={};}}if(!hasVars||!hasLodash)return null;const y=Number(_.get(allVars,'stat_data.世界信息.历法.年',0)),m=Number(_.get(allVars,'stat_data.世界信息.历法.月',0)),d=Number(_.get(allVars,'stat_data.世界信息.历法.日',0));if(y===0&&m===0&&d===0)return null;return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;}
+  async function checkDailyReset(){const today=getCurrentDateStr();if(!today)return false;const lastDate=attrData["上次操作日期"]||"0-00-00";if(today===lastDate)return false;attrData["上次操作日期"]=today;for(const key of Object.keys(attrData)){if(key==="上次操作日期")continue;const ca=attrData[key];if(ca&&typeof ca==='object'&&!Array.isArray(ca)){ca["今日已修炼"]=false;ca["今日免费抽奖次数"]=3;}}await processAutoTrain();await saveAttrData();return true;}
+
+  /* ========== 角色列表 ========== */
+  const BLOCKED_KEY='cultivation_blocked_chars',DELETED_KEY='cultivation_deleted_chars';
+  function getBlockedChars(){try{return JSON.parse(localStorage.getItem(BLOCKED_KEY)||'[]');}catch(e){return[];}}
+  function setBlockedChars(l){try{localStorage.setItem(BLOCKED_KEY,JSON.stringify(l));}catch(e){}}
+  function getDeletedChars(){try{return JSON.parse(localStorage.getItem(DELETED_KEY)||'[]');}catch(e){return[];}}
+  function setDeletedChars(l){try{localStorage.setItem(DELETED_KEY,JSON.stringify(l));}catch(e){}}
+  function getCharList(){const chars=["主角"];if(hasVars&&hasLodash){allVars=getAllVariables();const fc=_.get(allVars,'stat_data.女性角色',{}),mc=_.get(allVars,'stat_data.男性角色',{});for(const n of Object.keys(fc))if(!chars.includes(n))chars.push(n);for(const n of Object.keys(mc))if(!chars.includes(n))chars.push(n);}const bl=getBlockedChars(),dl=getDeletedChars();return chars.filter(c=>!bl.includes(c)&&!dl.includes(c));}
+  function getAllCharList(){const chars=["主角"];if(hasVars&&hasLodash){allVars=getAllVariables();const fc=_.get(allVars,'stat_data.女性角色',{}),mc=_.get(allVars,'stat_data.男性角色',{});for(const n of Object.keys(fc))if(!chars.includes(n))chars.push(n);for(const n of Object.keys(mc))if(!chars.includes(n))chars.push(n);}const dl=getDeletedChars();for(const d of dl)if(!chars.includes(d))chars.push(d);return chars;}
+  function getEquippedIds(){const s=new Set();for(const cN of Object.keys(invData["已装备"]||{})){const ce=invData["已装备"][cN];if(ce["功法"])s.add(ce["功法"]);(ce["武功"]||[]).forEach(id=>s.add(id));if(ce["装备"])Object.values(ce["装备"]).forEach(id=>{if(id)s.add(id);});}return s;}
+
+  /* ========== 角色管理 ========== */
+  function blockChar(n){if(n==="主角"){showToast("无法屏蔽主角","error");return;}const l=getBlockedChars();if(!l.includes(n)){l.push(n);setBlockedChars(l);}if(currentChar===n)currentChar="主角";renderCharManage();renderAll();showToast(`已屏蔽: ${n}`,"info");}
+  function unblockChar(n){setBlockedChars(getBlockedChars().filter(c=>c!==n));renderCharManage();renderAll();showToast(`已恢复: ${n}`,"success");}
+  function deleteChar(n){if(n==="主角"){showToast("无法删除主角","error");return;}showConfirm('确认删除角色',`确定要永久删除「${n}」吗？\n将清除修炼数据和装备。`,async function(){delete attrData[n];if(invData["已装备"]&&invData["已装备"][n])delete invData["已装备"][n];const l=getDeletedChars();if(!l.includes(n)){l.push(n);setDeletedChars(l);}setBlockedChars(getBlockedChars().filter(c=>c!==n));if(currentChar===n)currentChar="主角";await saveAttrData();await saveInvData();if(hasTS)try{await triggerSlash(`/echo severity=warning 角色「${n}」已从修炼面板删除。`);}catch(e){}renderCharManage();renderAll();showToast(`已删除: ${n}`,"warning");});}
+  function openCharManage(){renderCharManage();document.getElementById('charManageOverlay')?.classList.add('show');}
+  function closeCharManage(){document.getElementById('charManageOverlay')?.classList.remove('show');}
+  function renderCharManage(){const p=document.getElementById('charManagePanel');if(!p)return;const all=getAllCharList(),bl=getBlockedChars(),dl=getDeletedChars();let h=`<h3><i class="fas fa-users-gear"></i> 角色管理</h3>`;all.forEach(n=>{const isProt=n==="主角",isBl=bl.includes(n),isDl=dl.includes(n);let tag='',act='';if(isProt)tag='<span class="manage-char-tag protagonist">主角</span>';else if(isDl)tag='<span class="manage-char-tag blocked">已删除</span>';else if(isBl){tag='<span class="manage-char-tag blocked">已屏蔽</span>';act=`<button class="manage-action-btn unblock-btn" onclick="CultivationPanel.unblockChar('${n}')">恢复</button>`;}else act=`<button class="manage-action-btn block-btn" onclick="CultivationPanel.blockChar('${n}')">屏蔽</button><button class="manage-action-btn delete-btn" onclick="CultivationPanel.deleteChar('${n}')">删除</button>`;h+=`<div class="manage-char-item"><span class="manage-char-name">${n}</span>${tag}<div style="display:flex;gap:4px;">${act}</div></div>`;});h+=`<button class="manage-close-btn" onclick="CultivationPanel.closeCharManage()">关闭</button>`;p.innerHTML=h;}
+
+  /* ========== 自动修炼 ========== */
+  const AUTO_TRAIN_KEY='cultivation_auto_train';
+  function getAutoTrainConfig(){try{return JSON.parse(localStorage.getItem(AUTO_TRAIN_KEY)||'{"enabled":false,"chars":{}}');}catch(e){return{enabled:false,chars:{}};}}
+  function setAutoTrainConfig(c){try{localStorage.setItem(AUTO_TRAIN_KEY,JSON.stringify(c));}catch(e){}}
+  function toggleAutoTrain(en){const c=getAutoTrainConfig();c.enabled=en;setAutoTrainConfig(c);renderAutoTrainList();showToast(en?'托管修炼已开启':'托管修炼已关闭','info');}
+  function setAutoTrainTier(cn,ti){const c=getAutoTrainConfig();if(!c.chars)c.chars={};c.chars[cn]=parseInt(ti);setAutoTrainConfig(c);}
+  async function processAutoTrain(){const config=getAutoTrainConfig();if(!config.enabled)return;const chars=getCharList().filter(c=>c!=="主角");let tc=0;for(const cN of chars){const ca=attrData[cN];if(!ca||ca["今日已修炼"])continue;const ti=(config.chars&&config.chars[cN]!==undefined)?config.chars[cN]:0,tier=TRAIN_TIERS[ti]||TRAIN_TIERS[0],wux=ca["悟性"]||0,ce=invData["已装备"]&&invData["已装备"][cN]?invData["已装备"][cN]:{};let gfM=1;if(ce["功法"]){const gf=(invData["背包"]||[]).find(i=>i.id===ce["功法"]);if(gf&&gf["经验倍率"])gfM=gf["经验倍率"];}const exp=Math.floor(tier.exp*(1+wux/100)*gfM);ca["经验值"]=(ca["经验值"]||0)+exp;ca["今日已修炼"]=true;tc++;}if(tc>0)showToast(`托管修炼: ${tc}位角色已自动修炼`,"success");}
+  function renderAutoTrainList(){const l=document.getElementById('autoTrainList'),tg=document.getElementById('autoTrainToggle');if(!l)return;const config=getAutoTrainConfig();if(tg)tg.checked=config.enabled;const chars=getCharList().filter(c=>c!=="主角");if(chars.length===0){l.innerHTML='<div style="text-align:center;font-size:12px;color:var(--text-dim);padding:10px;">暂无其他角色</div>';return;}l.innerHTML='';chars.forEach(cn=>{const si=(config.chars&&config.chars[cn]!==undefined)?config.chars[cn]:0,d=document.createElement('div');d.className='auto-train-item';d.innerHTML=`<span class="at-name">${cn}</span><select onchange="CultivationPanel.setAutoTrainTier('${cn}',this.value)" ${!config.enabled?'disabled':''}>${TRAIN_TIERS.map((t,i)=>`<option value="${i}" ${i===si?'selected':''}>${t.name}(+${t.exp})</option>`).join('')}</select>`;l.appendChild(d);});}
+
+  /* ========== 折叠偏好 ========== */
+  const FOLD_STORAGE_KEY='cultivation_panel_default_fold';
+  function loadFoldPreference(){try{return localStorage.getItem(FOLD_STORAGE_KEY)==='true';}catch(e){return false;}}
+  function saveFoldPreference(f){try{localStorage.setItem(FOLD_STORAGE_KEY,f?'true':'false');}catch(e){}}
+  function applyFoldPreference(){const f=loadFoldPreference(),d=document.getElementById('mainPanelDetails'),b=document.getElementById('foldSettingsBtn'),l=document.getElementById('foldSettingsLabel');if(d){if(f)d.removeAttribute('open');else d.setAttribute('open','');}if(b)b.classList.toggle('is-folded',f);if(l)l.textContent=f?'默认折叠':'默认展开';}
+  function toggleDefaultFold(){const n=!loadFoldPreference();saveFoldPreference(n);applyFoldPreference();showToast(n?'已设置为默认折叠':'已设置为默认展开','info');}
+
+  /* ========== 【重构】创意工坊 ========== */
+  const WS_MODES = ['功法','武功','装备'];
+  let wsState = { mode: '功法', name: '', quality: '精品',
+    gf: { expMult: 1.7, selectedPassives: [], passiveParams: {} },
+    wg: { type: '单体攻击', element: '火焰', range: 2, dmgMult: 1.5, neigongReq: 15, selectedEffects: [], effectParams: {} },
+    zb: { slot: '武器', attrs: { 攻击力: 8, 防御力: 0, 内功: 0, 轻功: 0, 悟性: 0 } }
+  };
+
+  function wsResetState() {
+    wsState = { mode: '功法', name: '', quality: '精品',
+      gf: { expMult: 1.7, selectedPassives: [], passiveParams: {} },
+      wg: { type: '单体攻击', element: '火焰', range: 2, dmgMult: 1.5, neigongReq: 15, selectedEffects: [], effectParams: {} },
+      zb: { slot: '武器', attrs: { 攻击力: 8, 防御力: 0, 内功: 0, 轻功: 0, 悟性: 0 } }
+    };
+  }
+
+  function openWorkshop() { wsResetState(); renderWorkshop(); document.getElementById('workshopOverlay')?.classList.add('show'); }
+  function closeWorkshop() { document.getElementById('workshopOverlay')?.classList.remove('show'); }
+  function wsSetMode(m) { wsState.mode = m; wsState.name = ''; renderWorkshop(); }
+
+  function wsRandomName() {
+    if (wsState.mode === '功法') wsState.name = pick(GONGFA_CORE) + pick(GONGFA_SUFFIX);
+    else if (wsState.mode === '武功') {
+      const s = wsState.wg;
+      if (s.type === '队友治疗') wsState.name = pick(SKILL_HEAL_CORES) + pick(SKILL_HEAL_SUFFIX);
+      else if (s.type === '自身增益') wsState.name = pick(SKILL_BUFF_CORES) + pick(SKILL_BUFF_SUFFIX);
+      else { const g = SKILL_EFFECT_GROUPS[s.element]; wsState.name = pick(g ? g.cores : ["无名"]) + pick(SKILL_ATTACK_SUFFIX); }
+    } else {
+      const s = wsState.zb;
+      if (s.slot === '武器') wsState.name = pick(WEAPON_NAMES.prefixes) + pick(WEAPON_NAMES.types);
+      else if (s.slot === '防具') wsState.name = pick(ARMOR_NAMES.prefixes) + pick(ARMOR_NAMES.types);
+      else wsState.name = pick(ACCS_NAMES.prefixes) + pick(ACCS_NAMES.types);
+    }
+    renderWorkshop();
+  }
+
+  function wsSetQuality(q) {
+    wsState.quality = q;
+    const mult = getQualityMult(q);
+    wsState.gf.expMult = parseFloat(Math.min(1 + mult * 0.5, Math.max(1 + mult * 0.1, wsState.gf.expMult)).toFixed(1));
+    const maxP = mult >= 3 ? 2 : 1;
+    if (wsState.gf.selectedPassives.length > maxP) wsState.gf.selectedPassives = wsState.gf.selectedPassives.slice(0, maxP);
+    const maxE = mult >= 3 ? 2 : (mult >= 2 ? 1 : (Math.random() > 0.4 ? 1 : 0));
+    if (wsState.wg.selectedEffects.length > Math.max(1, maxE)) wsState.wg.selectedEffects = wsState.wg.selectedEffects.slice(0, Math.max(1, maxE));
+    renderWorkshop();
+  }
+
+  /* 工坊内部参数变更 - 不重渲染，只更新预览和对应显示 */
+  function wsUpdatePreviewOnly() {
+    const el = document.getElementById('wsPreviewContent');
+    if (el) el.textContent = buildWsPreviewText();
+  }
+
+  /* 防止工坊内滑块事件冒泡的修复 */
+  function wsFixSliders() {
+    const panel = document.getElementById('workshopPanel');
+    if (!panel) return;
+    panel.querySelectorAll('input[type="range"]').forEach(el => {
+      el.onmousedown = function(e) { e.stopPropagation(); };
+      el.ontouchstart = function(e) { e.stopPropagation(); };
+      el.onclick = function(e) { e.stopPropagation(); };
+    });
+  }
+
+  /* 功法被动切换 */
+  function wsTogglePassive(idx) {
+    const mult = getQualityMult(wsState.quality), maxP = mult >= 3 ? 2 : 1;
+    const sel = wsState.gf.selectedPassives;
+    if (sel.includes(idx)) {
+      wsState.gf.selectedPassives = sel.filter(i => i !== idx);
+      delete wsState.gf.passiveParams[idx];
+    } else {
+      if (sel.length >= maxP) { showToast(`当前品质最多 ${maxP} 个被动`, "warning"); return; }
+      sel.push(idx);
+      const p = GONGFA_PASSIVES[idx];
+      wsState.gf.passiveParams[idx] = Math.floor(mult * (p.base + p.scale / 2));
+    }
+    renderWorkshop();
+  }
+
+  /* 武功效果切换 */
+  function wsToggleEffect(effType) {
+    const mult = getQualityMult(wsState.quality), maxE = mult >= 3 ? 2 : 1;
+    const sel = wsState.wg.selectedEffects;
+    if (sel.includes(effType)) {
+      wsState.wg.selectedEffects = sel.filter(e => e !== effType);
+      delete wsState.wg.effectParams[effType];
+    } else {
+      if (sel.length >= maxE) { showToast(`当前品质最多 ${maxE} 个效果`, "warning"); return; }
+      sel.push(effType);
+      const ep = EFFECT_PARAMS[effType];
+      wsState.wg.effectParams[effType] = { val: Math.floor(mult * (ep.base + ep.scale / 2)), prob: Math.min(100, Math.floor(30 + mult * 10 + 10)) };
+    }
+    renderWorkshop();
+  }
+
+  function wsSetWgType(t) { wsState.wg.type = t; wsState.wg.selectedEffects = []; wsState.wg.effectParams = {}; renderWorkshop(); }
+  function wsSetWgElement(el) { wsState.wg.element = el; wsState.wg.selectedEffects = []; wsState.wg.effectParams = {}; renderWorkshop(); }
+  function wsSetZbSlot(s) { wsState.zb.slot = s; wsState.zb.attrs = { 攻击力: 0, 防御力: 0, 内功: 0, 轻功: 0, 悟性: 0 }; const mult = getQualityMult(wsState.quality); if (s === '武器') wsState.zb.attrs['攻击力'] = Math.floor(mult * 5); else if (s === '防具') wsState.zb.attrs['防御力'] = Math.floor(mult * 5); renderWorkshop(); }
+
+  function buildWsPreviewText() {
+    const name = wsState.name || '（未命名）', q = wsState.quality;
+    if (wsState.mode === '功法') {
+      let t = `[功法] ${name}\n品质: ${q}\n经验倍率: x${wsState.gf.expMult}`;
+      if (wsState.gf.selectedPassives.length > 0) {
+        t += '\n被动效果:';
+        wsState.gf.selectedPassives.forEach(idx => {
+          const p = GONGFA_PASSIVES[idx], val = wsState.gf.passiveParams[idx] || 0;
+          t += `\n  [${p.type}] ${p.isPercent ? p.desc + val + '%' : p.desc + val}`;
+        });
+      }
+      return t;
+    } else if (wsState.mode === '武功') {
+      const s = wsState.wg;
+      let t = `[武功] ${name}\n品质: ${q}\n类型: ${s.type}`;
+      if (s.type !== '队友治疗') t += ` | 倍率: ${s.dmgMult}x`;
+      t += `\n范围: ${s.range} | 内功需求: ${s.neigongReq}`;
+      if (s.selectedEffects.length > 0) {
+        t += '\n效果:';
+        s.selectedEffects.forEach(et => {
+          const ep = EFFECT_PARAMS[et], params = s.effectParams[et] || {};
+          if (et === '治疗') t += `\n  [治疗] 恢复量:${params.val || 0}`;
+          else if (et === '增益') t += `\n  [增益] 提升:${params.val || 0}%`;
+          else if (et === '反弹') t += `\n  [反弹] 比例:${params.val || 0}%`;
+          else t += `\n  [${et}] ${ep.paramName}:${params.val || 0} 概率:${params.prob || 0}%`;
+        });
+      }
+      return t;
+    } else {
+      const s = wsState.zb;
+      let t = `[装备] ${name}\n品质: ${q}\n部位: ${s.slot}\n属性加成:`;
+      ATTRS.forEach(a => { if (s.attrs[a] > 0) t += `\n  ${a} +${s.attrs[a]}`; });
+      if (!ATTRS.some(a => s.attrs[a] > 0)) t += ' （无）';
+      return t;
+    }
+  }
+
+  function renderWorkshop() {
+    const panel = document.getElementById('workshopPanel'); if (!panel) return;
+    const mult = getQualityMult(wsState.quality);
+
+    /* 模式选择栏 */
+    let modeHtml = '<div class="ws-mode-bar">' + WS_MODES.map(m => {
+      const icons = { '功法': 'fas fa-book', '武功': 'fas fa-hand-fist', '装备': 'fas fa-shield-halved' };
+      return `<button class="ws-mode-btn${m === wsState.mode ? ' active' : ''}" onclick="CultivationPanel.wsSetMode('${m}')"><i class="${icons[m]}"></i> ${m}</button>`;
+    }).join('') + '</div>';
+
+    /* 名称输入 */
+    let nameHtml = `<div class="ws-section"><div class="ws-section-title"><i class="fas fa-pen-fancy"></i> ${wsState.mode}名称</div><div class="ws-input-row"><input class="ws-input" type="text" placeholder="输入名称..." value="${wsState.name}" oninput="CultivationPanel._wsName(this.value)"><button class="ws-rand-btn" onclick="CultivationPanel.wsRandomName()"><i class="fas fa-dice"></i> 随机</button></div></div>`;
+
+    /* 品质选择 */
+    let qualityHtml = `<div class="ws-section"><div class="ws-section-title"><i class="fas fa-gem"></i> 品质选择</div><div class="ws-quality-grid">${QUALITIES.map(q => {
+      const active = q.name === wsState.quality ? ' active' : '';
+      return `<button class="ws-quality-btn${active}" style="border-color:${q.color};color:${q.color};${active ? `background:${q.color}22;` : ''}" onclick="CultivationPanel.wsSetQuality('${q.name}')">${q.name}</button>`;
+    }).join('')}</div></div>`;
+
+    /* 模式特定内容 */
+    let specificHtml = '';
+    if (wsState.mode === '功法') specificHtml = renderWsGongfa(mult);
+    else if (wsState.mode === '武功') specificHtml = renderWsWugong(mult);
+    else specificHtml = renderWsZhuangbei(mult);
+
+    /* 预览 */
+    let previewHtml = `<div class="ws-preview"><div class="ws-preview-title"><i class="fas fa-eye"></i> 实时预览</div><div class="ws-preview-content" id="wsPreviewContent">${buildWsPreviewText()}</div></div>`;
+
+    /* 按钮 */
+    let btnsHtml = `<div class="ws-action-btns"><button class="ws-cancel-btn" onclick="CultivationPanel.closeWorkshop()">取消</button><button class="ws-create-btn" onclick="CultivationPanel.wsCreate()"><i class="fas fa-check"></i> 铸造入袋</button></div>`;
+
+    panel.innerHTML = `<h3><i class="fas fa-wand-sparkles"></i> 创意工坊</h3>${modeHtml}${nameHtml}${qualityHtml}${specificHtml}${previewHtml}${btnsHtml}`;
+
+    /* 修复滑块事件冒泡 */
+    wsFixSliders();
+  }
+
+  /* 功法专属区域 */
+  function renderWsGongfa(mult) {
+    const minExp = parseFloat((1 + mult * 0.1).toFixed(1)), maxExp = parseFloat((1 + mult * 0.5).toFixed(1));
+    const curExp = Math.min(maxExp, Math.max(minExp, wsState.gf.expMult));
+    wsState.gf.expMult = parseFloat(curExp.toFixed(1));
+    const maxP = mult >= 3 ? 2 : 1;
+
+    let expHtml = `<div class="ws-section"><div class="ws-section-title"><i class="fas fa-chart-line"></i> 经验倍率</div><div class="ws-slider-row"><span class="ws-slider-label">x${minExp}</span><input type="range" min="${minExp}" max="${maxExp}" step="0.1" value="${curExp}" oninput="CultivationPanel._wsGfExp(this.value); this.parentElement.querySelector('.ws-slider-val').textContent='x'+parseFloat(this.value).toFixed(1);"><span class="ws-slider-label">x${maxExp}</span><span class="ws-slider-val">x${curExp.toFixed(1)}</span></div></div>`;
+
+    let passivesHtml = `<div class="ws-section"><div class="ws-section-title"><i class="fas fa-bolt"></i> 被动效果（最多${maxP}个）</div><div class="ws-passive-list">`;
+    GONGFA_PASSIVES.forEach((p, idx) => {
+      const isSel = wsState.gf.selectedPassives.includes(idx);
+      const paramVal = wsState.gf.passiveParams[idx] || Math.floor(mult * (p.base + p.scale / 2));
+      const minV = Math.max(1, Math.floor(mult * p.base)), maxV = Math.max(minV + 1, Math.floor(mult * (p.base + p.scale)));
+      let paramHtml = '';
+      if (isSel) {
+        paramHtml = `<div class="ws-passive-param"><span class="param-label">${p.paramName}:</span><input type="range" min="${minV}" max="${maxV}" value="${paramVal}" oninput="CultivationPanel._wsGfParam(${idx},this.value); this.nextElementSibling.textContent=this.value;"><span class="param-val">${paramVal}</span></div>`;
+      }
+      passivesHtml += `<div class="ws-passive-item${isSel ? ' active' : ''}"><div class="ws-passive-toggle" onclick="CultivationPanel.wsTogglePassive(${idx})"><input type="checkbox" ${isSel ? 'checked' : ''} onclick="event.stopPropagation(); CultivationPanel.wsTogglePassive(${idx})"><div class="ws-passive-info"><div class="ws-passive-name">${p.type}</div><div class="ws-passive-desc">${p.desc}${p.isPercent ? '(%)' : ''}</div></div></div>${paramHtml}</div>`;
+    });
+    passivesHtml += '</div></div>';
+    return expHtml + passivesHtml;
+  }
+
+  /* 武功专属区域 */
+  function renderWsWugong(mult) {
+    const s = wsState.wg;
+    const TYPES = ['单体攻击','群体攻击','队友治疗','自身增益'];
+    const TYPE_ICONS = {'单体攻击':'⚔️','群体攻击':'💥','队友治疗':'💚','自身增益':'🛡️'};
+
+    let typeHtml = `<div class="ws-section"><div class="ws-section-title"><i class="fas fa-crosshairs"></i> 武功类型</div><div class="ws-type-grid">${TYPES.map(t => `<button class="ws-type-btn${t === s.type ? ' active' : ''}" onclick="CultivationPanel.wsSetWgType('${t}')">${TYPE_ICONS[t]} ${t}</button>`).join('')}</div></div>`;
+
+    /* 元素选择（仅攻击类） */
+    let elementHtml = '';
+    const isAttack = s.type === '单体攻击' || s.type === '群体攻击';
+    if (isAttack) {
+      const ELEMS = Object.keys(SKILL_EFFECT_GROUPS);
+      const ELEM_ICONS = {'火焰':'🔥','寒冰':'❄️','雷电':'⚡','毒蛊':'☠️','风刃':'🌪️','大力':'💪','暗影':'👻','柔水':'🌊'};
+      elementHtml = `<div class="ws-section"><div class="ws-section-title"><i class="fas fa-fire"></i> 元素属性</div><div class="ws-type-grid">${ELEMS.map(el => `<button class="ws-type-btn${el === s.element ? ' active' : ''}" onclick="CultivationPanel.wsSetWgElement('${el}')">${ELEM_ICONS[el]||''} ${el}</button>`).join('')}</div></div>`;
+    }
+
+    /* 数值滑块 */
+    const maxRange = s.type.includes('群体') ? 5 : (s.type === '队友治疗' ? 4 : 3);
+    const maxDmg = parseFloat((mult * 1.6).toFixed(1));
+    const maxNeigong = Math.floor(mult * 15);
+    let slidersHtml = `<div class="ws-section"><div class="ws-section-title"><i class="fas fa-sliders"></i> 数值参数</div>`;
+    slidersHtml += `<div class="ws-slider-row"><span class="ws-slider-label">范围</span><input type="range" min="1" max="${maxRange}" value="${s.range}" oninput="CultivationPanel._wsWgRange(this.value); this.parentElement.querySelector('.ws-slider-val').textContent=this.value;"><span class="ws-slider-val">${s.range}</span></div>`;
+    if (s.type !== '队友治疗') {
+      slidersHtml += `<div class="ws-slider-row"><span class="ws-slider-label">倍率</span><input type="range" min="0.5" max="${maxDmg}" step="0.1" value="${s.dmgMult}" oninput="CultivationPanel._wsWgDmg(this.value); this.parentElement.querySelector('.ws-slider-val').textContent=parseFloat(this.value).toFixed(1)+'x';"><span class="ws-slider-val">${s.dmgMult.toFixed(1)}x</span></div>`;
+    }
+    slidersHtml += `<div class="ws-slider-row"><span class="ws-slider-label">内功需求</span><input type="range" min="1" max="${maxNeigong}" value="${s.neigongReq}" oninput="CultivationPanel._wsWgNg(this.value); this.parentElement.querySelector('.ws-slider-val').textContent=this.value;"><span class="ws-slider-val">${s.neigongReq}</span></div></div>`;
+
+    /* 效果选择 */
+    let effectsHtml = '';
+    let availableEffects = [];
+    if (s.type === '队友治疗') availableEffects = ['治疗'];
+    else if (s.type === '自身增益') availableEffects = ['增益','反弹'];
+    else if (isAttack) {
+      const group = SKILL_EFFECT_GROUPS[s.element];
+      availableEffects = group ? [...group.effects] : [];
+    }
+    const maxE = mult >= 3 ? 2 : 1;
+    if (availableEffects.length > 0) {
+      effectsHtml = `<div class="ws-section"><div class="ws-section-title"><i class="fas fa-wand-magic"></i> 附加效果（最多${maxE}个）</div><div class="ws-passive-list">`;
+      availableEffects.forEach(et => {
+        const isSel = s.selectedEffects.includes(et);
+        const ep = EFFECT_PARAMS[et];
+        const params = s.effectParams[et] || { val: Math.floor(mult * (ep.base + ep.scale / 2)), prob: 60 };
+        const minV = Math.max(1, Math.floor(mult * ep.base)), maxV = Math.max(minV + 1, Math.floor(mult * (ep.base + ep.scale)));
+        let paramHtml = '';
+        if (isSel) {
+          paramHtml = `<div class="ws-passive-param"><span class="param-label">${ep.paramName}:</span><input type="range" min="${minV}" max="${maxV}" value="${params.val}" oninput="CultivationPanel._wsWgEffVal('${et}',this.value); this.nextElementSibling.textContent=this.value;"><span class="param-val">${params.val}</span></div>`;
+          if (!['治疗','增益','反弹'].includes(et)) {
+            paramHtml += `<div class="ws-passive-param"><span class="param-label">触发概率:</span><input type="range" min="10" max="100" value="${params.prob}" oninput="CultivationPanel._wsWgEffProb('${et}',this.value); this.nextElementSibling.textContent=this.value+'%';"><span class="param-val">${params.prob}%</span></div>`;
+          }
+        }
+        effectsHtml += `<div class="ws-passive-item${isSel ? ' active' : ''}"><div class="ws-passive-toggle" onclick="CultivationPanel.wsToggleEffect('${et}')"><input type="checkbox" ${isSel ? 'checked' : ''} onclick="event.stopPropagation(); CultivationPanel.wsToggleEffect('${et}')"><div class="ws-passive-info"><div class="ws-passive-name">${et}</div><div class="ws-passive-desc">${ep.paramName}</div></div></div>${paramHtml}</div>`;
+      });
+      effectsHtml += '</div></div>';
+    }
+    return typeHtml + elementHtml + slidersHtml + effectsHtml;
+  }
+
+  /* 装备专属区域 */
+  function renderWsZhuangbei(mult) {
+    const s = wsState.zb;
+    const SLOTS = ['武器','防具','饰品'];
+    const SLOT_ICONS = {'武器':'⚔️','防具':'🛡️','饰品':'💍'};
+
+    let slotHtml = `<div class="ws-section"><div class="ws-section-title"><i class="fas fa-vest"></i> 部位选择</div><div class="ws-type-grid" style="grid-template-columns:repeat(3,1fr);">${SLOTS.map(sl => `<button class="ws-type-btn${sl === s.slot ? ' active' : ''}" onclick="CultivationPanel.wsSetZbSlot('${sl}')">${SLOT_ICONS[sl]} ${sl}</button>`).join('')}</div></div>`;
+
+    /* 属性滑块 */
+    const maxPrimary = Math.floor(mult * 11), maxSecondary = Math.floor(mult * 5);
+    const primaryAttr = s.slot === '武器' ? '攻击力' : (s.slot === '防具' ? '防御力' : null);
+    let attrHtml = `<div class="ws-section"><div class="ws-section-title"><i class="fas fa-chart-bar"></i> 属性加成</div><div class="ws-hint" style="margin-bottom:8px;">拖动滑块设定各项属性加成值。${primaryAttr ? `「${primaryAttr}」为该部位主属性，上限较高。` : '饰品无固定主属性，各项上限均等。'}</div>`;
+    ATTRS.forEach(a => {
+      const max = (primaryAttr === a) ? maxPrimary : (primaryAttr ? maxSecondary : Math.floor(mult * 7));
+      const val = Math.min(max, s.attrs[a] || 0);
+      attrHtml += `<div class="ws-slider-row"><span class="ws-slider-label">${a}</span><input type="range" min="0" max="${max}" value="${val}" oninput="CultivationPanel._wsZbAttr('${a}',this.value); this.parentElement.querySelector('.ws-slider-val').textContent='+'+this.value;"><span class="ws-slider-val">+${val}</span></div>`;
+    });
+    attrHtml += '</div>';
+    return slotHtml + attrHtml;
+  }
+
+  /* 内部参数设置函数（不触发全量渲染，只更新预览） */
+  function _wsName(v) { wsState.name = v; wsUpdatePreviewOnly(); }
+  function _wsGfExp(v) { wsState.gf.expMult = parseFloat(v); wsUpdatePreviewOnly(); }
+  function _wsGfParam(idx, v) { wsState.gf.passiveParams[idx] = parseInt(v); wsUpdatePreviewOnly(); }
+  function _wsWgRange(v) { wsState.wg.range = parseInt(v); wsUpdatePreviewOnly(); }
+  function _wsWgDmg(v) { wsState.wg.dmgMult = parseFloat(v); wsUpdatePreviewOnly(); }
+  function _wsWgNg(v) { wsState.wg.neigongReq = parseInt(v); wsUpdatePreviewOnly(); }
+  function _wsWgEffVal(et, v) { if (!wsState.wg.effectParams[et]) wsState.wg.effectParams[et] = {}; wsState.wg.effectParams[et].val = parseInt(v); wsUpdatePreviewOnly(); }
+  function _wsWgEffProb(et, v) { if (!wsState.wg.effectParams[et]) wsState.wg.effectParams[et] = {}; wsState.wg.effectParams[et].prob = parseInt(v); wsUpdatePreviewOnly(); }
+  function _wsZbAttr(a, v) { wsState.zb.attrs[a] = parseInt(v); wsUpdatePreviewOnly(); }
+
+  /* 铸造创建 */
+  async function wsCreate() {
+    if (!wsState.name.trim()) { showToast("请输入名称", "error"); return; }
+    let item;
+    if (wsState.mode === '功法') {
+      if (wsState.gf.selectedPassives.length === 0) { showToast("请至少选择一个被动效果", "error"); return; }
+      const passives = wsState.gf.selectedPassives.map(idx => {
+        const p = GONGFA_PASSIVES[idx], val = wsState.gf.passiveParams[idx] || 0;
+        return { 类型: p.type, 描述: p.isPercent ? `${p.desc}${val}%` : `${p.desc}${val}`, [p.paramName]: val };
+      });
+      item = { id: "ws_" + uid(), 类别: "功法", 名称: wsState.name.trim(), 品质: wsState.quality, 经验倍率: wsState.gf.expMult, 被动效果: passives };
+    } else if (wsState.mode === '武功') {
+      const s = wsState.wg;
+      const effects = s.selectedEffects.map(et => {
+        const ep = EFFECT_PARAMS[et], params = s.effectParams[et] || {};
+        const val = params.val || 0, prob = params.prob || 100;
+        let desc = '';
+        if (et === '治疗') desc = `以内力为队友恢复生命，恢复量:${val}`;
+        else if (et === '增益') desc = `提高自身攻击力${val}%`;
+        else if (et === '反弹') desc = `将受到伤害的${val}%反弹给攻击者`;
+        else if (et === '即死') desc = `${prob}%概率直接击杀目标`;
+        else desc = `命中后使目标${et}，${ep.paramName}:${val}`;
+        const obj = { 类型: et, 描述: desc, [ep.paramName]: val, "概率(%)": prob };
+        return obj;
+      });
+      item = {
+        id: "ws_" + uid(), 类别: "武功", 名称: wsState.name.trim(), 品质: wsState.quality,
+        类型: s.type, 攻击范围: s.range,
+        伤害倍率: s.type === '队友治疗' ? 0 : parseFloat(s.dmgMult.toFixed(1)),
+        效果: effects, 内功需求: s.neigongReq
+      };
+    } else {
+      const s = wsState.zb;
+      const bonuses = {};
+      ATTRS.forEach(a => { if (s.attrs[a] > 0) bonuses[a] = s.attrs[a]; });
+      if (Object.keys(bonuses).length === 0) { showToast("请至少设定一项属性加成", "error"); return; }
+      item = { id: "ws_" + uid(), 类别: "装备", 名称: wsState.name.trim(), 品质: wsState.quality, 部位: s.slot, 属性加成: bonuses };
+    }
+    invData["背包"].push(item);
+    await saveInvData(); closeWorkshop(); renderAll();
+    showToast(`${wsState.mode}「${item["名称"]}」已铸造入袋`, "success");
+  }
+
+  /* ========== UI渲染（保持不变） ========== */
+  function renderCharSelect(){const bar=document.getElementById('charSelectBar');if(!bar)return;const chars=getCharList();bar.innerHTML='';chars.forEach((c,i)=>{const btn=document.createElement('button');btn.className='char-btn'+(c===currentChar?' active':'');btn.textContent=c;btn.style.animationDelay=(i*0.05)+'s';btn.onclick=function(){currentChar=c;selectedItemIds.clear();renderAll();};bar.appendChild(btn);});}
+  function renderAttrs(){const panel=document.getElementById('attrPanel');if(!panel)return;const ca=attrData[currentChar]||{};const attrList=[{key:"攻击力",icon:"fas fa-sword",tip:"决定攻击时造成的基础伤害"},{key:"防御力",icon:"fas fa-shield",tip:"减伤比例=防御/(防御+100)"},{key:"内功",icon:"fas fa-yin-yang",tip:"武功门槛+行动点=3+内功/20"},{key:"轻功",icon:"fas fa-feather",tip:"闪避率=轻功/(轻功+80)"},{key:"悟性",icon:"fas fa-brain",tip:"经验加成=1+悟性/100"}];let h='';attrList.forEach(a=>{h+=`<div class="attr-row"><div class="attr-label"><i class="${a.icon}" style="width:16px;text-align:center;"></i><span>${a.key}</span><span class="tooltip-trigger"><i class="fas fa-circle-question"></i><span class="tooltip-bubble">${a.tip}</span></span></div><span class="attr-value highlight">${ca[a.key]||0}</span></div>`;});panel.innerHTML=h;const exp=ca["经验值"]||0,fill=document.getElementById('expBarFill'),text=document.getElementById('expText');if(fill)fill.style.width=Math.min(100,(exp/1000)*100)+'%';if(text)text.textContent=`经验: ${exp}`;const sd=document.getElementById('specialSkills');if(sd){const sk=ca["特殊技能"]||[];sd.innerHTML=sk.length>0?'<div style="font-size:13px;color:var(--text-dim);margin-bottom:4px;">特殊技能</div>'+sk.map(s=>`<span class="special-skill-tag"><i class="fas fa-star-of-life"></i> ${s}</span>`).join(''):'';};}
+  function renderRadar(){const canvas=document.getElementById('radarCanvas');if(!canvas)return;const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height,cx=w/2,cy=h/2,r=Math.min(cx,cy)-30;ctx.clearRect(0,0,w,h);const ca=attrData[currentChar]||{},labels=["攻击力","防御力","内功","轻功","悟性","经验"],maxVals=[100,100,100,100,100,1000],vals=[ca["攻击力"]||0,ca["防御力"]||0,ca["内功"]||0,ca["轻功"]||0,ca["悟性"]||0,ca["经验值"]||0],n=labels.length,step=(Math.PI*2)/n;for(let lvl=5;lvl>=1;lvl--){ctx.beginPath();for(let i=0;i<n;i++){const a=-Math.PI/2+step*i,lr=r*lvl/5,x=cx+lr*Math.cos(a),y=cy+lr*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.strokeStyle='rgba(168,85,247,'+(0.1+lvl*0.04)+')';ctx.lineWidth=1;ctx.stroke();}for(let i=0;i<n;i++){const a=-Math.PI/2+step*i;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));ctx.strokeStyle='rgba(168,85,247,0.15)';ctx.stroke();}ctx.beginPath();for(let i=0;i<n;i++){const a=-Math.PI/2+step*i,ratio=Math.min(1,vals[i]/maxVals[i]),x=cx+r*ratio*Math.cos(a),y=cy+r*ratio*Math.sin(a);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.closePath();ctx.fillStyle='rgba(168,85,247,0.2)';ctx.fill();ctx.strokeStyle='rgba(168,85,247,0.8)';ctx.lineWidth=2;ctx.stroke();for(let i=0;i<n;i++){const a=-Math.PI/2+step*i,ratio=Math.min(1,vals[i]/maxVals[i]),px=cx+r*ratio*Math.cos(a),py=cy+r*ratio*Math.sin(a);ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fillStyle='#a855f7';ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.stroke();const lx=cx+(r+20)*Math.cos(a),ly=cy+(r+20)*Math.sin(a);ctx.fillStyle='#a098b8';ctx.font='12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(labels[i],lx,ly);}}
+  function renderTrainSection(){const td=document.getElementById('trainTiers');if(!td)return;const ca=attrData[currentChar]||{},wux=ca["悟性"]||0,bd=document.getElementById('gongfaBonus'),ce=invData["已装备"]&&invData["已装备"][currentChar]?invData["已装备"][currentChar]:{};let gfM=1;if(ce["功法"]){const gf=(invData["背包"]||[]).find(i=>i.id===ce["功法"]);if(gf&&gf["经验倍率"]){gfM=gf["经验倍率"];if(bd)bd.innerHTML=`<span class="gongfa-bonus"><i class="fas fa-book-open"></i> ${gf["名称"]} | 经验倍率 x${gfM}</span>`;}}else{if(bd)bd.innerHTML='<span style="font-size:12px;color:var(--text-dim);">未装备功法，经验倍率 x1.0</span>';}td.innerHTML='';TRAIN_TIERS.forEach((t,i)=>{const ae=Math.floor(t.exp*(1+wux/100)*gfM),btn=document.createElement('div');btn.className='tier-btn'+(i===selectedTier?' selected':'');btn.innerHTML=`<div class="tier-name"><i class="${t.icon}"></i> ${t.name}</div><div class="tier-exp">+${ae} 经验</div>`;btn.onclick=function(){selectedTier=i;renderTrainSection();};td.appendChild(btn);});const tb=document.getElementById('trainBtn'),st=document.getElementById('trainStatus');if(ca["今日已修炼"]){if(tb)tb.disabled=true;if(st)st.textContent="今日已完成修炼";}else{if(tb)tb.disabled=false;if(st)st.textContent="";}}
+  function renderGacha(){const ca=attrData[currentChar]||{},fe=document.getElementById('gachaFreeCount');if(fe)fe.textContent=ca["今日免费抽奖次数"]||0;}
+  function renderInventory(){const tabBar=document.getElementById('invTabs'),listDiv=document.getElementById('invList');if(!tabBar||!listDiv)return;tabBar.innerHTML='';INV_TABS.forEach(tab=>{const btn=document.createElement('button');btn.className='tab-item'+(tab===currentInvTab?' active':'');btn.textContent=tab;btn.onclick=function(){currentInvTab=tab;selectedItemIds.clear();renderInventory();};tabBar.appendChild(btn);});const bag=invData["背包"]||[],eqIds=getEquippedIds(),cEqIds=new Set(),cEq=invData["已装备"]&&invData["已装备"][currentChar]?invData["已装备"][currentChar]:{};if(cEq["功法"])cEqIds.add(cEq["功法"]);(cEq["武功"]||[]).forEach(id=>cEqIds.add(id));if(cEq["装备"])Object.values(cEq["装备"]).forEach(id=>{if(id)cEqIds.add(id);});let filtered=currentInvTab==="全部"?bag:bag.filter(item=>item["类别"]===currentInvTab);if(filtered.length===0){listDiv.innerHTML='<div class="empty-state"><i class="fas fa-box-open" style="font-size:28px;margin-bottom:8px;display:block;"></i>储物袋空空如也</div>';updateToolbarCount();return;}listDiv.innerHTML='';filtered.forEach((item,idx)=>{const qC=getQualityColor(item["品质"]),iEC=cEqIds.has(item.id),iEA=eqIds.has(item.id),iSel=selectedItemIds.has(item.id),exExp=EXCHANGE_EXP[item["品质"]]||10,div=document.createElement('div');div.className='inv-item'+(iSel?' selected':'');div.style.animationDelay=(idx*0.03)+'s';let ic='fas fa-cube';if(item["类别"]==="武功")ic='fas fa-hand-fist';else if(item["类别"]==="功法")ic='fas fa-book';else if(item["类别"]==="装备")ic='fas fa-shield-halved';else if(item["类别"]==="丹药")ic='fas fa-flask';const et=formatItemEffect(item);let ah='';if(iEC)ah=`<button class="item-act-btn unequip-btn" data-id="${item.id}" data-cat="${item["类别"]}">卸下</button>`;else{if(item["类别"]==="丹药")ah+=`<button class="item-act-btn use-btn" data-id="${item.id}">使用</button>`;else if(!iEA)ah+=`<button class="item-act-btn equip-btn" data-id="${item.id}" data-cat="${item["类别"]}">装备</button>`;if(!iEA){ah+=`<button class="item-act-btn exchange-btn" data-id="${item.id}" title="兑换${exExp}经验">兑换</button>`;ah+=`<button class="item-act-btn discard-btn" data-id="${item.id}">丢弃</button>`;}}div.innerHTML=`${!iEA?`<input type="checkbox" class="item-checkbox" data-id="${item.id}" ${iSel?'checked':''}>`:''}
+        <div class="item-icon" style="background:${qC}22;border:1px solid ${qC}55;color:${qC};"><i class="${ic}"></i></div>
+        <div class="item-info"><div class="item-name-line"><span class="quality-dot" style="background:${qC};box-shadow:0 0 6px ${qC};"></span><span class="item-name" style="color:${qC};">${item["名称"]}</span><span style="font-size:11px;color:${qC};opacity:0.7;">${item["品质"]}</span>${item["数量"]&&item["数量"]>1?`<span style="font-size:11px;color:var(--text-dim);">x${item["数量"]}</span>`:''}${!iEA?`<span class="exchange-value-tag"><i class="fas fa-coins" style="font-size:9px;"></i> ${exExp}</span>`:''}${iEA&&!iEC?'<span style="font-size:10px;color:var(--accent-orange);margin-left:4px;">他人装备中</span>':''}</div><div class="item-effect-text">${et}</div></div>
+        <div class="item-actions">${ah}</div>`;listDiv.appendChild(div);});listDiv.querySelectorAll('.equip-btn').forEach(b=>{b.addEventListener('click',function(){equipItem(this.dataset.id,this.dataset.cat);});});listDiv.querySelectorAll('.unequip-btn').forEach(b=>{b.addEventListener('click',function(){unequipItem(this.dataset.id,this.dataset.cat);});});listDiv.querySelectorAll('.use-btn').forEach(b=>{b.addEventListener('click',function(){useItem(this.dataset.id);});});listDiv.querySelectorAll('.discard-btn').forEach(b=>{b.addEventListener('click',function(){discardItem(this.dataset.id);});});listDiv.querySelectorAll('.exchange-btn').forEach(b=>{b.addEventListener('click',function(){exchangeItem(this.dataset.id);});});listDiv.querySelectorAll('.item-checkbox').forEach(cb=>{cb.addEventListener('change',function(){if(this.checked)selectedItemIds.add(this.dataset.id);else selectedItemIds.delete(this.dataset.id);this.closest('.inv-item').classList.toggle('selected',this.checked);updateToolbarCount();});});updateToolbarCount();}
+  function updateToolbarCount(){const ce=document.getElementById('invSelectedCount'),db=document.getElementById('batchDiscardBtn'),eb=document.getElementById('batchExchangeBtn'),sa=document.getElementById('invSelectAll'),c=selectedItemIds.size;if(ce)ce.textContent=`已选 ${c} 件`;if(db)db.disabled=c===0;if(eb)eb.disabled=c===0;if(sa){const bag=invData["背包"]||[],eqIds=getEquippedIds(),filtered=currentInvTab==="全部"?bag:bag.filter(i=>i["类别"]===currentInvTab),selectable=filtered.filter(i=>!eqIds.has(i.id));sa.checked=selectable.length>0&&selectable.every(i=>selectedItemIds.has(i.id));}}
+  function toggleSelectAll(checked){const bag=invData["背包"]||[],eqIds=getEquippedIds(),filtered=currentInvTab==="全部"?bag:bag.filter(i=>i["类别"]===currentInvTab),selectable=filtered.filter(i=>!eqIds.has(i.id));if(checked)selectable.forEach(i=>selectedItemIds.add(i.id));else selectable.forEach(i=>selectedItemIds.delete(i.id));renderInventory();}
+  function renderEquipped(){const grid=document.getElementById('equipGrid'),sd=document.getElementById('equippedSkills');if(!grid)return;const ce=invData["已装备"]&&invData["已装备"][currentChar]?invData["已装备"][currentChar]:{},bag=invData["背包"]||[];grid.innerHTML='';["武器","防具","饰品"].forEach(slot=>{const iid=ce["装备"]&&ce["装备"][slot]?ce["装备"][slot]:null,item=iid?bag.find(i=>i.id===iid):null,d=document.createElement('div');d.className='equip-slot'+(item?' filled':'');if(item){const qC=getQualityColor(item["品质"]),bt=Object.entries(item["属性加成"]||{}).map(([k,v])=>k+'+'+v).join(' ');d.innerHTML=`<div class="slot-label">${slot}</div><div class="slot-name" style="color:${qC};">${item["名称"]}</div><div style="font-size:11px;color:var(--text-dim);">${item["品质"]} | ${bt}</div>`;}else d.innerHTML=`<div class="slot-label">${slot}</div><div class="slot-empty">-- 空 --</div>`;grid.appendChild(d);});const gfId=ce["功法"],gfItem=gfId?bag.find(i=>i.id===gfId):null,gfSlot=document.createElement('div');gfSlot.className='equip-slot'+(gfItem?' filled':'');if(gfItem){const qC=getQualityColor(gfItem["品质"]),pt=(gfItem["被动效果"]||[]).map(p=>p["描述"]).join('; ');gfSlot.innerHTML=`<div class="slot-label">功法</div><div class="slot-name" style="color:${qC};">${gfItem["名称"]}</div><div style="font-size:11px;color:var(--text-dim);">经验x${gfItem["经验倍率"]} ${pt?'| '+pt:''}</div>`;}else gfSlot.innerHTML=`<div class="slot-label">功法</div><div class="slot-empty">-- 空 --</div>`;grid.appendChild(gfSlot);if(sd){const skIds=ce["武功"]||[];if(skIds.length>0)sd.innerHTML='<div style="font-size:13px;color:var(--text-dim);margin-bottom:6px;"><i class="fas fa-hand-fist"></i> 已装备武功</div>'+skIds.map(id=>{const s=bag.find(i=>i.id===id);if(!s)return'';const qC=getQualityColor(s["品质"]),ef=(s["效果"]||[]).map(e=>e["类型"]).join(',');return`<span class="skill-tag" style="border-color:${qC}44;color:${qC};">${s["名称"]} (${s["类型"]}${ef?' | '+ef:''})</span>`;}).join('');else sd.innerHTML='<div style="font-size:13px;color:var(--text-dim);text-align:center;">暂未装备武功</div>';}}
+  function renderAll(){renderCharSelect();renderAttrs();renderRadar();renderTrainSection();renderGacha();renderInventory();renderEquipped();renderAutoTrainList();}
+
+  /* ========== 操作逻辑（保持不变） ========== */
+  async function doTrain(){const ca=attrData[currentChar];if(!ca){showToast("角色数据未加载","error");return;}if(ca["今日已修炼"]){showToast("今日已完成修炼","error");return;}const tier=TRAIN_TIERS[selectedTier],wux=ca["悟性"]||0,ce=invData["已装备"]&&invData["已装备"][currentChar]?invData["已装备"][currentChar]:{};let gfM=1;if(ce["功法"]){const gf=(invData["背包"]||[]).find(i=>i.id===ce["功法"]);if(gf&&gf["经验倍率"])gfM=gf["经验倍率"];}const ae=Math.floor(tier.exp*(1+wux/100)*gfM);ca["经验值"]=(ca["经验值"]||0)+ae;ca["今日已修炼"]=true;await saveAttrData();renderAll();showToast(`${tier.name}完成! +${ae}经验`,"success");}
+  async function doGacha(count){const ca=attrData[currentChar];if(!ca){showToast("角色数据未加载","error");return;}const fc=ca["今日免费抽奖次数"]||0;let fp=Math.min(count,fc),pp=count-fp;const cost=pp*50;if(cost>0&&(ca["经验值"]||0)<cost){showToast(`经验不足! 需要${cost}`,"error");return;}ca["今日免费抽奖次数"]=fc-fp;if(cost>0)ca["经验值"]-=cost;const results=[];for(let i=0;i<count;i++){const item=generateRandomItem();if(item["类别"]==="丹药"){const ex=(invData["背包"]||[]).find(bi=>bi["类别"]==="丹药"&&bi["名称"]===item["名称"]&&bi["品质"]===item["品质"]&&bi["效果"]===item["效果"]);if(ex)ex["数量"]=(ex["数量"]||1)+1;else invData["背包"].push(item);}else invData["背包"].push(item);results.push(item);}await saveAttrData();await saveInvData();renderAll();if(results.length===1)showGachaResult(results[0]);else showGachaResults(results);}
+  function showGachaResult(item){const o=document.getElementById('gachaOverlay'),c=document.getElementById('gachaResultCard');if(!o||!c)return;const qC=getQualityColor(item["品质"]),eh=formatItemEffect(item);c.innerHTML=`<div class="item-quality" style="color:${qC};text-shadow:0 0 10px ${qC};">${item["品质"]}</div><div class="item-name" style="color:${qC};text-shadow:0 0 15px ${qC};">${item["名称"]}</div><div class="item-type-badge">${item["类别"]}</div><div class="item-effect">${eh}</div><button class="gacha-close-btn" onclick="CultivationPanel.closeGacha()">收入储物袋</button>`;c.style.borderColor=qC;c.style.boxShadow=`0 0 30px ${qC}44`;o.classList.add('show');}
+  function showGachaResults(items){const o=document.getElementById('gachaOverlay'),c=document.getElementById('gachaResultCard');if(!o||!c)return;let lh=items.map(item=>{const qC=getQualityColor(item["品质"]);return`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(168,85,247,0.1);"><span style="background:${qC};box-shadow:0 0 6px ${qC};width:8px;height:8px;border-radius:50%;flex-shrink:0;"></span><span style="color:${qC};font-weight:600;flex:1;text-align:left;">${item["名称"]}</span><span style="font-size:11px;color:var(--text-dim);">${item["品质"]}</span><span style="font-size:11px;color:var(--text-secondary);">${item["类别"]}</span></div>`;}).join('');const best=items.reduce((b,i)=>{const bi=QUALITIES.findIndex(q=>q.name===b["品质"]),ci=QUALITIES.findIndex(q=>q.name===i["品质"]);return ci>bi?i:b;}),bC=getQualityColor(best["品质"]);c.innerHTML=`<div style="font-size:18px;font-weight:700;margin-bottom:14px;color:var(--accent-gold);">抽取结果 x${items.length}</div><div style="max-height:250px;overflow-y:auto;margin-bottom:14px;">${lh}</div><button class="gacha-close-btn" onclick="CultivationPanel.closeGacha()">全部收入储物袋</button>`;c.style.borderColor=bC;c.style.boxShadow=`0 0 30px ${bC}44`;o.classList.add('show');}
+  function closeGacha(){document.getElementById('gachaOverlay')?.classList.remove('show');}
+  async function equipItem(iid,cat){if(!invData["已装备"])invData["已装备"]={};if(!invData["已装备"][currentChar])invData["已装备"][currentChar]={"武功":[],"装备":{"武器":null,"防具":null,"饰品":null},"功法":null};const ce=invData["已装备"][currentChar],bag=invData["背包"]||[],item=bag.find(i=>i.id===iid);if(!item){showToast("物品未找到","error");return;}if(cat==="武功"){const ca=attrData[currentChar]||{};if(item["内功需求"]&&(ca["内功"]||0)<item["内功需求"]){showToast(`内功不足! 需要${item["内功需求"]}`,"error");return;}if(!ce["武功"])ce["武功"]=[];if(ce["武功"].length>=4){showToast("武功栏已满(上限4)","error");return;}if(ce["武功"].includes(iid)){showToast("已装备","error");return;}ce["武功"].push(iid);}else if(cat==="功法")ce["功法"]=iid;else if(cat==="装备"){const slot=item["部位"];if(!ce["装备"])ce["装备"]={"武器":null,"防具":null,"饰品":null};const old=ce["装备"][slot];if(old){const oi=bag.find(i=>i.id===old);if(oi&&oi["属性加成"]){const ca=attrData[currentChar]||{};for(const[k,v]of Object.entries(oi["属性加成"]))if(ca[k]!==undefined)ca[k]=Math.max(0,(ca[k]||0)-v);}}ce["装备"][slot]=iid;if(item["属性加成"]){const ca=attrData[currentChar]||{};for(const[k,v]of Object.entries(item["属性加成"]))if(ca[k]!==undefined)ca[k]=(ca[k]||0)+v;}await saveAttrData();}await saveInvData();await updateSummary();renderAll();showToast(`已装备: ${item["名称"]}`,"success");}
+  async function unequipItem(iid,cat){const ce=invData["已装备"]&&invData["已装备"][currentChar]?invData["已装备"][currentChar]:{},bag=invData["背包"]||[],item=bag.find(i=>i.id===iid);if(cat==="武功")ce["武功"]=(ce["武功"]||[]).filter(id=>id!==iid);else if(cat==="功法"){if(ce["功法"]===iid)ce["功法"]=null;}else if(cat==="装备"){if(item&&item["部位"]&&ce["装备"]){if(ce["装备"][item["部位"]]===iid){ce["装备"][item["部位"]]=null;if(item["属性加成"]){const ca=attrData[currentChar]||{};for(const[k,v]of Object.entries(item["属性加成"]))if(ca[k]!==undefined)ca[k]=Math.max(0,(ca[k]||0)-v);await saveAttrData();}}}}await saveInvData();await updateSummary();renderAll();showToast(`已卸下: ${item?item["名称"]:"物品"}`,"info");}
+  async function useItem(iid){const bag=invData["背包"]||[],idx=bag.findIndex(i=>i.id===iid);if(idx===-1){showToast("物品未找到","error");return;}const item=bag[idx];if(item["类别"]!=="丹药"){showToast("该物品无法直接使用","error");return;}const es=item["效果"]||'',ca=attrData[currentChar];if(!ca){showToast("角色数据未加载","error");return;}const m=es.match(/^(\S+?)([+-])(\d+)(%?)$/);if(m){const attr=m[1],sign=m[2]==='+'?1:-1,val=parseInt(m[3]),isP=m[4]==='%';if(ca[attr]!==undefined){if(isP)ca[attr]=Math.floor(ca[attr]*(1+sign*val/100));else ca[attr]=Math.max(0,ca[attr]+sign*val);}}if(item["数量"]&&item["数量"]>1)item["数量"]--;else bag.splice(idx,1);await saveAttrData();await saveInvData();renderAll();showToast(`使用了 ${item["名称"]}: ${es}`,"success");}
+  function discardItem(iid){const bag=invData["背包"]||[],item=bag.find(i=>i.id===iid);if(!item){showToast("物品未找到","error");return;}showConfirm('确认丢弃',`确定要丢弃「${item["名称"]}」(${item["品质"]})吗？`,async function(){const idx=bag.findIndex(i=>i.id===iid);if(idx===-1)return;const ri=bag[idx];if(ri["数量"]&&ri["数量"]>1)ri["数量"]--;else bag.splice(idx,1);selectedItemIds.delete(iid);await saveInvData();renderAll();showToast(`已丢弃: ${ri["名称"]}`,"info");});}
+  function exchangeItem(iid){const bag=invData["背包"]||[],item=bag.find(i=>i.id===iid);if(!item){showToast("物品未找到","error");return;}const expG=EXCHANGE_EXP[item["品质"]]||10;showConfirm('确认兑换',`将「${item["名称"]}」兑换为 ${expG} 经验？`,async function(){const ca=attrData[currentChar];if(!ca){showToast("角色数据未加载","error");return;}const idx=bag.findIndex(i=>i.id===iid);if(idx===-1)return;const ri=bag[idx];if(ri["数量"]&&ri["数量"]>1)ri["数量"]--;else bag.splice(idx,1);ca["经验值"]=(ca["经验值"]||0)+expG;selectedItemIds.delete(iid);await saveAttrData();await saveInvData();renderAll();showToast(`兑换成功: +${expG}经验`,"success");});}
+  function batchDiscard(){if(selectedItemIds.size===0){showToast("请先选择物品","error");return;}const bag=invData["背包"]||[],items=[...selectedItemIds].map(id=>bag.find(i=>i.id===id)).filter(Boolean),nl=items.map(i=>`${i["名称"]}(${i["品质"]})`).join('、');showConfirm('批量丢弃',`确定丢弃 ${items.length} 件物品？\n${nl}`,async function(){for(const iid of[...selectedItemIds]){const idx=bag.findIndex(i=>i.id===iid);if(idx!==-1){const it=bag[idx];if(it["数量"]&&it["数量"]>1)it["数量"]--;else bag.splice(idx,1);}}const c=selectedItemIds.size;selectedItemIds.clear();await saveInvData();renderAll();showToast(`已丢弃 ${c} 件`,"info");});}
+  function batchExchange(){if(selectedItemIds.size===0){showToast("请先选择物品","error");return;}const bag=invData["背包"]||[],items=[...selectedItemIds].map(id=>bag.find(i=>i.id===id)).filter(Boolean);let te=0;items.forEach(i=>{te+=(EXCHANGE_EXP[i["品质"]]||10);});showConfirm('批量兑换',`将 ${items.length} 件物品兑换为 ${te} 经验？`,async function(){const ca=attrData[currentChar];if(!ca){showToast("角色数据未加载","error");return;}for(const iid of[...selectedItemIds]){const idx=bag.findIndex(i=>i.id===iid);if(idx!==-1){const it=bag[idx];if(it["数量"]&&it["数量"]>1)it["数量"]--;else bag.splice(idx,1);}}ca["经验值"]=(ca["经验值"]||0)+te;const c=selectedItemIds.size;selectedItemIds.clear();await saveAttrData();await saveInvData();renderAll();showToast(`兑换 ${c} 件，+${te}经验`,"success");});}
+
+  /* ========== 锻造（保持不变） ========== */
+  function doForge(){if(!hasTS){showToast("triggerSlash不可用","error");return;}triggerSlash('/send 锻造物品 | /trigger');showToast("锻造请求已发送","info");}
+  function toggleImport(){const a=document.getElementById('forgeImportArea'),r=document.getElementById('forgeRecipeArea');if(r)r.classList.remove('show');if(a)a.classList.toggle('show');}
+  function clearImport(){const i=document.getElementById('forgeImportInput');if(i)i.value='';}
+  async function importItems(){const input=document.getElementById('forgeImportInput');if(!input)return;const raw=input.value.trim();if(!raw){showToast("请粘贴物品JSON","error");return;}try{let items=JSON.parse(raw);if(!Array.isArray(items))items=[items];let c=0;for(const item of items){if(!item["类别"]||!item["名称"]||!item["品质"]){showToast(`"${item["名称"]||'未知'}" 缺少字段`,"error");continue;}if(!item.id)item.id="import_"+uid();if(item["类别"]==="丹药"){const ex=(invData["背包"]||[]).find(bi=>bi["类别"]==="丹药"&&bi["名称"]===item["名称"]&&bi["品质"]===item["品质"]&&bi["效果"]===item["效果"]);if(ex)ex["数量"]=(ex["数量"]||1)+(item["数量"]||1);else invData["背包"].push(item);}else invData["背包"].push(item);c++;}if(c>0){await saveInvData();renderAll();input.value='';showToast(`导入 ${c} 件`,"success");}}catch(e){showToast("JSON解析失败: "+e.message,"error");}}
+  async function loadRecipes(){const a=document.getElementById('forgeRecipeArea'),ia=document.getElementById('forgeImportArea');if(ia)ia.classList.remove('show');if(!a)return;a.classList.toggle('show');if(!a.classList.contains('show'))return;const ld=document.getElementById('recipeList');if(!ld)return;ld.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim);">加载中...</div>';if(!hasTS){ld.innerHTML='<div style="text-align:center;padding:20px;color:var(--accent-red);">不可用</div>';return;}try{const raw=await triggerSlash(`/getentryfield file="${WI_FILE}" field=content ${FORGE_UID}`);if(!raw||raw.trim()==='null'||raw.trim()===''){ld.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim);">配方库为空</div>';return;}const recipes=JSON.parse(raw);if(!Array.isArray(recipes)||recipes.length===0){ld.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim);">配方库为空</div>';return;}ld.innerHTML='';recipes.forEach((recipe,idx)=>{const qC=getQualityColor(recipe["品质"]),et=formatItemEffect(recipe),d=document.createElement('div');d.className='inv-item';d.style.animationDelay=(idx*0.03)+'s';let ic='fas fa-cube';if(recipe["类别"]==="武功")ic='fas fa-hand-fist';else if(recipe["类别"]==="功法")ic='fas fa-book';else if(recipe["类别"]==="装备")ic='fas fa-shield-halved';else if(recipe["类别"]==="丹药")ic='fas fa-flask';d.innerHTML=`<div class="item-icon" style="background:${qC}22;border:1px solid ${qC}55;color:${qC};"><i class="${ic}"></i></div><div class="item-info"><div class="item-name-line"><span class="quality-dot" style="background:${qC};box-shadow:0 0 6px ${qC};"></span><span class="item-name" style="color:${qC};">${recipe["名称"]}</span><span style="font-size:11px;color:${qC};opacity:0.7;">${recipe["品质"]}</span></div><div class="item-effect-text">${et}</div></div><div class="item-actions"><button class="item-act-btn equip-btn" data-ridx="${idx}" style="border-color:var(--accent-cyan);color:var(--accent-cyan);">复制</button><button class="item-act-btn equip-btn" data-ridx="${idx}" style="border-color:var(--accent-orange);color:var(--accent-orange);">锻造</button></div>`;ld.appendChild(d);});ld.querySelectorAll('.item-act-btn').forEach(btn=>{const ri=parseInt(btn.dataset.ridx),recipe=recipes[ri];if(btn.textContent==='复制'){btn.addEventListener('click',async function(){const js=JSON.stringify(recipe,null,2);try{await navigator.clipboard.writeText(js);showToast("已复制","success");}catch(e){const ii=document.getElementById('forgeImportInput'),iia=document.getElementById('forgeImportArea');if(ii)ii.value=js;if(iia)iia.classList.add('show');showToast("已填入导入框","info");}});}else if(btn.textContent==='锻造'){btn.addEventListener('click',async function(){const ni=JSON.parse(JSON.stringify(recipe));ni.id="forged_"+uid();if(ni["类别"]==="丹药"){const ex=(invData["背包"]||[]).find(bi=>bi["类别"]==="丹药"&&bi["名称"]===ni["名称"]&&bi["品质"]===ni["品质"]&&bi["效果"]===ni["效果"]);if(ex)ex["数量"]=(ex["数量"]||1)+(ni["数量"]||1);else invData["背包"].push(ni);}else invData["背包"].push(ni);await saveInvData();renderAll();showToast(`锻造成功: ${ni["名称"]}`,"success");});}});}catch(e){console.error("加载配方库失败:",e);ld.innerHTML='<div style="text-align:center;padding:20px;color:var(--accent-red);">加载失败</div>';}}
+
+  /* ========== 粒子和初始化 ========== */
+  function createParticles(){const bg=document.querySelector('.cultivation-root .dynamic-bg');if(!bg)return;for(let i=0;i<15;i++){const p=document.createElement('div');p.className='particle';p.style.left=(Math.random()*100)+'%';p.style.bottom='-5px';p.style.animationDelay=(Math.random()*8)+'s';p.style.animationDuration=(6+Math.random()*6)+'s';if(Math.random()>0.5)p.style.background='var(--accent-purple)';bg.appendChild(p);}}
+  async function init(){createParticles();if(hasVars&&hasLodash){try{allVars=getAllVariables();}catch(e){allVars={};}}await loadAttrData();await loadInvData();const chars=getCharList();if(!invData["已装备"])invData["已装备"]={};chars.forEach(c=>{if(!invData["已装备"][c])invData["已装备"][c]={"武功":[],"装备":{"武器":null,"防具":null,"饰品":null},"功法":null};if(!attrData[c])attrData[c]={"攻击力":5,"防御力":5,"内功":5,"轻功":5,"悟性":10,"经验值":0,"今日已修炼":false,"今日免费抽奖次数":3,"特殊技能":[]};});if(!attrData["上次操作日期"])attrData["上次操作日期"]="0-00-00";const wasReset=await checkDailyReset();if(wasReset){const banner=document.getElementById('resetBanner');if(banner){banner.innerHTML='<div class="reset-banner"><i class="fas fa-sun"></i> 新的一天！修炼次数和免费抽奖已重置</div>';setTimeout(()=>{banner.innerHTML='';},6000);}showToast("每日限制已重置","success");}applyFoldPreference();renderAll();}
+  init();
+
+  return {
+    doTrain, doGacha, closeGacha, doForge, toggleImport, clearImport, importItems, loadRecipes, renderAll,
+    toggleDefaultFold, toggleSelectAll, batchDiscard, batchExchange, closeConfirm,
+    openCharManage, closeCharManage, blockChar, unblockChar, deleteChar,
+    toggleAutoTrain, setAutoTrainTier,
+    openWorkshop, closeWorkshop, wsRandomName, wsSetQuality, wsSetMode,
+    wsTogglePassive, wsToggleEffect, wsSetWgType, wsSetWgElement, wsSetZbSlot, wsCreate,
+    _wsName, _wsGfExp, _wsGfParam, _wsWgRange, _wsWgDmg, _wsWgNg, _wsWgEffVal, _wsWgEffProb, _wsZbAttr
+  };
+})();
+</script>
+</body>
+</html>
